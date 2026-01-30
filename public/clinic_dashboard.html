@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Clinic Dashboard - DoctorPod" />
+  <title>Clinic Dashboard - DoctorPod</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #0ea5e9;
+      --primary-hover: #0284c7;
+      --primary-light: rgba(14, 165, 233, 0.08);
+      --secondary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f0f9ff;
+      --surface: #ffffff;
+      --text: #0c4a6e;
+      --text-muted: #64748b;
+      --border: #e0f2fe;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 40px rgba(14, 165, 233, 0.12);
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .nav {
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      height: 36px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .nav-brand { text-decoration: none; color: inherit; }
+
+    .nav-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+
+    .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+    .nav-link {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover { background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
+
+    .btn-nav {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-nav:hover { background: var(--primary); color: white; }
+    .btn-nav.danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .btn-nav.danger:hover { background: #dc2626; color: white; }
+
+    /* Main Container */
+    .main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    /* Section Cards */
+    .section-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-lg);
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .section-header:hover { background: #e0f2fe; }
+
+    .section-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .section-toggle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+
+    .section-header[aria-expanded="true"] .section-toggle {
+      transform: rotate(180deg);
+    }
+
+    .section-body {
+      padding: 1.25rem;
+      display: none;
+    }
+
+    .section-body.show { display: block; }
+
+    /* Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .form-group.full-width { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.9375rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .form-input::placeholder { color: #94a3b8; }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-success, .btn.green { background: var(--success); color: white; }
+    .btn-success:hover, .btn.green:hover { background: #059669; }
+
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.8125rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* Days Container for Availability */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .day-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .day-item input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      accent-color: var(--primary);
+    }
+
+    .day-item label {
+      font-weight: 500;
+      min-width: 70px;
+    }
+
+    .day-item input[type="time"] {
+      padding: 0.375rem 0.5rem;
+      font-size: 0.875rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+    }
+
+    /* Table Styles */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+    }
+
+    .data-table th {
+      background: #f1f5f9;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table tr:hover td { background: #f8fafc; }
+
+    .data-table .empty-row td {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+    }
+
+    /* Analytics Table */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .analytics-item {
+      text-align: center;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+
+    .analytics-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .analytics-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* Success Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .modal-close:hover { background: #e2e8f0; }
+
+    .modal-emoji { font-size: 3rem; margin-bottom: 1rem; }
+    .modal-title { font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
+    .modal-msg { font-size: 0.9375rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .modal-highlight {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .modal-highlight.show { display: block; }
+    .modal-note { font-size: 0.875rem; color: var(--text-muted); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav { padding: 0.625rem 1rem; }
+      .main { padding: 1rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .analytics-grid { grid-template-columns: 1fr; }
+      .days-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .stat-value { font-size: 1.5rem; }
+      .data-table { font-size: 0.8125rem; }
+      .data-table th, .data-table td { padding: 0.5rem 0.625rem; }
+    }
+
+    /* Legacy class support */
+    .small-muted { color: var(--text-muted); font-size: 0.875rem; }
+    .form-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .form-row .form-label { min-width: 110px; }
+    .center-card { background: var(--surface); border-radius: var(--radius); }
+    .collapsible-card { overflow: hidden; }
+    .collapsible-header { cursor: pointer; }
+    .collapsible-content[hidden] { display: none; }
+    .analytics-table { width: 100%; }
+    .analytics-table th, .analytics-table td { padding: 0.5rem; text-align: left; }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-brand">
+      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" />
+      <div>
+        <div class="nav-title">DoctorPod</div>
+        <div class="nav-subtitle">Quick. Smart. Trusted.</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/" class="nav-link">← Home</a>
+      <button id="signOut" class="btn-nav danger">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="totalBookings">-</div>
+        <div class="stat-label">Today's Bookings</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="totalConsults">-</div>
+        <div class="stat-label">Consultations</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="revenue">-</div>
+        <div class="stat-label">Revenue (₹)</div>
+      </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+      <div class="modal-content">
+        <button class="modal-close" id="closeModalBtn">&times;</button>
+        <div class="modal-emoji" id="modalEmoji">🎉</div>
+        <div class="modal-title" id="modalTitle">Success!</div>
+        <div class="modal-msg" id="modalMsg"></div>
+        <div class="modal-highlight" id="modalHighlight"></div>
+        <div class="modal-note" id="modalNote"></div>
+      </div>
+    </div>
+
+    <!-- Add Doctor Section -->
+    <div class="section-card">
+      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="addDoctorSection">
+        <div class="section-header-left">
+          <span class="section-icon">🩺</span>
+          <span class="section-title">Add Doctor</span>
+        </div>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div id="addDoctorSection" class="section-body collapsible-content" hidden>
+        <form id="addDoctorForm">
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label class="form-label">Clinic</label>
+              <select name="clinic_id" id="doctorClinicSelect" class="form-select" required disabled></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" name="name" class="form-input" placeholder="Dr. Full Name" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone *</label>
+              <input type="text" name="phone" class="form-input" placeholder="10-digit mobile" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Qualification</label>
+              <input type="text" name="qualification" class="form-input" placeholder="e.g. MBBS, MD" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Specialization</label>
+              <input type="text" name="specialization" class="form-input" placeholder="e.g. Cardiologist" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-input" placeholder="doctor@example.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Registration No</label>
+              <input type="text" name="registration_no" class="form-input" placeholder="Optional" />
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Password *</label>
+              <input type="password" name="password" class="form-input" placeholder="Login password" required />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="reset" class="btn btn-secondary">Reset</button>
+            <button type="submit" class="btn btn-success">Add Doctor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Availability Section -->
+    <div class="section-card">
+      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="addAvailabilitySection">
+        <div class="section-header-left">
+          <span class="section-icon">🗓️</span>
+          <span class="section-title">Add Doctor Availability</span>
+        </div>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div id="addAvailabilitySection" class="section-body collapsible-content" hidden>
+        <form id="addAvailabilityForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Doctor ID *</label>
+              <input type="text" name="doctor_id" class="form-input" placeholder="Enter Doctor ID" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Clinic ID *</label>
+              <input type="text" name="clinic_id" class="form-input" placeholder="Enter Clinic ID" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Slot Duration (minutes)</label>
+              <input type="number" name="interval_minutes" class="form-input" min="5" max="120" step="5" value="15" required />
+              <span class="form-hint">Duration of each appointment slot</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:1rem;">
+            <label class="form-label">Days & Timings</label>
+            <div id="availabilityDaysContainer" class="days-grid" style="margin-top:0.75rem;">
+              <!-- Days will be rendered by JS -->
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="reset" class="btn btn-secondary">Reset</button>
+            <button type="submit" class="btn btn-success">Add Availability</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Doctor List Section -->
+    <div class="section-card">
+      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="doctorsSection">
+        <div class="section-header-left">
+          <span class="section-icon">📋</span>
+          <span class="section-title">Doctor List</span>
+        </div>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div id="doctorsSection" class="section-body collapsible-content" hidden>
+        <div style="overflow-x:auto;">
+          <div id="doctorsList">
+            <div class="small-muted" style="text-align:center;padding:2rem;">Loading doctors...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="section-card">
+      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="analyticsSection">
+        <div class="section-header-left">
+          <span class="section-icon">📈</span>
+          <span class="section-title">Analytics</span>
+        </div>
+        <span class="section-toggle">▼</span>
+      </div>
+      <div id="analyticsSection" class="section-body collapsible-content" hidden>
+        <div class="analytics-grid">
+          <div class="analytics-item">
+            <div class="analytics-value" id="analyticsBookings">-</div>
+            <div class="analytics-label">Total Bookings</div>
+          </div>
+          <div class="analytics-item">
+            <div class="analytics-value" id="analyticsConsults">-</div>
+            <div class="analytics-label">Completed</div>
+          </div>
+          <div class="analytics-item">
+            <div class="analytics-value" id="analyticsRevenue">₹0</div>
+            <div class="analytics-label">Total Revenue</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/clinicDashboard.js"></script>
+  <script>
+    // Render availability days
+    const daysContainer = document.getElementById('availabilityDaysContainer');
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    if (daysContainer) {
+      days.forEach(day => {
+        const dayItem = document.createElement('div');
+        dayItem.className = 'day-item';
+        dayItem.innerHTML = `
+          <input type="checkbox" id="day_${day}" name="days" value="${day}" />
+          <label for="day_${day}">${day}</label>
+          <input type="time" name="${day}_start" value="09:00" />
+          <span>to</span>
+          <input type="time" name="${day}_end" value="17:00" />
+        `;
+        daysContainer.appendChild(dayItem);
+      });
+    }
+  </script>
+</body>
+</html>
