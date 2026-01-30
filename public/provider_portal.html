@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="DoctorPod - Healthcare Provider Portal for Doctors and Clinics" />
+  <title>Provider Portal - DoctorPod</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: rgba(79, 70, 229, 0.08);
+      --secondary: #10b981;
+      --doctor-primary: #10b981;
+      --doctor-light: rgba(16, 185, 129, 0.08);
+      --clinic-primary: #0ea5e9;
+      --clinic-light: rgba(14, 165, 233, 0.08);
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .nav {
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      height: 32px;
+      width: auto;
+      border-radius: 6px;
+    }
+
+    .nav-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+
+    .nav-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.375rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .nav-link:hover { background: var(--primary-light); color: var(--primary); }
+
+    /* Main Content */
+    .main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    /* Header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .page-header p {
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+
+    /* Login Options */
+    .login-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      border: 2px solid var(--border);
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      transition: height 0.25s;
+    }
+
+    .login-card.doctor::before {
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .login-card.clinic::before {
+      background: linear-gradient(90deg, #0ea5e9 0%, #0284c7 100%);
+    }
+
+    .login-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    }
+
+    .login-card.doctor:hover {
+      border-color: var(--doctor-primary);
+    }
+
+    .login-card.clinic:hover {
+      border-color: var(--clinic-primary);
+    }
+
+    .login-card:hover::before {
+      height: 6px;
+    }
+
+    .login-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1.25rem;
+    }
+
+    .login-card.doctor .login-icon {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    }
+
+    .login-card.clinic .login-icon {
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    }
+
+    .login-card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    .login-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .login-card.doctor .login-btn {
+      background: var(--doctor-primary);
+      color: white;
+    }
+
+    .login-card.doctor .login-btn:hover {
+      background: #059669;
+    }
+
+    .login-card.clinic .login-btn {
+      background: var(--clinic-primary);
+      color: white;
+    }
+
+    .login-card.clinic .login-btn:hover {
+      background: #0284c7;
+    }
+
+    /* Features */
+    .features-section {
+      margin-bottom: 2rem;
+    }
+
+    .features-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: var(--surface);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .feature-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      background: var(--primary-light);
+      flex-shrink: 0;
+    }
+
+    .feature-item span {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .login-options { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .main { padding: 2rem 1rem; }
+      .page-header h1 { font-size: 1.5rem; }
+    }
+
+    @media (max-width: 500px) {
+      .nav { padding: 0.625rem 1rem; }
+      .login-card { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-brand">
+      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" />
+      <div>
+        <div class="nav-title">DoctorPod</div>
+        <div class="nav-subtitle">Quick. Smart. Trusted.</div>
+      </div>
+    </a>
+    <a href="/" class="nav-link">← Home</a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>Healthcare Provider Portal</h1>
+      <p>Choose your role to access the dashboard</p>
+    </div>
+
+    <!-- Login Options -->
+    <div class="login-options">
+      <a href="/doctor_login.html" class="login-card doctor">
+        <div class="login-icon">👨‍⚕️</div>
+        <h2>Doctor Login</h2>
+        <p>Manage patients, write prescriptions, view visit history & track your appointments</p>
+        <span class="login-btn">Login as Doctor →</span>
+      </a>
+      
+      <a href="/clinic_login.html" class="login-card clinic">
+        <div class="login-icon">🏥</div>
+        <h2>Clinic Login</h2>
+        <p>Manage doctors, appointment slots, patient bookings & clinic operations</p>
+        <span class="login-btn">Login as Clinic →</span>
+      </a>
+    </div>
+
+    <!-- Features -->
+    <div class="features-section">
+      <h3 class="features-title">What You Can Do</h3>
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">📋</div>
+          <span>Digital Prescriptions</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📅</div>
+          <span>Slot Management</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📁</div>
+          <span>Patient History</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">💬</div>
+          <span>WhatsApp Alerts</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📊</div>
+          <span>Analytics Dashboard</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔒</div>
+          <span>Secure Access</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Need help? <a href="mailto:support@doctorpod.in">Contact Support</a></p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,4 @@
+openai
+# For telephony integration
+Twilio
+requests

@@ -1,0 +1,1459 @@
+/* Icon button for medicine add/remove */
+.icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 0 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: box-shadow 0.15s, background 0.15s;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+}
+.icon-btn:active, .icon-btn:focus {
+  outline: 2px solid #51cf66;
+  background: rgba(81,207,102,0.08);
+}
+.medicine-add-btn svg {
+  display: block;
+}
+@media (max-width: 700px) {
+  .medicine-add-btn {
+    min-width: 44px;
+    width: 44px;
+    margin: 0;
+  }
+}
+/* --- Medicine Row Controls Alignment --- */
+.mui-medicine-row-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5em;
+  width: 100%;
+  justify-content: flex-start;
+}
+.mui-medicine-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  width: 100%;
+}
+.medicine-add-btn {
+  margin: 0;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Ensure remove button is also left-aligned and same size as add button */
+.medicine-remove-btn {
+  margin: 0 0 0 0.5em;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 700px) {
+  .mui-medicine-row-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5em;
+  }
+  .medicine-add-btn, .medicine-remove-btn {
+    min-width: 44px;
+    width: 44px;
+    margin: 0 0 0 0;
+  }
+}
+@media (max-width: 700px) {
+  .mui-medicine-row-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5em;
+  }
+  .medicine-add-btn {
+    min-width: 100px;
+    width: 100%;
+    margin: 0;
+  }
+}
+/* Ensure header-left and header-right are aligned in a row and spaced correctly */
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+.header-left {
+  flex: 1 1 0;
+}
+.header-right {
+  flex: 1 1 0;
+  justify-content: flex-end;
+}
+@media (max-width: 700px) {
+  .header-flex {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    width: 100%;
+  }
+  .header-right {
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+    margin-top: 0.2em;
+  }
+  #headerClinicSelect {
+    margin-left: 0;
+    margin-top: 0.2em;
+  }
+}
+/* Make clinic dropdown font match DoctorPod branding */
+#headerClinicSelect {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: #222;
+  padding: 0.3em 1em;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #e0e7ff;
+  border: 1.5px solid #a5b4fc;
+  color: #222;
+  box-shadow: 0 2px 8px rgba(100, 116, 255, 0.10);
+  min-width: 145px;
+  margin-left: 0.5em;
+}
+@media (max-width: 600px) {
+  #headerClinicSelect {
+    font-size: 1.05em;
+    min-width: 100px;
+    padding: 0.2em 0.7em;
+  }
+}
+.actions-header-flex #checkAppointmentsBtn {
+  min-width: 140px;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+}
+
+@media (max-width: 600px) {
+  .actions-header-flex #checkAppointmentsBtn {
+    min-width: 120px;
+    padding-left: 1.2em;
+    padding-right: 1.2em;
+  }
+}
+/* Fix Appointment/History/Clear button text overflow in mobile */
+
+.actions-header-flex button {
+  min-width: 90px;
+  flex: 1 0 auto;
+  max-width: none;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: unset;
+  padding-left: 1.1em;
+  padding-right: 1.1em;
+}
+
+/* Make History and Clear buttons larger for better text fit */
+.actions-header-flex #historyBtnHeader,
+.actions-header-flex #clearPrescriptionBtn {
+  min-width: 120px;
+  font-size: 1.08em;
+  padding-left: 1.4em;
+  padding-right: 1.4em;
+}
+
+/* Make Sign Out button smaller in actions row */
+.actions-header-flex #signOut {
+  min-width: 80px;
+  font-size: 0.98em;
+  padding-left: 0.7em;
+  padding-right: 0.7em;
+}
+@media (max-width: 600px) {
+  .actions-header-flex #historyBtnHeader,
+  .actions-header-flex #clearPrescriptionBtn {
+    min-width: 100px;
+    font-size: 1em;
+    padding-left: 1.1em;
+    padding-right: 1.1em;
+  }
+  .actions-header-flex #signOut {
+    min-width: 70px;
+    font-size: 0.93em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+}
+
+@media (max-width: 600px) {
+  .actions-header-flex {
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: flex-start;
+    margin-bottom: 1em;
+  }
+  .actions-header-flex button {
+    min-width: 90px;
+    flex: 1 0 auto;
+    max-width: none;
+    font-size: 1em;
+    padding: 0.6em 1.1em;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: unset;
+  }
+}
+
+/* Header doctor/clinic info responsive fix */
+#doctorHeaderName, #doctorHeaderQual, #doctorHeaderSpec, #doctorHeaderMobile {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+@media (max-width: 600px) {
+  #doctorHeaderName, #doctorHeaderQual, #doctorHeaderSpec, #doctorHeaderMobile {
+    max-width: 110px;
+  }
+}
+/* Responsive row for action buttons (Appointment, History, Clear) */
+.actions-header-flex {
+  display: flex;
+  gap: 0.7em;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.1em;
+}
+
+@media (max-width: 600px) {
+  .actions-header-flex {
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: center;
+    margin-bottom: 1em;
+  }
+  .actions-header-flex button {
+    flex: 1 1 100px;
+    min-width: 90px;
+    font-size: 1em;
+    padding: 0.6em 0.2em;
+  }
+}
+/* Sync Check Booking input with prescription card */
+/* Smaller, thinner input for Check Booking */
+.pres-field {
+  padding: 0.48rem 0.8rem !important;
+  font-size: 0.98rem !important;
+  background: #f7f9fc !important;
+  color: #222 !important;
+  border-radius: 10px !important;
+  border: 1.5px solid #e3e7ef !important;
+  box-shadow: none !important;
+  margin-bottom: 0.2rem !important;
+}
+.pres-field::placeholder {
+  color: #888 !important;
+  opacity: 1 !important;
+}
+/* --- Material Card Based UI for Check Booking --- */
+.material-card {
+  max-width: 420px;
+  margin: 2.5rem auto 0 auto;
+  padding: 2.2rem 2rem 1.5rem 2rem;
+  background: #232b39;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px 0 rgba(44,62,80,0.18), 0 1.5px 6px 0 rgba(44,62,80,0.10);
+  display: flex;
+    flex-direction: row;
+    gap: 0.3em;
+    justify-content: flex-start;
+    margin-bottom: 1em;
+    flex-wrap: nowrap;
+  display: flex;
+  flex-direction: row;
+    min-width: 70px;
+    flex: 1 1 0;
+    max-width: 100%;
+    font-size: 0.97em;
+    padding: 0.5em 0.5em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  background: linear-gradient(90deg,#5dade2,#38f9d7);
+  .actions-header-flex #historyBtnHeader,
+  .actions-header-flex #clearPrescriptionBtn {
+    min-width: 80px;
+    font-size: 0.97em;
+    padding-left: 0.7em;
+    padding-right: 0.7em;
+  }
+  .actions-header-flex #signOut {
+    min-width: 70px;
+    font-size: 0.93em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+  margin-bottom: 0.2rem;
+}
+.material-card-title {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #38b6ff;
+}
+.material-card-desc {
+  color: #bfc9d1;
+  font-size: 1rem;
+  margin-top: 0.1rem;
+}
+.material-form {
+  display: flex;
+    flex-direction: row;
+    gap: 0.2em;
+    justify-content: flex-start;
+    margin-bottom: 1em;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  gap: 0.3rem;
+    min-width: 60px;
+    flex: 1 1 0;
+    max-width: 100%;
+    font-size: 0.91em;
+    padding: 0.38em 0.3em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  padding: 0.7rem 1rem;
+  .actions-header-flex #historyBtnHeader,
+  .actions-header-flex #clearPrescriptionBtn {
+    min-width: 70px;
+    font-size: 0.91em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+  }
+  .actions-header-flex #signOut {
+    min-width: 60px;
+    font-size: 0.89em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+  }
+  border-radius: 12px;
+  border: 1px solid rgba(56,182,255,0.18);
+  background: #1a202c;
+  color: #fff;
+  font-size: 1.08rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1.5px 6px 0 rgba(44,62,80,0.08);
+}
+.material-input:focus {
+  outline: none;
+  border: 1.5px solid #38b6ff;
+  box-shadow: 0 0 0 2px rgba(56,182,255,0.13);
+}
+.material-input::placeholder {
+  color: rgba(255,255,255,0.6);
+}
+.material-or {
+  text-align: center;
+  font-weight: 700;
+  color: #bfc9d1;
+  margin: 0.05rem 0 0.2rem 0;
+  font-size: 1rem;
+}
+.material-form-actions {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+.material-btn {
+  flex: 1;
+  padding: 0.7rem 0;
+  border-radius: 10px;
+  border: none;
+  background: #2d3748;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.08rem;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1.5px 6px 0 rgba(44,62,80,0.08);
+}
+.material-btn-primary {
+  background: linear-gradient(90deg,#38b6ff,#5dade2);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(56,182,255,0.10);
+}
+.material-btn:active, .material-btn:focus {
+  background: #1a202c;
+  outline: none;
+}
+.material-btn-primary:active, .material-btn-primary:focus {
+  background: #38b6ff;
+}
+.material-feedback {
+  color: #f7c873;
+  font-size: 0.98rem;
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
+@media (max-width: 520px) {
+  .material-card {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+  }
+  .material-card-header {
+    gap: 0.6rem;
+  }
+  .material-card-title {
+    font-size: 1.13rem;
+  }
+}
+/* Multi-line doctor info in header */
+.doctor-header-multiline {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.18em;
+  /* reverted: no background, border, or card effect */
+  padding: 0;
+  margin-right: 0;
+  min-width: 0;
+}
+.doctor-header-name {
+  font-weight: 700;
+  font-size: 1.13em;
+  line-height: 1.2;
+}
+.doctor-header-qual {
+  font-size: 0.93em;
+  color: #fff;
+  line-height: 1.1;
+  font-weight: 400;
+}
+.doctor-header-spec {
+  font-size: 0.93em;
+  color: #fff;
+  line-height: 1.1;
+  font-weight: 400;
+}
+.doctor-header-mobile {
+  font-size: 0.98em;
+  color: #fff;
+  line-height: 1.2;
+}
+@media (max-width: 700px) {
+  .doctor-header-multiline {
+    align-items: flex-end;
+    gap: 0.13em;
+  }
+  .doctor-header-name, .doctor-header-qual, .doctor-header-mobile {
+    font-size: 1em;
+    line-height: 1.15;
+  }
+}
+/* Action buttons row above prescription card */
+.actions-header-row {
+  display: flex;
+  flex-direction: row;
+  gap: 1.2rem;
+  justify-content: flex-end;
+  margin: 1.2rem 0 0.5rem 0;
+}
+@media (max-width: 700px) {
+  .actions-header-row {
+    flex-direction: row;
+    gap: 0.7rem;
+    justify-content: stretch;
+    margin: 0.7rem 0 0.3rem 0;
+  }
+  .actions-header-row .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 1.01em;
+  }
+}
+/* Large clinic select for header, always full width on mobile */
+.clinic-select-row {
+  margin-top: 0.7em;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.clinic-select-large {
+  font-size: 1.13em;
+  padding: 0.45em 1.1em;
+  border-radius: 9px;
+  border: 1.5px solid #bbb;
+  min-width: 220px;
+  max-width: 420px;
+  width: 100%;
+  background: #f7f9fc;
+  color: #222;
+  font-weight: 500;
+  box-sizing: border-box;
+  margin: 0 auto;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.clinic-select-large:focus {
+  border: 1.5px solid #748ffc;
+  outline: none;
+  box-shadow: 0 0 0 2px #e0e7ef;
+}
+@media (max-width: 700px) {
+  .clinic-select-row {
+    margin-top: 0.7em;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .clinic-select-large {
+    min-width: 0;
+    max-width: 100vw;
+    width: 100%;
+    font-size: 1.08em;
+    padding: 0.55em 0.7em;
+    white-space: normal;
+    text-overflow: initial;
+  }
+}
+/* --- Material UI Card Styles for Doctor Dashboard --- */
+.mui-card {
+  background: #fff;
+  color: #222;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(44,62,80,0.16), 0 1.5px 6px rgba(44,62,80,0.08);
+  padding: 0;
+  margin: 2.5rem auto 2.5rem auto;
+  max-width: 600px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+}
+.mui-card-content {
+  padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+  border-radius: 20px;
+}
+.mui-card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #1a237e;
+  letter-spacing: 0.01em;
+}
+.prescription-card {
+  background: #fff !important;
+  box-shadow: 0 8px 32px rgba(44,62,80,0.18), 0 1.5px 6px rgba(44,62,80,0.08);
+  border-radius: 22px;
+  max-width: 650px;
+  margin: 2.5rem auto 2.5rem auto;
+  padding: 0;
+}
+.prescription-card .mui-card-content {
+  padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+}
+.prescription-card form {
+  margin-top: 0.5rem;
+}
+.prescription-card .form-row {
+  margin-bottom: 1.2rem;
+}
+  .prescription-card input,
+  .prescription-card select,
+  .prescription-card textarea {
+    background: #f7f9fc;
+    color: #222;
+    border: 1.5px solid #e3e7ef;
+    box-shadow: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+  .prescription-card input:focus,
+  .prescription-card select:focus,
+  .prescription-card textarea:focus {
+    border: 1.5px solid #748ffc;
+    outline: none;
+    box-shadow: 0 0 0 2px #e0e7ef;
+}
+.prescription-card .form-label {
+  color: #3b4252;
+  font-weight: 600;
+}
+.prescription-card .actions-row {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+.prescription-card .btn {
+  min-width: 140px;
+  font-size: 1.05rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+}
+.prescription-card .btn.coral {
+  background: linear-gradient(90deg, #ff6f61, #e5a65c);
+  color: #fff;
+}
+.prescription-card .btn:hover {
+  filter: brightness(1.07);
+  box-shadow: 0 8px 24px rgba(44,62,80,0.18);
+  transform: translateY(-2px) scale(1.03);
+}
+.medicine-row-card {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  background: #f5f7fa;
+  border-radius: 14px;
+  padding: 1.1rem 1.2rem 1.1rem 1.2rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+}
+.mui-medicine-list {
+  width: 100%;
+}
+.mui-medicine-list #medicinesContainer {
+  margin-bottom: 0.7rem;
+}
+@media (max-width: 700px) {
+  .mui-card, .prescription-card {
+    max-width: 98vw;
+    margin: 1.2rem auto 1.2rem auto;
+  }
+  .mui-card-content, .prescription-card .mui-card-content {
+    padding: 1.1rem 0.7rem 1rem 0.7rem;
+  }
+  .medicine-row-card {
+    padding: 0.7rem 0.5rem 0.7rem 0.5rem;
+  }
+  .prescription-card .actions-row {
+    flex-direction: column;
+    gap: 0.7rem;
+    align-items: stretch;
+  }
+}
+/* --- End Material UI Card Styles --- */
+/* Consistent prescription form field sizing and alignment */
+.prescription .pres-field {
+  min-width: 120px;
+  max-width: 160px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #fff !important;
+  color: #111 !important;
+}
+.prescription .form-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+.prescription .form-row label,
+.prescription .form-row .form-label {
+  min-width: 90px;
+  font-weight: 500;
+}
+.prescription .form-row input[name="patient_age"] {
+  max-width: 80px;
+  min-width: 60px;
+}
+.prescription .form-row input[name="patient_mobile"] {
+  max-width: 140px;
+  min-width: 110px;
+}
+.prescription .form-row select[name="patient_gender"] {
+  max-width: 110px;
+  min-width: 90px;
+}
+.prescription .form-row input[name="temperature"] {
+  max-width: 110px;
+  min-width: 80px;
+}
+.prescription .form-row input[name="blood_pressure"] {
+  max-width: 120px;
+  min-width: 90px;
+}
+.prescription .form-row input[name="diagnosis"],
+.prescription .form-row input[name="advise"] {
+  max-width: 220px;
+  min-width: 120px;
+}
+@media (max-width: 700px) {
+  .prescription .form-row {
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem 0.7rem;
+  }
+  .prescription .form-row > .form-label {
+    min-width: 90px;
+    width: auto;
+    margin-bottom: 0;
+    display: inline-block;
+  }
+  .prescription .form-row input,
+  .prescription .form-row select {
+    max-width: 100%;
+    min-width: 0;
+    flex: 1 1 120px;
+    margin-bottom: 0;
+  }
+}
+/* Consistent prescription form input sizing and alignment */
+.prescription .form-row input.compact,
+.prescription .form-row select.compact {
+  min-width: 120px;
+  max-width: 160px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.prescription .form-row input[name="patient_age"] {
+  max-width: 80px;
+  min-width: 60px;
+}
+.prescription .form-row input[name="patient_mobile"] {
+  max-width: 140px;
+  min-width: 110px;
+}
+.prescription .form-row select[name="patient_gender"] {
+  max-width: 110px;
+  min-width: 90px;
+}
+.prescription .form-row input[name="temperature"] {
+  max-width: 110px;
+  min-width: 80px;
+}
+.prescription .form-row input[name="blood_pressure"] {
+  max-width: 120px;
+  min-width: 90px;
+}
+.prescription .form-row input[name="diagnosis"],
+.prescription .form-row input[name="advise"] {
+  max-width: 220px;
+  min-width: 120px;
+}
+.prescription .form-row {
+  gap: 1rem;
+}
+@media (max-width: 700px) {
+  .prescription .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .prescription .form-row input,
+  .prescription .form-row select {
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+/* Compact input for Diagnosis and Advise fields in prescription card */
+.prescription input[name="diagnosis"],
+.prescription input[name="advise"] {
+  max-width: 320px;
+  width: 100%;
+  min-width: 120px;
+  box-sizing: border-box;
+}
+@media (max-width: 600px) {
+  .prescription input[name="diagnosis"],
+  .prescription input[name="advise"] {
+    max-width: 100%;
+  }
+}
+/* Small red cross button for medicine row */
+.medicine-row .btn.medicine-remove {
+  background: #e53935;
+  color: #fff;
+  border: none;
+  font-size: 1em;
+  padding: 0.18em 0.7em 0.18em 0.7em;
+  margin-left: 0.4em;
+  cursor: pointer;
+  line-height: 1.1;
+  vertical-align: middle;
+  box-shadow: 0 2px 8px rgba(229,57,53,0.08);
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  min-width: 1.8em;
+}
+.medicine-row .btn.medicine-remove:hover {
+  background: #b71c1c;
+  color: #fff;
+}
+.medicine-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.4em;
+  gap: 0.3em;
+  flex-wrap: wrap;
+}
+.medicine-row > span:first-child {
+  min-width: 1.2em;
+  margin-right: 0.2em;
+  text-align: left;
+  display: inline-block;
+}
+@media (max-width: 600px) {
+  .medicine-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2em;
+  }
+  .medicine-row > span:first-child {
+    margin-bottom: 0.1em;
+  }
+}
+/* Doctor/Clinic info card for dashboard */
+.doctor-info-card {
+  background: #fff !important;
+  color: #222 !important;
+  box-shadow: 0 8px 32px rgba(44,62,80,0.13);
+  border-radius: 16px;
+  max-width: 480px;
+  margin: 1.5rem auto 1.5rem auto;
+  padding: 1.5rem 2rem 1.2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+}
+.doctor-info-card div {
+  color: #222 !important;
+}
+.doctor-info-card #doctorCardMobile {
+  color: #666 !important;
+}
+.doctor-info-card #doctorCardClinic {
+  color: #1a237e !important;
+}
+.doctor-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.doctor-table th, .doctor-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+}
+.doctor-table th {
+  background: #f1f5f9;
+  color: #1e293b;
+  font-weight: 800;
+  font-size: 1.08rem;
+  letter-spacing: 0.02em;
+}
+.doctor-table tr:nth-child(even) td {
+  background: #f9fafb;
+}
+.doctor-table tr:hover td {
+  background: #e0e7ef;
+}
+/* Center Add New Doctor card vertically and horizontally like admin login */
+.add-doctor-outer-center {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 2rem;
+  padding-bottom: 0.5rem;
+}
+@media (max-width: 600px) {
+  .add-doctor-outer-center {
+    min-height: 60vh;
+    padding-top: 1.5rem;
+    padding-bottom: 0.5rem;
+  }
+}
+/* Center dashboard cards on all screens */
+.dashboard-center {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1.5rem !important;
+  display: block;
+  max-width: 500px;
+}
+/* Collapsible card styles for mobile admin dashboard */
+.collapsible-card {
+  margin: 0 0 1rem 0;
+  padding: 0;
+  border-radius: 14px;
+  overflow: visible;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.collapsible-btn {
+  width: 100%;
+  min-height: 60px;
+  max-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  transition: background 0.2s;
+}
+.collapsible-btn[aria-expanded="true"] {
+  background: linear-gradient(90deg, #fb7185 0%, #f43f5e 100%);
+}
+.collapsible-content {
+  padding: 1rem;
+  background: var(--card-bg);
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  margin-top: -2px;
+  transition: max-height 0.3s ease;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    display: block;
+    padding: 1rem 0.5rem;
+  }
+  .mobile-cards {
+    margin: 0 0.5rem;
+  }
+  aside.panel {
+    margin-bottom: 1.5rem;
+  }
+}
+@media (max-width: 600px) {
+  .site-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.7rem 0.7rem 0.5rem 0.7rem;
+  }
+  .site-header nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.7rem;
+    margin-top: 0.5rem;
+    margin-left: 0;
+  }
+  .site-header nav a.nav-btn {
+    margin-left: 0;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    justify-content: center;
+  }
+}
+/* Hide elements with the .hidden class */
+.hidden {
+  display: none !important;
+}
+/* Horizontal form row: icon, label, input in one line */
+.form-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1ch;
+  margin-bottom: 1.2rem;
+}
+
+  .form-row .form-label {
+    min-width: 120px;
+    text-align: left;
+    margin-bottom: 0;
+    margin-right: 0;
+  }
+}
+
+  .form-row .compact.pres-field {
+    width: 220px;
+    min-width: 120px;
+    max-width: 100%;
+    margin-bottom: 0;
+  }
+}
+}
+.form-row .field-icon {
+  margin: 0 0.4rem 0 0;
+  width: 1.5em;
+  height: 1.5em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+    flex-direction: row;
+    gap: 0.7em;
+    justify-content: flex-start;
+    margin-bottom: 1.1em;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  .actions-header-flex button {
+    min-width: 90px;
+    flex: 1 0 auto;
+    max-width: none;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: unset;
+    padding-left: 1.1em;
+    padding-right: 1.1em;
+  }
+  backdrop-filter: none !important;
+}
+
+/* Sharper, more visible placeholder text */
+input::placeholder, textarea::placeholder {
+  color: #bdbdbd !important;
+  opacity: 1 !important;
+  font-weight: 400;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 1rem;
+  text-shadow: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #748ffc !important;
+  box-shadow: 0 0 0 3px rgba(116,143,252,0.18), 0 1.5px 6px rgba(44,62,80,0.08);
+  outline: none;
+  background: #f7faff;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+/* Medicine autocomplete popup styles */
+.autocomplete-list {
+  position: absolute;
+  z-index: 1000;
+  background: rgba(255,255,255,0.98);
+  color: #222;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  margin-top: 2px;
+  min-width: 220px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.autocomplete-item {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background 0.15s;
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover {
+  background: linear-gradient(90deg, var(--blue-a), var(--blue-b));
+  color: #fff;
+}
+
+/* Doctor dashboard appointment status badges */
+.badge.pending {
+  background: #f6c145;
+  color: #2b2b2b;
+}
+.badge.seen {
+  background: linear-gradient(90deg, var(--green-a), var(--green-b));
+  color: #0b2d0b;
+}
+.badge.cancelled {
+  background: linear-gradient(90deg, #ff6b6b, #ff8787);
+  color: #370808;
+}
+:root{
+  --font-hero-desktop: 2.5rem;
+  --font-hero-mobile: 1.5rem;
+  --font-section-heading: 2rem;
+  --font-card-title: 1.3rem;
+  --font-body: 1rem;
+  --font-nav: 0.9rem;
+  --bg1: #0f2027;
+  --bg2: #203a43;
+  --bg3: #2c5364;
+  --card-bg: rgba(255,255,255,0.10);
+  --field-bg: rgba(255,255,255,0.10);
+  --field-bg-2: rgba(255,255,255,0.07);
+  --glass-1: rgba(255,255,255,0.1);
+  --glass-2: rgba(255,255,255,0.2);
+  --white: #efffff;
+  --muted: #b0b8c9;
+  --coral-a: #ff6f61;
+  --coral-b: #e5a65c;
+  --blue-a: #748ffc;
+  --blue-b: #5c7cfa;
+  --green-a: #51cf66;
+  --green-b: #37b24d;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--font-body);
+  background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 50%, var(--bg3) 100%);
+  color: var(--white);
+  min-height: 100vh;
+}
+.hero h2 {
+  font-size: var(--font-hero-desktop);
+  margin: 0 0 0.5rem;
+}
+.hero p {
+  font-size: var(--font-body);
+}
+.card h3 {
+  margin-top: 0;
+  font-size: var(--font-card-title);
+  color: #1a1a1a;
+}
+nav a {
+  font-size: var(--font-nav);
+}
+section h3, main > section h3 {
+  font-size: var(--font-section-heading);
+}
+/* Header */
+.site-header {
+  backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 50%, var(--bg3) 100%) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.brand { display: flex; align-items: center; gap: 0.75rem; }
+.brand svg { filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
+.brand-text h1 { margin: 0; font-size: 1.25rem; line-height: 1; }
+.brand-text small { display: block; color: var(--muted); font-size: 0.85rem; }
+nav a { color: rgba(255,255,255,0.95); margin-left: 1rem; text-decoration: none; font-size: var(--font-nav); }
+nav a.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: var(--font-nav);
+  min-height: 40px;
+  text-decoration: none;
+  border: none;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+  transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+  cursor: pointer;
+}
+nav a.nav-btn.contact {
+  background: linear-gradient(90deg, var(--blue-a), var(--blue-b));
+  color: #fff;
+}
+nav a.nav-btn.contact:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 8px 24px rgba(44,62,80,0.18);
+  transform: translateY(-2px) scale(1.03);
+}
+nav a.nav-btn.admin {
+  background: linear-gradient(90deg, var(--coral-a), var(--coral-b));
+  color: #fff;
+}
+nav a.nav-btn.admin:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 8px 24px rgba(255,111,97,0.18);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.hero {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+.hero h2 { font-size: var(--font-hero-desktop); margin: 0 0 0.5rem; }
+.hero p { max-width: 900px; margin: 0 auto; color: var(--muted); font-size: 1.03rem; }
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  padding: 2rem;
+}
+.card {
+  background: var(--card-bg);
+  padding: 2rem 1.5rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 18px rgba(90, 115, 6, 0.25);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.card:hover { transform: translateY(-6px) scale(1.01); }
+.card h3 { margin-top: 0; }
+.card p { color: #555; }
+.card-head { display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.5rem; }
+.icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px rgba(0,0,0,0.22); }
+.icon svg { display: block; }
+.coral-icon { background: linear-gradient(90deg, var(--coral-a), var(--coral-b)); }
+.blue-icon { background: linear-gradient(90deg, var(--blue-a), var(--blue-b)); }
+.green-icon { background: linear-gradient(90deg, var(--green-a), var(--green-b)); }
+
+/* Button styles with visible backgrounds and adaptive text color */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--blue-a), var(--blue-b));
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
+  min-height: 44px;
+  font-weight: 600;
+  border: 0;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.10);
+}
+.btn:hover {
+  transform: translateY(-2px) translateX(-2px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+  filter: brightness(1.08);
+}
+.btn.coral {
+  background: linear-gradient(90deg, var(--coral-a), var(--coral-b));
+  color: #fff;
+}
+.btn.blue {
+  background: linear-gradient(90deg, var(--blue-a), var(--blue-b));
+  color: #fff;
+}
+.btn.green {
+  background: linear-gradient(90deg, var(--green-a), var(--green-b));
+  color: #fff;
+}
+.btn.white {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1.5px solid var(--blue-b);
+}
+.btn.white:hover {
+  background: #f3f6fa;
+  color: #203a43;
+}
+.btn:disabled, .btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* form action alignment */
+.form-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1rem}
+@media (max-width:480px){
+  .form-actions{justify-content:center;flex-wrap:wrap}
+}
+
+/* booking card and badges */
+.booking-card{background:var(--card-bg);padding:0.85rem;border-radius:12px;margin-bottom:0.75rem;box-shadow:0 6px 16px rgba(0,0,0,0.24);border:1px solid rgba(255,255,255,0.03)}
+.badge{display:inline-block;padding:0.25rem 0.6rem;border-radius:10px;font-size:0.85rem;font-weight:700}
+.badge.pending{background:#f6c145;color:#2b2b2b}
+.badge.seen{background:linear-gradient(90deg,var(--green-a),var(--green-b));color:#0b2d0b}
+.badge.cancelled{background:linear-gradient(90deg,#ff6b6b,#ff8787);color:#370808}
+
+.small-muted{color:var(--muted);font-size:0.92rem}
+.hidden{display:none}
+.hidden{display:none}
+
+/* sections use soft glass background */
+main > section{background:linear-gradient(180deg,var(--field-bg-2), rgba(255,255,255,0.02));padding:1.25rem;border-radius:20px;margin:1rem 2rem;box-shadow:0 8px 24px rgba(0,0,0,0.35)}
+main > section#features, main > section#contact{display:none}
+main > section#features.active, main > section#contact.active{display:block}
+
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+.feature{background:rgba(255,255,255,0.03);padding:1rem;border-radius:12px;text-align:center;color:var(--muted);min-height:80px;display:flex;align-items:center;justify-content:center}
+
+/* booking result modal */
+#result{max-width:680px;margin:1rem auto;padding:1rem;border-radius:12px}
+#result .actions{margin-top:0.75rem}
+#result .actions .btn{margin-right:0.6rem}
+
+/* hero responsive font */
+@media (max-width:480px){
+  .hero h2{font-size: var(--font-hero-mobile);}
+}
+.container{padding:3rem 2rem}
+form label{display:block;margin:0.6rem 0}
+input,select,textarea{width:100%;padding:0.7rem;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:var(--field-bg);color:var(--white);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02), 0 6px 18px rgba(0,0,0,0.28)}
+input::placeholder, textarea::placeholder{color:rgba(255,255,255,0.6)}
+select{appearance:none}
+.modal{background:rgba(0,0,0,0.6);padding:1rem;border-radius:12px;margin-top:1rem}
+
+/* medicine row grid */
+.medicine-row{display:grid;grid-template-columns:10fr 0.8fr 0.8fr 4fr auto;gap:1rem;align-items:start;margin:0.5rem 0}
+.medicine-row input{padding:0.5rem}
+
+/* make form containers stand out on pages */
+.login-wrap{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));box-shadow:0 10px 30px rgba(0,0,0,0.4);}
+
+
+/* Form field alignment: label and input aligned, no card styling */
+/* Remove border/background from .form-label, keep as plain text */
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.1rem;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #3b4252;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+form label {
+  display: block;
+  margin: 0.6rem 0 0.2rem 0;
+  font-weight: 600;
+}
+form input, form select, form textarea {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 12px;
+  border: 1px solid rgba(44,62,80,0.13);
+  background: var(--field-bg);
+  color: var(--white);
+  margin-bottom: 0.7rem;
+  box-shadow: none;
+}
+form input:focus, form select:focus, form textarea:focus {
+  outline: 2px solid var(--blue-b);
+  background: rgba(255,255,255,0.18);
+}
+.field-icon {
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  width: 1.2em;
+  height: 1.2em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* smooth section toggles */
+section{transition:all 0.35s ease}
+
+/* small helpers */
+.card .small{font-size:0.9rem;color:var(--muted)}
+
+
+
+@media (max-width:768px){
+  .action-cards{grid-template-columns:repeat(2,1fr)}
+  .medicine-row{grid-template-columns:1fr;gap:0.5rem}
+  .features-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:480px){
+  .action-cards{grid-template-columns:1fr;padding:1rem}
+  .hero h2{font-size:1.5rem}
+  .hero{padding:2rem 1rem}
+  .features-grid{grid-template-columns:1fr}
+}
+
+
+/* Glassmorphism for cards, panels, modals */
+.panel,
+.booking-card,
+.center-card,
+.login-wrap,
+main > section,
+.modal,
+.prescription {
+  background: linear-gradient(135deg, var(--card-bg) 60%, var(--field-bg-2) 100%) !important;
+  color: var(--white) !important;
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 10px 30px rgba(44,62,80,0.10);
+}
+.card h3, .panel h3, .center-card h2, .prescription h3 { color: #1a1a1a !important; }
+.small-muted { color: var(--muted) !important; }
+.card .small, .feature, .feature p { color: var(--muted); }
+
+/* Doctor List Table Styling */
+.doctor-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  font-size: 1rem;
+}
+.doctor-table th, .doctor-table td {
+  border: 1px solid #d1d5db;
+  padding: 0.6rem 0.7rem;
+  text-align: left;
+}
+.doctor-table th {
+  background: #f3f4f6;
+  font-weight: 700;
+}
+
+/* Analytics Table Styling */
+.analytics-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.analytics-table th, .analytics-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+}
+.analytics-table th {
+  background: #f1f5f9;
+  color: #1e293b;
+  font-weight: 800;
+  font-size: 1.08rem;
+  letter-spacing: 0.02em;
+}
+.analytics-table tr:nth-child(even) td {
+  background: #f9fafb;
+}
+.analytics-table tr:hover td {
+  background: #e0e7ef;
+}

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Clinic Login - Access your DoctorPod clinic dashboard" />
+  <title>Clinic Login - DoctorPod</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #0ea5e9;
+      --primary-hover: #0284c7;
+      --primary-light: rgba(14, 165, 233, 0.08);
+      --primary-lighter: rgba(14, 165, 233, 0.04);
+      --bg: #f0f9ff;
+      --surface: #ffffff;
+      --text: #0c4a6e;
+      --text-muted: #64748b;
+      --border: #e0f2fe;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 40px rgba(14, 165, 233, 0.15);
+      --radius: 12px;
+      --error: #ef4444;
+      --success: #10b981;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    .nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .nav-logo-icon {
+      height: 36px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .nav-logo-text {
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-logo-tagline { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+
+    .nav-links { display: flex; gap: 0.5rem; }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.5rem 0.875rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover { color: var(--primary); background: var(--primary-light); }
+
+    /* Main Container */
+    .main {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1rem;
+      min-height: calc(100vh - 65px);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* Header Section */
+    .login-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .login-icon {
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3);
+    }
+
+    .login-text {
+      text-align: left;
+    }
+
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin: 0.25rem 0 0 0;
+    }
+
+    /* Login Card */
+    .login-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .form-input::placeholder { color: #94a3b8; }
+
+    /* Error Message */
+    .error-message {
+      background: #fef2f2;
+      color: var(--error);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      display: none;
+      border: 1px solid #fecaca;
+    }
+
+    .error-message.show { display: block; }
+
+    /* Submit Button */
+    .btn-submit {
+      width: 100%;
+      padding: 0.9375rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.35);
+    }
+
+    .btn-submit:active { transform: translateY(0); }
+
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-submit .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    .btn-submit.loading .spinner { display: block; }
+    .btn-submit.loading .btn-text { display: none; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Help Links */
+    .help-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .help-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .help-text a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .help-text a:hover { text-decoration: underline; }
+
+    /* Features Section */
+    .features-section {
+      margin-top: 2.5rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .feature-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .feature-item:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-item h4 {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .feature-item p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 480px) {
+      .nav { padding: 0.625rem 1rem; }
+      .nav-logo-text { font-size: 1.125rem; }
+
+      .main { padding: 2rem 1rem; }
+
+      .login-icon { width: 64px; height: 64px; font-size: 1.75rem; }
+      .login-header h1 { font-size: 1.5rem; }
+
+      .login-card { padding: 1.5rem; }
+
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-logo">
+      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo-icon" />
+      <div>
+        <div class="nav-logo-text">DoctorPod</div>
+        <div class="nav-logo-tagline">Quick. Smart. Trusted.</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/" class="nav-link">← Home</a>
+      <a href="/doctor_login.html" class="nav-link">Doctor</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="login-container">
+      <!-- Header -->
+      <div class="login-header">
+        <div class="login-icon">🏥</div>
+        <div class="login-text">
+          <h1 class="login-title">Clinic Login</h1>
+          <p class="login-subtitle">Access your clinic dashboard</p>
+        </div>
+      </div>
+
+      <!-- Login Card -->
+      <div class="login-card">
+        <div id="errorMessage" class="error-message"></div>
+        
+        <form id="clinicLoginForm">
+          <div class="form-group">
+            <label class="form-label" for="clinic_id">Clinic ID</label>
+            <input 
+              type="text" 
+              id="clinic_id" 
+              name="clinic_id" 
+              class="form-input" 
+              placeholder="Enter your clinic ID"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-input" 
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Sign In to Dashboard</span>
+          </button>
+        </form>
+
+        <div class="help-section">
+          <p class="help-text">
+            Need help? <a href="mailto:support@doctorpod.in">Contact Support</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="features-section">
+        <div class="features-grid">
+          <div class="feature-item">
+            <div class="feature-icon">👨‍⚕️</div>
+            <h4>Manage Doctors</h4>
+            <p>Add & manage your doctors</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📅</div>
+            <h4>Appointments</h4>
+            <p>View all bookings</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <h4>Analytics</h4>
+            <p>Track clinic performance</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⏰</div>
+            <h4>Availability</h4>
+            <p>Set doctor schedules</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        © 2026 DoctorPod. All Rights Reserved.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const loginForm = document.getElementById('clinicLoginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const submitBtn = document.getElementById('submitBtn');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Clear previous error
+      errorMessage.classList.remove('show');
+      errorMessage.textContent = '';
+      
+      // Get form values
+      const clinic_id = loginForm.elements['clinic_id'].value.trim();
+      const password = loginForm.elements['password'].value;
+
+      // Basic validation
+      if (!clinic_id || !password) {
+        errorMessage.textContent = 'Please enter both Clinic ID and Password.';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      // Show loading state
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/clinic/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clinic_id, password })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          // Redirect to dashboard
+          window.location.href = '/clinic_dashboard.html';
+        } else {
+          errorMessage.textContent = data.message || 'Invalid Clinic ID or Password.';
+          errorMessage.classList.add('show');
+        }
+      } catch (err) {
+        errorMessage.textContent = 'Connection error. Please check your internet and try again.';
+        errorMessage.classList.add('show');
+      } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

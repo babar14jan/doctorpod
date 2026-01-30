@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Check your appointment status - DoctorPod" />
+  <title>Check Booking - DoctorPod</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-light: rgba(16, 185, 129, 0.1);
+      --secondary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Navigation */
+    .nav {
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      height: 36px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .nav-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+
+    .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+    .nav-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover { background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
+
+    /* Main Container */
+    .main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: #1e293b;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .hero-text {
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin: 0;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-header-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.375rem;
+    }
+
+    .card-header-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .card-header-subtitle {
+      font-size: 0.8125rem;
+      color: #64748b;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .form-input::placeholder { color: #94a3b8; }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-text {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-secondary {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #dc2626;
+    }
+
+    /* Feedback */
+    .feedback {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      text-align: center;
+      display: none;
+    }
+
+    .feedback.show { display: block; }
+
+    .feedback.info {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    .feedback.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .feedback.success {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 1.25rem;
+      text-align: center;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+
+    .modal-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    /* Booking Result Card */
+    .booking-result {
+      background: var(--surface);
+    }
+
+    .booking-patient {
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .booking-patient-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .booking-patient-info {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .booking-details {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .booking-detail {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .booking-detail:last-child { border-bottom: none; }
+
+    .booking-detail-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .booking-detail-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: right;
+    }
+
+    /* Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .status-badge.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-badge.seen, .status-badge.completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-badge.cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Queue Highlight */
+    .queue-highlight {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+
+    .queue-highlight-label {
+      font-size: 0.75rem;
+      opacity: 0.9;
+      margin-bottom: 0.25rem;
+    }
+
+    .queue-highlight-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .modal-footer {
+      padding: 0 1.5rem 1.5rem;
+    }
+
+    .btn-modal {
+      width: 100%;
+      padding: 0.875rem;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-modal:hover { background: var(--primary-hover); }
+
+    /* Footer text */
+    .footer-text {
+      text-align: center;
+      color: #000000;
+      font-size: 0.8125rem;
+      margin-top: 1.5rem;
+    }
+
+    .footer-text a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .main { padding: 1rem; }
+      .hero-title { font-size: 1.5rem; }
+      .hero-icon { font-size: 3rem; }
+      .card-body { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-brand">
+      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" />
+      <div>
+        <div class="nav-title">DoctorPod</div>
+        <div class="nav-subtitle">Quick. Smart. Trusted.</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/" class="nav-link">← Home</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="hero-icon">🔍</div>
+      <div class="hero-text">
+        <h1 class="hero-title">Check Your Booking</h1>
+        <p class="hero-subtitle">Track your appointment status</p>
+      </div>
+    </div>
+
+    <!-- Search Form Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📋</div>
+        <div>
+          <div class="card-header-title">Find Your Appointment</div>
+          <div class="card-header-subtitle">Search by mobile or booking ID</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="checkBookingForm">
+          <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <input type="tel" id="mobile" class="form-input" placeholder="Enter 10-digit mobile number" inputmode="numeric" maxlength="10" />
+          </div>
+
+          <div class="divider">
+            <span class="divider-text">or</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Booking ID</label>
+            <input type="text" id="booking_id" class="form-input" placeholder="Enter your booking ID" />
+          </div>
+
+          <!-- Feedback -->
+          <div id="feedback" class="feedback" role="status"></div>
+
+          <!-- Buttons -->
+          <div class="btn-group">
+            <button type="button" id="searchBtn" class="btn btn-primary">Search</button>
+            <button type="button" id="clearBtn" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer Text -->
+    <div class="footer-text">
+      Need to book? <a href="/patient_booking.html">Book an appointment</a>
+    </div>
+  </main>
+
+  <!-- Booking Details Modal -->
+  <div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="modal-close" id="closeBookingModalBtn">&times;</button>
+        <div class="modal-icon">📋</div>
+        <div class="modal-title">Booking Details</div>
+      </div>
+      <div class="modal-body">
+        <div id="bookingModalBody" class="booking-result">
+          <!-- Content will be inserted here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal" id="closeModalBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileEl = document.getElementById('mobile');
+      const bookingEl = document.getElementById('booking_id');
+      const searchBtn = document.getElementById('searchBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const feedback = document.getElementById('feedback');
+      const bookingModal = document.getElementById('bookingModal');
+      const bookingModalBody = document.getElementById('bookingModalBody');
+      const closeBookingModalBtn = document.getElementById('closeBookingModalBtn');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+
+      // Mobile validation
+      function mobileValid(v) {
+        return /^[1-9][0-9]{9}$/.test(v || '');
+      }
+
+      // Show feedback
+      function showFeedback(message, type = 'info') {
+        feedback.textContent = message;
+        feedback.className = `feedback show ${type}`;
+      }
+
+      function hideFeedback() {
+        feedback.className = 'feedback';
+        feedback.textContent = '';
+      }
+
+      // Get status badge class
+      function getStatusClass(status) {
+        const s = (status || '').toLowerCase();
+        if (s === 'seen' || s === 'completed' || s === 'done') return 'seen';
+        if (s === 'cancelled' || s === 'no-show') return 'cancelled';
+        return 'pending';
+      }
+
+      // Get status display text
+      function getStatusText(status) {
+        const s = (status || 'pending').toLowerCase();
+        return s.charAt(0).toUpperCase() + s.slice(1);
+      }
+
+      // Render booking details
+      function renderBooking(b) {
+        const statusClass = getStatusClass(b.status);
+        const statusText = getStatusText(b.status);
+        
+        return `
+          <div class="booking-patient">
+            <div class="booking-patient-name">${b.patient_name || 'Patient'}</div>
+            <div class="booking-patient-info">
+              ${b.age ? b.age + ' yrs' : ''}${b.age && b.gender ? ' • ' : ''}${b.gender || ''}
+            </div>
+          </div>
+          
+          <div class="booking-details">
+            <div class="booking-detail">
+              <span class="booking-detail-label">Status</span>
+              <span class="booking-detail-value">
+                <span class="status-badge ${statusClass}">${statusText}</span>
+              </span>
+            </div>
+            <div class="booking-detail">
+              <span class="booking-detail-label">Doctor</span>
+              <span class="booking-detail-value">${b.doctor_name || '-'}</span>
+            </div>
+            <div class="booking-detail">
+              <span class="booking-detail-label">Clinic</span>
+              <span class="booking-detail-value">${b.clinic_name || '-'}</span>
+            </div>
+            <div class="booking-detail">
+              <span class="booking-detail-label">Date</span>
+              <span class="booking-detail-value">${b.appointment_date || '-'}</span>
+            </div>
+            <div class="booking-detail">
+              <span class="booking-detail-label">Time</span>
+              <span class="booking-detail-value">${b.appointment_time || '-'}</span>
+            </div>
+            <div class="booking-detail">
+              <span class="booking-detail-label">Booking ID</span>
+              <span class="booking-detail-value">${b.booking_id || '-'}</span>
+            </div>
+          </div>
+          
+          <div class="queue-highlight">
+            <div class="queue-highlight-label">Your Queue Number</div>
+            <div class="queue-highlight-value">#${b.queue_number !== undefined && b.queue_number !== null ? b.queue_number : '-'}</div>
+          </div>
+        `;
+      }
+
+      // Show modal
+      function showModal(html) {
+        bookingModalBody.innerHTML = html;
+        bookingModal.classList.add('show');
+      }
+
+      // Close modal
+      function closeModal() {
+        bookingModal.classList.remove('show');
+      }
+
+      closeBookingModalBtn.addEventListener('click', closeModal);
+      closeModalBtn.addEventListener('click', closeModal);
+      bookingModal.addEventListener('click', function(e) {
+        if (e.target === bookingModal) closeModal();
+      });
+
+      // Search function
+      async function doSearch() {
+        hideFeedback();
+        const mobile = mobileEl.value.trim();
+        const bookingId = bookingEl.value.trim();
+
+        if (!mobile && !bookingId) {
+          showFeedback('Please enter mobile number or booking ID.', 'error');
+          return;
+        }
+
+        if (mobile && !mobileValid(mobile)) {
+          showFeedback('Please enter a valid 10-digit mobile number.', 'error');
+          return;
+        }
+
+        showFeedback('Searching...', 'info');
+
+        const params = new URLSearchParams();
+        if (mobile) params.set('mobile', mobile);
+        if (bookingId) params.set('appointment_id', bookingId);
+
+        try {
+          const res = await fetch('/bookings/verify?' + params.toString());
+          if (!res.ok) {
+            showFeedback('Server error. Please try again later.', 'error');
+            return;
+          }
+
+          const j = await res.json();
+          if (!j.success) {
+            showFeedback(j.message || 'No bookings found.', 'error');
+            return;
+          }
+
+          const bookings = j.bookings || [];
+          if (!bookings.length) {
+            showFeedback('No bookings found with the given details.', 'error');
+            return;
+          }
+
+          // Show first booking in modal
+          showModal(renderBooking(bookings[0]));
+          showFeedback(`Found ${bookings.length} booking(s).`, 'success');
+
+        } catch (err) {
+          showFeedback('Network error. Please check your connection.', 'error');
+        }
+      }
+
+      // Event listeners
+      searchBtn.addEventListener('click', doSearch);
+
+      // Allow Enter key to search
+      mobileEl.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doSearch();
+        }
+      });
+
+      bookingEl.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doSearch();
+        }
+      });
+
+      // Mobile input normalization
+      mobileEl.addEventListener('input', function(e) {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.startsWith('0')) v = v.substring(1);
+        if (v.length > 10) v = v.substring(0, 10);
+        e.target.value = v;
+      });
+
+      // Clear button
+      clearBtn.addEventListener('click', function() {
+        mobileEl.value = '';
+        bookingEl.value = '';
+        hideFeedback();
+      });
+    });
+  </script>
+</body>
+</html>

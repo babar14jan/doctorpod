@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Book an appointment with our trusted doctors - DoctorPod" />
+  <title>Book Appointment - DoctorPod</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --primary-light: rgba(16, 185, 129, 0.1);
+      --secondary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Navigation */
+    .nav {
+      background: var(--surface);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      height: 36px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .nav-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+
+    .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+    .nav-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover { background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
+
+    /* Main Container */
+    .main {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: #1e293b;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-icon {
+      font-size: 2.5rem;
+      line-height: 1;
+    }
+
+    .hero-text {
+      text-align: center;
+    }
+
+    .hero-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin: 0;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-header-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.375rem;
+    }
+
+    .card-header-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .card-header-subtitle {
+      font-size: 0.8125rem;
+      color: #64748b;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-label .required {
+      color: var(--danger);
+      margin-left: 0.125rem;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    .form-input::placeholder { color: #94a3b8; }
+
+    .form-input:disabled, .form-select:disabled {
+      background: #f8fafc;
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    /* Timing Display */
+    .timing-box {
+      display: none;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 1px solid #86efac;
+      border-radius: 10px;
+      padding: 0.875rem 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .timing-box.show { display: block; }
+
+    .timing-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #166534;
+      text-transform: uppercase;
+      margin-bottom: 0.375rem;
+    }
+
+    .timing-value {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #15803d;
+    }
+
+    /* Buttons */
+    .btn-group {
+      display: flex;
+      flex-direction: row;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    }
+
+    .btn-secondary {
+      background: #ef4444;
+      color: white;
+      border: none;
+    }
+
+    .btn-secondary:hover {
+      background: #dc2626;
+    }
+
+    /* Feedback */
+    .feedback {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .feedback.error {
+      display: block;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .feedback.success {
+      display: block;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal.show { display: flex; }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 400px;
+      overflow: hidden;
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .modal-header.success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .modal-header.error {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+    }
+
+    .modal-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .booking-detail {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .booking-detail:last-child { border-bottom: none; }
+
+    .booking-detail-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .booking-detail-value {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .booking-highlight {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+
+    .booking-highlight-label {
+      font-size: 0.75rem;
+      opacity: 0.9;
+      margin-bottom: 0.25rem;
+    }
+
+    .booking-highlight-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .modal-footer {
+      padding: 0 1.5rem 1.5rem;
+    }
+
+    .btn-modal {
+      width: 100%;
+      padding: 0.875rem;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-modal:hover { background: var(--primary-hover); }
+
+    /* Steps Indicator */
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .step {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transition: all 0.3s;
+    }
+
+    .step.active { background: white; width: 24px; border-radius: 4px; }
+
+    /* Footer text */
+    .footer-text {
+      text-align: center;
+      color: #000000;
+      font-size: 0.8125rem;
+      margin-top: 1.5rem;
+    }
+
+    .footer-text a {
+      color: #000000;
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .main { padding: 1rem; }
+      .hero-title { font-size: 1.5rem; }
+      .hero-icon { font-size: 3rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .card-body { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="/" class="nav-brand">
+      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" />
+      <div>
+        <div class="nav-title">DoctorPod</div>
+        <div class="nav-subtitle">Quick. Smart. Trusted.</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/" class="nav-link">← Home</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <!-- Hero Section -->
+    <div class="hero">
+      <div class="hero-icon">📅</div>
+      <div class="hero-text">
+        <h1 class="hero-title">Book Your Appointment</h1>
+        <p class="hero-subtitle">Quick and easy online booking</p>
+      </div>
+    </div>
+
+    <!-- Steps Indicator -->
+    <div class="steps">
+      <div class="step active"></div>
+      <div class="step"></div>
+      <div class="step"></div>
+    </div>
+
+    <!-- Booking Form Card -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">👤</div>
+        <div>
+          <div class="card-header-title">Patient Details</div>
+          <div class="card-header-subtitle">Fill in your information</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="bookingForm">
+          <!-- Patient Info -->
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="required">*</span></label>
+            <input type="text" name="patient_name" class="form-input" placeholder="Enter your full name" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Mobile <span class="required">*</span></label>
+              <input type="tel" name="mobile" id="mobileInput" class="form-input" inputmode="numeric" maxlength="10" placeholder="9876543210" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Age <span class="required">*</span></label>
+              <input type="number" name="age" class="form-input" min="1" max="120" placeholder="Age" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Gender <span class="required">*</span></label>
+            <select name="gender" class="form-select" required>
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Clinic & Doctor Selection -->
+          <div class="form-group">
+            <label class="form-label">Select Clinic <span class="required">*</span></label>
+            <select name="clinic_id" id="clinicSelect" class="form-select" required>
+              <option value="">Loading clinics...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Select Doctor <span class="required">*</span></label>
+            <select name="doctor_id" id="doctorSelect" class="form-select" required disabled>
+              <option value="">Select clinic first</option>
+            </select>
+          </div>
+
+          <!-- Timing Display -->
+          <div id="timingBox" class="timing-box">
+            <div class="timing-label">🕐 Doctor Available</div>
+            <div id="timingDisplay" class="timing-value"></div>
+          </div>
+
+          <!-- Date Selection -->
+          <div class="form-group" style="margin-top: 1.25rem;">
+            <label class="form-label">Appointment Date <span class="required">*</span></label>
+            <input type="date" name="appointment_date" id="dateInput" class="form-input" required disabled />
+          </div>
+
+          <!-- Feedback -->
+          <div id="formFeedback" class="feedback" role="status"></div>
+
+          <!-- Buttons -->
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Book</button>
+            <button type="button" id="clearBtn" class="btn btn-secondary">Clear</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer Text -->
+    <div class="footer-text">
+      Already booked? <a href="/check_booking.html">Check your appointment</a>
+    </div>
+  </main>
+
+  <!-- Success/Error Modal -->
+  <div id="resultModal" class="modal">
+    <div class="modal-content">
+      <div id="modalHeader" class="modal-header success">
+        <div id="modalIcon" class="modal-icon">🎉</div>
+        <div id="modalTitle" class="modal-title">Booking Successful!</div>
+      </div>
+      <div class="modal-body">
+        <div id="bookingDetails">
+          <!-- Details will be inserted here -->
+        </div>
+        <div id="queueHighlight" class="booking-highlight">
+          <div class="booking-highlight-label">Your Queue Number</div>
+          <div id="queueNumber" class="booking-highlight-value">#1</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="closeModalBtn" class="btn-modal">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('bookingForm');
+      const clinicSelect = document.getElementById('clinicSelect');
+      const doctorSelect = document.getElementById('doctorSelect');
+      const dateInput = document.getElementById('dateInput');
+      const timingBox = document.getElementById('timingBox');
+      const timingDisplay = document.getElementById('timingDisplay');
+      const feedback = document.getElementById('formFeedback');
+      const clearBtn = document.getElementById('clearBtn');
+      const mobileInput = document.getElementById('mobileInput');
+      const resultModal = document.getElementById('resultModal');
+      const modalHeader = document.getElementById('modalHeader');
+      const modalIcon = document.getElementById('modalIcon');
+      const modalTitle = document.getElementById('modalTitle');
+      const bookingDetails = document.getElementById('bookingDetails');
+      const queueHighlight = document.getElementById('queueHighlight');
+      const queueNumber = document.getElementById('queueNumber');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+
+      // Normalize mobile input
+      if (window.DoctorPod && window.DoctorPod.normalizeMobileInput) {
+        window.DoctorPod.normalizeMobileInput(mobileInput);
+      }
+
+      // Set minimum date to today
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.setAttribute('min', today);
+
+      // Fetch clinics on load
+      fetch('/doctors/clinics/all')
+        .then(r => r.json())
+        .then(j => {
+          if (j.success && Array.isArray(j.clinics) && j.clinics.length > 0) {
+            clinicSelect.innerHTML = '<option value="">Select a clinic</option>' +
+              j.clinics.map(c => `<option value="${c.clinic_id}">${c.name}</option>`).join('');
+          } else {
+            clinicSelect.innerHTML = '<option value="">No clinics available</option>';
+          }
+        })
+        .catch(() => {
+          clinicSelect.innerHTML = '<option value="">Error loading clinics</option>';
+        });
+
+      // When clinic changes, fetch doctors
+      clinicSelect.addEventListener('change', function() {
+        const cid = clinicSelect.value;
+        doctorSelect.innerHTML = '<option value="">Loading doctors...</option>';
+        doctorSelect.disabled = true;
+        dateInput.value = '';
+        dateInput.disabled = true;
+        timingBox.classList.remove('show');
+        timingDisplay.innerHTML = '';
+        feedback.className = 'feedback';
+        feedback.textContent = '';
+
+        if (!cid) return;
+
+        fetch(`/doctors/by-clinic/${encodeURIComponent(cid)}`)
+          .then(r => r.json())
+          .then(j => {
+            if (j.success && Array.isArray(j.doctors) && j.doctors.length > 0) {
+              doctorSelect.innerHTML = '<option value="">Select a doctor</option>' +
+                j.doctors.map(d => `<option value="${d.doctor_id}">${d.name}${d.specialization ? ' (' + d.specialization + ')' : ''}</option>`).join('');
+              doctorSelect.disabled = false;
+            } else {
+              doctorSelect.innerHTML = '<option value="">No doctors available</option>';
+            }
+          })
+          .catch(() => {
+            doctorSelect.innerHTML = '<option value="">Error loading doctors</option>';
+          });
+
+        updateSteps(1);
+      });
+
+      // When doctor changes, fetch availability
+      doctorSelect.addEventListener('change', function() {
+        const did = doctorSelect.value;
+        const cid = clinicSelect.value;
+        timingBox.classList.remove('show');
+        timingDisplay.innerHTML = '';
+        dateInput.value = '';
+        dateInput.disabled = true;
+
+        if (!did || !cid) return;
+
+        fetch(`/doctors/availability?doctor_id=${encodeURIComponent(did)}&clinic_id=${encodeURIComponent(cid)}`)
+          .then(r => r.json())
+          .then(j => {
+            if (j.success && Array.isArray(j.availability) && j.availability.length > 0) {
+              // Group by time range
+              const timeMap = {};
+              j.availability.forEach(a => {
+                const time = `${a.start_time} - ${a.end_time}`;
+                if (!timeMap[time]) timeMap[time] = [];
+                timeMap[time].push(a.day_of_week);
+              });
+
+              let html = Object.entries(timeMap)
+                .map(([time, days]) => `<div><strong>${days.join(', ')}</strong>: ${time}</div>`)
+                .join('');
+
+              timingDisplay.innerHTML = html;
+              timingBox.classList.add('show');
+              dateInput.disabled = false;
+            } else {
+              timingDisplay.innerHTML = 'No availability set for this doctor.';
+              timingBox.classList.add('show');
+              dateInput.disabled = true;
+            }
+          })
+          .catch(() => {
+            timingDisplay.innerHTML = 'Error loading availability.';
+            timingBox.classList.add('show');
+          });
+
+        updateSteps(2);
+      });
+
+      // Update steps indicator
+      function updateSteps(step) {
+        const steps = document.querySelectorAll('.step');
+        steps.forEach((s, i) => {
+          s.classList.toggle('active', i <= step);
+        });
+      }
+
+      // Show modal
+      function showModal(success, data) {
+        modalHeader.className = `modal-header ${success ? 'success' : 'error'}`;
+        modalIcon.textContent = success ? '🎉' : '❌';
+        modalTitle.textContent = success ? 'Booking Successful!' : 'Booking Failed';
+
+        if (success && data) {
+          bookingDetails.innerHTML = `
+            <div class="booking-detail">
+              <span class="booking-detail-label">Doctor</span>
+              <span class="booking-detail-value">${data.doctorName || '-'}</span>
+            </div>
+            <div class="booking-detail">
+              <span class="booking-detail-label">Clinic</span>
+              <span class="booking-detail-value">${data.clinicName || '-'}</span>
+            </div>
+            <div class="booking-detail">
+              <span class="booking-detail-label">Date</span>
+              <span class="booking-detail-value">${data.date || '-'}</span>
+            </div>
+            ${data.tentativeTime ? `
+            <div class="booking-detail">
+              <span class="booking-detail-label">Expected Time</span>
+              <span class="booking-detail-value">${data.tentativeTime}</span>
+            </div>` : ''}
+            <div class="booking-detail">
+              <span class="booking-detail-label">Booking ID</span>
+              <span class="booking-detail-value">${data.bookingId || '-'}</span>
+            </div>
+          `;
+          queueNumber.textContent = `#${data.queueNumber || '1'}`;
+          queueHighlight.style.display = 'block';
+        } else {
+          bookingDetails.innerHTML = `<p style="text-align:center;color:#991b1b;">${data?.message || 'Something went wrong. Please try again.'}</p>`;
+          queueHighlight.style.display = 'none';
+        }
+
+        resultModal.classList.add('show');
+      }
+
+      // Close modal
+      closeModalBtn.addEventListener('click', function() {
+        resultModal.classList.remove('show');
+      });
+
+      resultModal.addEventListener('click', function(e) {
+        if (e.target === resultModal) {
+          resultModal.classList.remove('show');
+        }
+      });
+
+      // Form submit
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        feedback.className = 'feedback';
+        feedback.textContent = '';
+
+        const fd = new FormData(form);
+        const data = Object.fromEntries(fd.entries());
+        const did = doctorSelect.value;
+        const cid = clinicSelect.value;
+
+        // Validate availability
+        if (did && cid && data.appointment_date) {
+          try {
+            const availRes = await fetch(`/doctors/availability?doctor_id=${encodeURIComponent(did)}&clinic_id=${encodeURIComponent(cid)}`);
+            const availJ = await availRes.json();
+
+            if (availJ.success && Array.isArray(availJ.availability) && availJ.availability.length > 0) {
+              const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+              const jsDate = new Date(data.appointment_date);
+              const dayName = shortDays[jsDate.getDay()];
+              const available = availJ.availability.find(a => a.day_of_week === dayName);
+
+              if (!available) {
+                showModal(false, { message: `Doctor is not available on ${dayName}. Please select a valid day based on the timings shown above.` });
+                return;
+              }
+            } else {
+              showModal(false, { message: 'This doctor has no availability set. Please choose another doctor.' });
+              return;
+            }
+          } catch (err) {
+            feedback.className = 'feedback error';
+            feedback.textContent = 'Error checking availability.';
+            return;
+          }
+        }
+
+        // Submit booking
+        try {
+          const res = await fetch('/bookings/book', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const j = await res.json();
+
+          if (j.success) {
+            // Get doctor and clinic names
+            const doctorName = doctorSelect.options[doctorSelect.selectedIndex]?.text || '-';
+            const clinicName = clinicSelect.options[clinicSelect.selectedIndex]?.text || '-';
+
+            showModal(true, {
+              doctorName,
+              clinicName,
+              date: data.appointment_date,
+              queueNumber: j.queue_number,
+              tentativeTime: j.tentative_time,
+              bookingId: j.booking_id
+            });
+
+            // Reset form
+            form.reset();
+            doctorSelect.disabled = true;
+            doctorSelect.innerHTML = '<option value="">Select clinic first</option>';
+            dateInput.disabled = true;
+            timingBox.classList.remove('show');
+            updateSteps(0);
+          } else {
+            showModal(false, { message: j.message || 'Booking failed. Please try again.' });
+          }
+        } catch (err) {
+          showModal(false, { message: 'Network error. Please check your connection and try again.' });
+        }
+      });
+
+      // Clear button
+      clearBtn.addEventListener('click', function() {
+        form.reset();
+        doctorSelect.disabled = true;
+        doctorSelect.innerHTML = '<option value="">Select clinic first</option>';
+        dateInput.disabled = true;
+        timingBox.classList.remove('show');
+        feedback.className = 'feedback';
+        feedback.textContent = '';
+        updateSteps(0);
+      });
+    });
+  </script>
+</body>
+</html>
