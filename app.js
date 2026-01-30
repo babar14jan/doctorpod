@@ -5,7 +5,7 @@ const path = require('path');
 const session = require('express-session');
 const cors = require('cors');
 const app = express();
-const PORT = process.env.PORT || 3000;
+// const PORT = process.env.PORT || 3000;
 
 // CORS (safe defaults)
 app.use(cors());
@@ -82,4 +82,6 @@ app.use((err, req, res, next) => {
 	res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Export app for server.js (Render entrypoint)
+module.exports = app;
