@@ -1,4 +1,7 @@
 node_modules/
 *.env
-doctorpod.db
+doctorpod_dev.db
 package-lock.json
+.pdf
+public/pdfs
+.sql

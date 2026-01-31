@@ -7,8 +7,7 @@
 -- Admins (2 records)
 -- ===========================
 INSERT INTO admins (admin_id, name, mobile, email, password) VALUES
-('admin', 'Md Babar Ali', '9876544321', 'babar@doctorpod.in', 'admin1'),
-('admin2', 'Ashar Ali', '9876508899', 'ashar@doctorpod.in', 'admin12');
+('admin', 'Md Babar Ali', '9330317102', 'babar@doctorpod.in', 'admin321');
 
 -- ===========================
 -- Clinics (10 records - Connected to Admin via source)

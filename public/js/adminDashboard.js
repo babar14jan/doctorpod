@@ -164,18 +164,12 @@ document.addEventListener('DOMContentLoaded', function() {
     addForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(addForm);
-      const payload = {
-        name: fd.get('name'),
-        qualification: fd.get('qualification'),
-        specialization: fd.get('specialization'),
-        phone: fd.get('phone'),
-        email: fd.get('email'),
-        password: fd.get('password'),
-        clinic_id: fd.get('clinic_id'),
-        registration_no: fd.get('registration_no') || null
-      };
+      // Debug: print all form fields before sending
+      for (let pair of fd.entries()) {
+        console.log('AddDoctor FormData:', pair[0], pair[1]);
+      }
       try {
-        const res = await fetch('/doctors/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const res = await fetch('/doctors/add', { method: 'POST', body: fd, credentials: 'include' });
         const j = await res.json();
         if (j.success) {
           // Show a doctor success modal with doctor_id
@@ -204,18 +198,12 @@ document.addEventListener('DOMContentLoaded', function() {
     addClinicForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(addClinicForm);
-      const payload = {
-        name: fd.get('name'),
-        phone: fd.get('phone'),
-        email: fd.get('email'),
-        address: fd.get('address'),
-        password: fd.get('password')
-      };
       try {
-        const res = await fetch('/doctors/addClinic', {
+        // Update: submit to /admin/addClinic instead of /doctors/addClinic
+        const res = await fetch('/admin/addClinic', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: fd,
+          credentials: 'include'
         });
         const j = await res.json();
         if (j.success) {

@@ -1,7 +1,25 @@
-
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
+const path = require('path');
+
+// ...existing code...
+
+// Endpoint to get QR code path for a doctor (by clinic_id)
+router.get('/qr/:doctor_id', async (req, res) => {
+	const db = require('../utils/db');
+	const doctor = await db.prepare('SELECT clinic_id FROM doctors WHERE doctor_id = ?').get(req.params.doctor_id);
+	if (!doctor || !doctor.clinic_id) return res.json({ success: false, message: 'No clinic found for doctor' });
+	const qrPathFile = path.join(__dirname, '../utils/qr_code_path.json');
+	let qrPaths = {};
+	try { qrPaths = JSON.parse(fs.readFileSync(qrPathFile, 'utf8')); } catch {}
+	const qrPath = qrPaths[doctor.clinic_id] ? qrPaths[doctor.clinic_id].replace(/^public\//, '/') : null;
+	if (qrPath) return res.json({ success: true, qrPath });
+	return res.json({ success: false, message: 'No QR code found for clinic' });
+});
 const ctrl = require('../controllers/doctorController');
+const multer = require('multer');
+const upload = multer();
 
 // Get doctor availability (timings) for a given doctor and clinic
 router.get('/availability', ctrl.getDoctorAvailability);
@@ -9,13 +27,17 @@ router.get('/availability', ctrl.getDoctorAvailability);
 router.get('/all', ctrl.getAllDoctors);
 router.get('/clinics/all', ctrl.getAllClinics); // New: get all clinics
 router.get('/by-clinic/:clinic_id', ctrl.getDoctorsByClinic); // New: get doctors by clinic_id
-router.post('/login', ctrl.loginDoctor);
-router.post('/add', ctrl.addDoctor);
+// Apply body parser only for /login route to support JSON
+router.post('/login', express.json(), express.urlencoded({ extended: true }), ctrl.loginDoctor);
+router.post('/add', upload.none(), (req, res, next) => {
+	console.log('DEBUG /doctors/add content-type:', req.headers['content-type']);
+	console.log('DEBUG /doctors/add req.body:', req.body);
+	next();
+}, ctrl.addDoctor); // Add doctor (support multipart/form-data for form fields)
 router.post('/delete', ctrl.deleteDoctor);
 router.get('/:id', ctrl.getDoctorById);
 
 
 // Add clinic (admin dashboard)
-router.post('/addClinic', ctrl.addClinic);
 
 module.exports = router;
