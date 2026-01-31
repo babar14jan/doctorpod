@@ -32,7 +32,7 @@ async function sendWhatsApp(req, res){
     }
     // If doctor_id is provided but not clinic_id, get clinic_id from doctors table
     if (resolvedDoctorId && !resolvedClinicId) {
-      const clinicIdRow = await db.prepare('SELECT clinic_id FROM doctors WHERE doctor_id = ?').get(resolvedDoctorId);
+      const clinicIdRow = await db.prepare('SELECT doctor_id FROM doctors WHERE doctor_id = ?').get(resolvedDoctorId);
       if (clinicIdRow && clinicIdRow.clinic_id) resolvedClinicId = clinicIdRow.clinic_id;
     }
     let upiLink = null;
@@ -65,18 +65,41 @@ async function sendWhatsApp(req, res){
       const doctorRow = await db.prepare('SELECT name FROM doctors WHERE doctor_id = ?').get(resolvedDoctorId);
       if (doctorRow && doctorRow.name) doctorName = doctorRow.name;
     }
-    // Start with custom message from frontend, or build default
-    let text = message || '';
-    if (!text.trim()) {
-      text = `*Doctor:* ${doctorName}`;
+    // Always use doctor and patient name in message
+    let patientName = '';
+    if (patientId) {
+      const patientRow = await db.prepare('SELECT full_name FROM patients WHERE patient_id = ?').get(patientId);
+      if (patientRow && patientRow.full_name) patientName = patientRow.full_name;
     }
+    // Fetch medicine details for message
+    let medicinesText = '';
+    if (visit_id) {
+      const medicines = await db.all('SELECT medicine_name, dose, frequency, timing FROM prescription_items WHERE visit_id = ?', visit_id);
+      if (medicines && medicines.length) {
+        medicinesText = '*Medicines:*\n' + medicines.map((m, i) => `${i+1}. ${m.medicine_name}${m.dose ? ' | ' + m.dose : ''}${m.frequency ? ' | ' + m.frequency : ''}${m.timing ? ' | ' + m.timing : ''}`).join('\n');
+      }
+    }
+    // Fetch consultation fee and UPI ID for message
+    let consultationFee = '';
+    let upiId = '';
+    if (visit_id) {
+      const feeRow = await db.prepare('SELECT v.consultation_fee, c.upi_id FROM visits v JOIN clinics c ON v.clinic_id = c.clinic_id WHERE v.visit_id = ?').get(visit_id);
+      if (feeRow) {
+        consultationFee = feeRow.consultation_fee || '';
+        upiId = feeRow.upi_id || '';
+      }
+    }
+    let text = `*Prescription from:* ${doctorName}\n*Patient:* ${patientName}`;
+    if (medicinesText) text += `\n\n${medicinesText}`;
+    if (consultationFee) text += `\n\n*Consultation Fee:* ₹${consultationFee}`;
+    if (upiId) text += `\n*UPI ID:* ${upiId}`;
     // Only append PDF link if not already present
     if (fullPdfUrl && !text.includes(fullPdfUrl)) {
       text += `\n\n*Prescription Link:* ${fullPdfUrl}`;
     }
     // Only append UPI payment link if not already present
     if (payLink && !text.includes(payLink)) {
-      text += `\n\nPay Consultation Fee: ${payLink}`;
+      text += `\n\n*Payment link:* ${payLink}`;
     }
     // Ensure DoctorPod signature is always the last line
     const doctorpodSignature = '_This is generated via DoctorPod_';
