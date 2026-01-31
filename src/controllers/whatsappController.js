@@ -74,7 +74,7 @@ async function sendWhatsApp(req, res){
     // Fetch medicine details for message
     let medicinesText = '';
     if (visit_id) {
-      const medicines = await db.all('SELECT medicine_name, dose, frequency, timing FROM prescription_items WHERE visit_id = ?', visit_id);
+      const medicines = await db.prepare('SELECT medicine_name, dose, frequency, timing FROM prescription_items WHERE visit_id = ?').all(visit_id);
       if (medicines && medicines.length) {
         medicinesText = '*Medicines:*\n' + medicines.map((m, i) => `${i+1}. ${m.medicine_name}${m.dose ? ' | ' + m.dose : ''}${m.frequency ? ' | ' + m.frequency : ''}${m.timing ? ' | ' + m.timing : ''}`).join('\n');
       }
