@@ -1,10 +1,30 @@
-
 const express = require('express');
 const router = express.Router();
 const ctrl = require('../controllers/adminController');
-
-
+const multer = require('multer');
 const path = require('path');
+
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, '../../public/asset/QR'));
+    },
+    filename: (req, file, cb) => {
+      const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+      cb(null, `${file.fieldname}_${timestamp}${path.extname(file.originalname)}`);
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .png and .jpeg files are allowed'));
+    }
+  }
+});
+
 // Serve static HTML for Admin Login
 router.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public/admin_login.html'));
@@ -21,5 +41,8 @@ router.post('/login', ctrl.adminLogin);
 // Google Drive configuration
 router.post('/set-drive-folder', ctrl.setDriveFolder);
 router.get('/drive-status', ctrl.getDriveStatus);
+
+// Add Clinic route
+router.post('/addClinic', upload.single('image'), ctrl.addClinic);
 
 module.exports = router;

@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS clinics (
     email TEXT,
     address TEXT,
     password TEXT NOT NULL,  -- plain text 
+    upi_id TEXT, -- UPI ID for payments
+    qr_code_path TEXT, -- Path to the QR code image
     is_active INTEGER DEFAULT 1,
     logo_path TEXT,
     latitude REAL,

@@ -5,8 +5,8 @@ const db = require('../utils/db');
 const { ensurePdfDir } = require('../utils/fileHelper');
 const { uploadToDrive, isConfigured: isDriveConfigured } = require('../utils/googleDriveHelper');
 
-// Load QR config from JSON (qrcode_path.json)
-const qrConfigPath = path.join(__dirname, '../utils/qrcode_path.json');
+// Load QR config from JSON (qr_code_path.json)
+const qrConfigPath = path.join(__dirname, '../utils/qr_code_path.json');
 let qrPaths = {};
 try {
   qrPaths = JSON.parse(fs.readFileSync(qrConfigPath, 'utf8'));
@@ -59,16 +59,22 @@ async function generatePdf(req, res) {
     let investigations = hist.investigations || '';
     let advice = hist.advice || '';
 
-    // Read base path from pdf_paths.json
+    // Strictly require base_path from pdf_paths.json
     const pdfPathsFile = path.join(__dirname, '../utils/pdf_paths.json');
     let pdfPathsConfig = {};
     try {
       if (fs.existsSync(pdfPathsFile)) {
         pdfPathsConfig = JSON.parse(fs.readFileSync(pdfPathsFile, 'utf8'));
+      } else {
+        return res.status(500).json({ success: false, message: 'pdf_paths.json not found' });
       }
-    } catch (e) { pdfPathsConfig = {}; }
-    
-    const basePath = pdfPathsConfig.base_path || 'public/pdfs/';
+    } catch (e) {
+      return res.status(500).json({ success: false, message: 'Failed to read pdf_paths.json: ' + e.message });
+    }
+    if (!pdfPathsConfig.base_path) {
+      return res.status(500).json({ success: false, message: 'base_path missing in pdf_paths.json' });
+    }
+    const basePath = pdfPathsConfig.base_path;
     const pdfDir = path.isAbsolute(basePath) ? basePath : path.join(__dirname, '../../', basePath);
     
     // Patient info
@@ -76,7 +82,10 @@ async function generatePdf(req, res) {
     const patientAge = hist.patient_age || '';
     const patientGender = hist.patient_gender || '';
     const safeName = (patientName || 'patient').replace(/[^a-zA-Z0-9_\-]/g, '_');
-    const dateStr = new Date(hist.timestamp || hist.created_at).toISOString().replace(/[:.]/g, '-').replace('T', '_').split('Z')[0];
+    const dateStr = new Date(hist.timestamp || hist.created_at)
+      .toISOString()
+      .replace(/[-:.TZ]/g, '')
+      .slice(0, 14); // Format as DDMMYYHHMMSS
     const filename = `${safeName}_${dateStr}.pdf`;
     const filepath = path.join(pdfDir, filename);
 
@@ -183,48 +192,39 @@ async function generatePdf(req, res) {
     // ===== QR CODE (Right side, parallel to vitals/diagnosis/medicines) =====
     const includeQr = !!req.body.include_qr;
     let qrImgPath = null;
-    
     // Debug logging
-    console.log('QR Debug:', { 
-      includeQr, 
-      doctorId: hist.doctor_id, 
+    console.log('QR Debug:', {
+      includeQr,
+      clinicId: hist.clinic_id,
       consultationFee: hist.consultation_fee,
       qrPathsKeys: Object.keys(qrPaths),
-      qrPathForDoctor: qrPaths[hist.doctor_id]
+      qrPathForClinic: qrPaths[hist.clinic_id]
     });
-    
     if (includeQr) {
       try {
-        qrImgPath = qrPaths[hist.doctor_id];
+        qrImgPath = qrPaths[hist.clinic_id];
       } catch (e) { console.error('QR path error:', e); }
     }
-    
     // Save Y position before drawing QR
     const contentStartY = doc.y;
-    
     // Draw QR on right side if enabled
     const qrFullPath = qrImgPath ? path.join(__dirname, '../../', qrImgPath) : null;
     console.log('QR file check:', { qrImgPath, qrFullPath, exists: qrFullPath ? fs.existsSync(qrFullPath) : false });
-    
     if (includeQr && qrImgPath && fs.existsSync(qrFullPath)) {
       const qrSize = 70;
       const qrCardWidth = qrSize + 20;
       const qrCardHeight = qrSize + 22;
       const qrX = pageWidth - pageMargin - qrCardWidth;
       const qrY = contentStartY;
-      
       // QR background card
       doc.roundedRect(qrX, qrY, qrCardWidth, qrCardHeight, 6).fill(colors.bgLight);
       doc.roundedRect(qrX, qrY, qrCardWidth, qrCardHeight, 6).strokeColor(colors.border).lineWidth(1).stroke();
-      
       doc.image(path.join(__dirname, '../../', qrImgPath), qrX + 10, qrY + 6, { width: qrSize, height: qrSize });
-      
       // Single line: "Scan to Pay Rs. 200"
       const payText = hist.consultation_fee ? `Scan to Pay Rs.${hist.consultation_fee}` : 'Scan to Pay';
       doc.font('Helvetica-Bold').fontSize(8).fillColor('#000000');
       doc.text(payText, qrX, qrY + qrSize + 10, { width: qrCardWidth, align: 'center' });
     }
-    
     // Reset Y position to start content parallel to QR
     doc.y = contentStartY;
 
@@ -433,33 +433,17 @@ async function generatePdf(req, res) {
 
     stream.on('finish', async () => {
       try {
-        const publicPath = `${basePath.replace(/^public\//, '/')}${filename}`;
+        // Always use the path from pdf_paths.json for the PDF link
         let pdfPaths = pdfPathsConfig;
         const key = `${safeName}_${visit_id}`;
-        pdfPaths[key] = publicPath;
+        // Build the public path (server-relative)
+        const publicPath = pdfPaths[key] = `/${basePath.replace(/^public\//, '')}${filename}`;
         fs.writeFileSync(pdfPathsFile, JSON.stringify(pdfPaths, null, 2));
-        
-        let finalPath = publicPath;
-        let driveLink = null;
-        
-        // Upload to Google Drive if configured
-        if (isDriveConfigured()) {
-          try {
-            const driveResult = await uploadToDrive(filepath, filename);
-            if (driveResult.success) {
-              driveLink = driveResult.webViewLink;
-              finalPath = driveLink; // Use Google Drive link instead
-              console.log('PDF uploaded to Google Drive:', driveLink);
-            }
-          } catch (driveErr) {
-            console.error('Google Drive upload failed, using local path:', driveErr.message);
-          }
-        }
-        
-        // Update the visit record with the PDF path (Google Drive or local)
-        await db.prepare('UPDATE visits SET pres_path = ? WHERE visit_id = ?').run(finalPath, visit_id);
-        
-        res.json({ success: true, pdfPath: finalPath, localPath: publicPath, driveLink });
+
+        // Store this path in visits table
+        await db.prepare('UPDATE visits SET pres_path = ? WHERE visit_id = ?').run(publicPath, visit_id);
+
+        res.json({ success: true, pdfPath: publicPath });
       } catch (e) {
         res.status(500).json({ success: false, message: e.message });
       }

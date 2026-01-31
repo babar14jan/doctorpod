@@ -1,5 +1,28 @@
 const db = require('../utils/db');
 const { setFolderId, isConfigured } = require('../utils/googleDriveHelper');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, '../../public/asset/QR'));
+    },
+    filename: (req, file, cb) => {
+      const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+      cb(null, `${file.fieldname}_${timestamp}${path.extname(file.originalname)}`);
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .png and .jpeg files are allowed'));
+    }
+  }
+});
 
 function adminSession(req, res) {
   if (req.session && req.session.admin) {
@@ -63,4 +86,36 @@ function getDriveStatus(req, res) {
   });
 }
 
-module.exports = { adminLogin, adminSession, setDriveFolder, getDriveStatus };
+async function addClinic(req, res){
+  if (!req.session.admin) return res.status(403).json({ success: false, message: 'Unauthorized' });
+  if (!req.body) {
+    return res.status(400).json({ success: false, message: 'No form data received' });
+  }
+  const { name, phone, email, address, password, upi_id } = req.body;
+  const image = req.file;
+  if (!image) {
+    return res.status(400).json({ success: false, message: 'Image file is required' });
+  }
+  const source = req.session.admin.admin_id;
+  if (!name || !phone || !email || !address || !password) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
+  }
+  const namePart = (name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().substring(0, 4)).padEnd(4, 'x');
+  const phoneDigits = (phone.match(/\d+/g) || []).join('');
+  const phonePart = phoneDigits.slice(-6).padStart(6, '0');
+  const clinic_id = namePart + phonePart;
+  // Update qr_code_path.json with the actual filename
+  const qrCodePathFile = path.join(__dirname, '../utils/qr_code_path.json');
+  const qrCodePaths = JSON.parse(fs.readFileSync(qrCodePathFile, 'utf8'));
+  qrCodePaths[clinic_id] = `public/asset/QR/${image.filename}`;
+  fs.writeFileSync(qrCodePathFile, JSON.stringify(qrCodePaths, null, 2));
+  try {
+    await db.prepare('INSERT INTO clinics (clinic_id, name, phone, email, address, password, source, upi_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(clinic_id, name, phone, email, address, password, source, upi_id);
+    res.json({ success: true, clinic_id });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+}
+
+module.exports = { adminLogin, adminSession, setDriveFolder, getDriveStatus, addClinic };

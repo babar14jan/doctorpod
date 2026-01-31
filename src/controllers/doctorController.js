@@ -10,6 +10,8 @@ async function getDoctorAvailability(req, res) {
   }
 }
 const db = require('../utils/db');
+const fs = require('fs');
+const path = require('path');
 
 async function getAllDoctors(req, res){
   try{
@@ -89,6 +91,7 @@ async function getDoctorsByClinic(req, res) {
 
 async function addDoctor(req, res){
   // Allow both admin and clinic to add doctors
+  console.log('DEBUG addDoctor req.body:', req.body);
   let clinic_id = req.body.clinic_id;
   let source = null;
   if (req.session.admin) {
@@ -116,27 +119,6 @@ async function addDoctor(req, res){
 }
 
 
-// Add clinic (true clinic creation for admin dashboard)
-async function addClinic(req, res){
-  if (!req.session.admin) return res.status(403).json({ success: false, message: 'Unauthorized' });
-  const { name, phone, email, address, password } = req.body;
-  const source = req.session.admin.admin_id;
-  if (!name || !phone || !email || !address || !password) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
-  // Auto-generate clinic_id: first 4 chars of name (alphanumeric, lowercase, no spaces) + last 6 digits of phone
-  const namePart = (name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().substring(0, 4)).padEnd(4, 'x');
-  const phoneDigits = (phone.match(/\d+/g) || []).join('');
-  const phonePart = phoneDigits.slice(-6).padStart(6, '0');
-  const clinic_id = namePart + phonePart;
-  try {
-    await db.prepare('INSERT INTO clinics (clinic_id, name, phone, email, address, password, source) VALUES (?, ?, ?, ?, ?, ?, ?)')
-      .run(clinic_id, name, phone, email, address, password, source);
-    res.json({ success: true, clinic_id });
-  } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
-  }
-}
 
 async function getDoctorById(req, res){
   try{
@@ -165,5 +147,6 @@ async function deleteDoctor(req, res){
   } catch (e) { res.status(500).json({ success: false, message: e.message }); }
 }
 
-module.exports = { getAllDoctors, loginDoctor, addDoctor, getDoctorById, deleteDoctor, addClinic };
-module.exports = { getAllDoctors, loginDoctor, addDoctor, getDoctorById, deleteDoctor, addClinic, getAllClinics, getDoctorsByClinic, getDoctorAvailability };
+module.exports = { getAllDoctors, loginDoctor, addDoctor, getDoctorById, deleteDoctor };
+module.exports = { getAllDoctors, loginDoctor, addDoctor, getDoctorById, deleteDoctor, getAllClinics, getDoctorsByClinic, getDoctorAvailability };
+

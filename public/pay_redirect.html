@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting to UPI Payment...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    // These values will be injected by the backend
+    const upiLink = window.UPI_LINK;
+    if (upiLink) {
+      window.location.href = upiLink;
+    }
+  </script>
+</head>
+<body>
+  <p>Redirecting to UPI payment...</p>
+  <noscript>
+    <p>Please enable JavaScript to continue.</p>
+  </noscript>
+</body>
+</html>

@@ -466,7 +466,7 @@
           <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </div>
         <div id="addClinicSection" class="action-content">
-          <form id="addClinicForm">
+          <form id="addClinicForm" enctype="multipart/form-data">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Clinic Name *</label>
@@ -490,6 +490,18 @@
             <div class="form-group">
               <label class="form-label">Address</label>
               <input type="text" name="address" class="form-input" placeholder="Enter address" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">UPI ID</label>
+                <input type="text" name="upi_id" class="form-input" placeholder="Enter UPI ID" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Upload QR image</label>
+                <input type="file" name="image" class="form-input" accept="image/png, image/jpeg" required />
+              </div>
             </div>
             <div class="form-actions">
               <button type="reset" class="btn btn-outline">Reset</button>
@@ -626,6 +638,7 @@
       </div>
     </div>
   </main>
+  <script src="/js/adminDashboard.js"></script>
 
   <div id="successModal" class="modal-overlay">
     <div class="modal">
@@ -777,7 +790,7 @@
       e.preventDefault();
       const fd = new FormData(e.target);
       try {
-        const res = await fetch('/doctors/addClinic', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(fd)) });
+        const res = await fetch('/admin/addClinic', { method: 'POST', body: fd, credentials: 'include' });
         const data = await res.json();
         if (data.success) {
           showModal({ emoji: '🏥', title: 'Clinic Added!', msg: 'Your Clinic ID:', highlight: data.clinic_id, note: 'Save this ID for future reference.' });
@@ -788,19 +801,7 @@
       } catch { alert('Error'); }
     };
 
-    document.getElementById('addDoctorForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      try {
-        const res = await fetch('/doctors/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(fd)) });
-        const data = await res.json();
-        if (data.success) {
-          showModal({ emoji: '🩺', title: 'Doctor Added!', msg: 'Doctor ID:', highlight: data.doctor_id, note: 'Share this ID with the doctor.' });
-          e.target.reset();
-          loadDoctors();
-        } else { alert(data.message || 'Failed'); }
-      } catch { alert('Error'); }
-    };
+    // Removed duplicate/conflicting addDoctorForm submit handler. Only adminDashboard.js should handle doctor form submit.
 
     document.getElementById('addAvailabilityForm').onsubmit = async (e) => {
       e.preventDefault();

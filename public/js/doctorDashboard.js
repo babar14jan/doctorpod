@@ -1038,17 +1038,24 @@ document.addEventListener('DOMContentLoaded', function() {
         medicines.forEach((m, i) => { message += `${i + 1}. ${m}\n`; });
       }
       if (pdfPath) {
-        message += `\n*Prescription PDF Link:* ${window.location.origin + pdfPath}`;
+        message += `\n*Prescription Link:* ${window.location.origin + pdfPath}`;
       }
-      // Add QR code link if checkbox is checked and QR path is available
-      const includeQrCheckbox = document.getElementById('includeQrCheckbox');
-      if (includeQrCheckbox && includeQrCheckbox.checked && loggedInDoctor && loggedInDoctor.doctor_id) {
-        // Use QR code as payment link
-        const paymentUrl = window.location.origin + '/asset/QR/' + loggedInDoctor.doctor_id + '.png';
-        message += `\n\n*Payment Link:* ${paymentUrl}`;
-      }
-      message += `\n\n_This is generated via DoctorPod_`;
-      const res = await fetch('/whatsapp/send', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ visit_id: visitId, message, mobile: patientMobile }) });
+      // ...existing code...
+      // Patch: send 'mobile' instead of 'patient_mobile' to backend
+      // Always send doctor_id and clinic_id for robust backend lookup
+      const consultationFee = presForm.consultation_fee ? presForm.consultation_fee.value : '';
+      const res = await fetch('/whatsapp/send', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          visit_id: visitId,
+          message,
+          mobile: patientMobile,
+          doctor_id: loggedInDoctor?.doctor_id || null,
+          clinic_id: loggedInDoctor?.clinic_id || selectedClinicId || null,
+          consultation_fee: consultationFee
+        })
+      });
       const j = await res.json();
       if(j.success && j.whatsappUrl){ window.open(j.whatsappUrl, '_blank'); }
       else alert('Unable to create WhatsApp link');
