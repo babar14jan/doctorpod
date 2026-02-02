@@ -17,21 +17,44 @@ CREATE TABLE IF NOT EXISTS admins (
 );
 
 -- ===========================
+-- 1.5 Demo Requests Table
+-- ===========================
+CREATE TABLE IF NOT EXISTS demo_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    clinic_name TEXT NOT NULL,
+    contact_person TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    email TEXT NOT NULL,
+    city TEXT NOT NULL,
+    message TEXT,
+    status TEXT DEFAULT 'pending', -- 'pending', 'contacted', 'scheduled', 'completed', 'rejected'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    reviewed_by TEXT, -- admin_id who reviewed
+    reviewed_at DATETIME
+);
+
+-- ===========================
 -- 2. Clinics Table
 -- ===========================
 CREATE TABLE IF NOT EXISTS clinics (
     clinic_id TEXT PRIMARY KEY, -- e.g., Auto-generated unique ID first 4 char of name + last 6 of phone
     name TEXT NOT NULL,
-    phone TEXT NOT NULL,
+    phone TEXT UNIQUE NOT NULL,
     email TEXT,
     address TEXT,
     password TEXT NOT NULL,  -- plain text 
+    owner_name TEXT, -- Contact person / Dr. name
     upi_id TEXT, -- UPI ID for payments
     qr_code_path TEXT, -- Path to the QR code image
     is_active INTEGER DEFAULT 1,
     logo_path TEXT,
     latitude REAL,
     longitude REAL,
+    subscription_type TEXT DEFAULT 'trial', -- 'trial' or 'paid'
+    trial_start_date DATETIME,
+    trial_end_date DATETIME,
+    is_trial_expired INTEGER DEFAULT 0, -- 0 = active, 1 = expired
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     source TEXT -- Who added (admin)

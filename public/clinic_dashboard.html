@@ -3,204 +3,219 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Clinic Dashboard - DoctorPod" />
   <title>Clinic Dashboard - DoctorPod</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
       --primary: #0ea5e9;
-      --primary-hover: #0284c7;
-      --primary-light: rgba(14, 165, 233, 0.08);
-      --secondary: #6366f1;
+      --primary-dark: #0284c7;
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --bg: #f0f9ff;
+      --bg: #f8fafc;
       --surface: #ffffff;
-      --text: #0c4a6e;
-      --text-muted: #64748b;
-      --border: #e0f2fe;
-      --shadow: 0 1px 3px rgba(0,0,0,0.08);
-      --shadow-lg: 0 10px 40px rgba(14, 165, 233, 0.12);
-      --radius: 12px;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --radius: 8px;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.5;
-      min-height: 100vh;
+      line-height: 1.6;
     }
 
-    /* Navigation */
-    .nav {
+    /* Header */
+    .header {
       background: var(--surface);
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-      gap: 0.75rem;
+      padding: 1rem 1.5rem;
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
-    .nav-brand {
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo {
       display: flex;
       align-items: center;
       gap: 0.75rem;
       text-decoration: none;
+      color: var(--text);
     }
 
-    .nav-logo {
-      height: 36px;
-      width: auto;
-      border-radius: 8px;
-    }
+    .logo-icon { height: 32px; width: auto; border-radius: 6px; }
 
-    .nav-brand { text-decoration: none; color: inherit; }
-
-    .nav-title {
+    .logo-text {
       font-weight: 700;
       font-size: 1.25rem;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
-
-    .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
-
-    .nav-link {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      text-decoration: none;
-      padding: 0.5rem 0.75rem;
-      border-radius: 6px;
-      transition: all 0.2s;
     }
 
-    .nav-link:hover { background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-    .btn-nav {
-      background: var(--primary-light);
-      color: var(--primary);
-      border: 1px solid var(--border);
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       padding: 0.5rem 1rem;
-      border-radius: 8px;
       font-size: 0.875rem;
       font-weight: 500;
+      border-radius: var(--radius);
+      border: none;
       cursor: pointer;
       transition: all 0.2s;
       text-decoration: none;
     }
 
-    .btn-nav:hover { background: var(--primary); color: white; }
-    .btn-nav.danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
-    .btn-nav.danger:hover { background: #dc2626; color: white; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover:not(:disabled) { background: #059669; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover:not(:disabled) { background: #dc2626; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--bg); }
+    .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
 
-    /* Main Container */
-    .main {
-      max-width: 800px;
+    /* Container */
+    .container {
+      max-width: 1400px;
       margin: 0 auto;
       padding: 1.5rem;
     }
 
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
+    /* Page Title */
+    .page-title {
       margin-bottom: 1.5rem;
+    }
+
+    .page-title h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .page-title p {
+      color: var(--text-light);
+      font-size: 0.9375rem;
+    }
+
+    /* Stats Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
     }
 
     .stat-card {
       background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.25rem;
-      text-align: center;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-
-    .stat-value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 0.25rem;
     }
 
     .stat-label {
       font-size: 0.8125rem;
-      color: var(--text-muted);
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    /* Section Cards */
-    .section-card {
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-card.primary .stat-value { color: var(--primary); }
+    .stat-card.success .stat-value { color: var(--success); }
+    .stat-card.warning .stat-value { color: var(--warning); }
+
+    /* Section */
+    .section {
       background: var(--surface);
-      border-radius: var(--radius);
       border: 1px solid var(--border);
-      box-shadow: var(--shadow-lg);
-      margin-bottom: 1rem;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
       overflow: hidden;
     }
 
     .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
       padding: 1rem 1.25rem;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       border-bottom: 1px solid var(--border);
-      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
       transition: background 0.2s;
     }
 
-    .section-header:hover { background: #e0f2fe; }
-
-    .section-header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
+    .section-header:hover {
+      background: #f1f5f9;
     }
 
-    .section-icon {
-      font-size: 1.25rem;
+    .section-header.clickable {
+      cursor: pointer;
     }
 
     .section-title {
-      font-size: 1rem;
+      font-size: 1.125rem;
       font-weight: 600;
-      color: var(--text);
-    }
-
-    .section-toggle {
-      font-size: 1.25rem;
-      color: var(--text-muted);
-      transition: transform 0.2s;
-    }
-
-    .section-header[aria-expanded="true"] .section-toggle {
-      transform: rotate(180deg);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .section-body {
       padding: 1.25rem;
-      display: none;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      overflow: hidden;
     }
 
-    .section-body.show { display: block; }
+    .section-body.collapsed {
+      max-height: 0;
+      padding: 0 1.25rem;
+      overflow: hidden;
+    }
 
-    /* Form Styles */
+    .collapse-icon {
+      font-size: 1.25rem;
+      transition: transform 0.3s;
+      color: var(--text-light);
+    }
+
+    .collapse-icon.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    /* Form */
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 1rem;
+      margin-bottom: 1rem;
     }
 
     .form-group {
@@ -209,467 +224,658 @@
       gap: 0.375rem;
     }
 
-    .form-group.full-width { grid-column: 1 / -1; }
-
     .form-label {
       font-size: 0.875rem;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--text);
     }
 
     .form-input, .form-select {
-      width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
       font-size: 0.9375rem;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 8px;
+      transition: border-color 0.2s;
       background: var(--surface);
-      color: var(--text);
-      transition: all 0.2s;
     }
 
     .form-input:focus, .form-select:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
     }
 
-    .form-input::placeholder { color: #94a3b8; }
-
-    .form-hint {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
     }
 
-    /* Buttons */
-    .btn {
-      display: inline-flex;
+    .checkbox-label {
+      display: flex;
       align-items: center;
-      justify-content: center;
       gap: 0.5rem;
-      padding: 0.625rem 1.25rem;
       font-size: 0.9375rem;
-      font-weight: 600;
-      border-radius: 8px;
-      border: none;
+      color: var(--text);
       cursor: pointer;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
       transition: all 0.2s;
     }
 
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-hover); }
+    .checkbox-label:hover {
+      background: var(--bg);
+      border-color: var(--primary);
+    }
 
-    .btn-success, .btn.green { background: var(--success); color: white; }
-    .btn-success:hover, .btn.green:hover { background: #059669; }
+    .checkbox-label input[type="checkbox"] {
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
 
-    .btn-secondary { background: #e2e8f0; color: var(--text); }
-    .btn-secondary:hover { background: #cbd5e1; }
+    .checkbox-label input[type="checkbox"]:checked {
+      accent-color: var(--primary);
+    }
 
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-danger:hover { background: #dc2626; }
+    .days-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
 
-    .btn-sm {
-      padding: 0.375rem 0.75rem;
-      font-size: 0.8125rem;
+    .day-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .day-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      min-width: 100px;
+    }
+
+    .day-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    .time-inputs {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .time-inputs input[type="time"] {
+      padding: 0.5rem 0.625rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
     }
 
     .form-actions {
       display: flex;
       gap: 0.75rem;
-      margin-top: 1rem;
       justify-content: flex-end;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
     }
 
-    /* Days Container for Availability */
-    .days-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 0.75rem;
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: -0.5rem;
+      padding: 0.5rem;
     }
 
-    .day-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem;
-      background: #f8fafc;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .day-item input[type="checkbox"] {
-      width: 1.125rem;
-      height: 1.125rem;
-      accent-color: var(--primary);
-    }
-
-    .day-item label {
-      font-weight: 500;
-      min-width: 70px;
-    }
-
-    .day-item input[type="time"] {
-      padding: 0.375rem 0.5rem;
-      font-size: 0.875rem;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-    }
-
-    /* Table Styles */
-    .data-table {
+    table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9375rem;
+      min-width: 600px;
     }
 
-    .data-table th {
-      background: #f1f5f9;
-      padding: 0.75rem 1rem;
-      text-align: left;
-      font-weight: 600;
-      color: var(--text);
+    thead {
+      background: var(--bg);
       border-bottom: 2px solid var(--border);
     }
 
-    .data-table td {
+    th {
       padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-light);
+    }
+
+    td {
+      padding: 1rem;
       border-bottom: 1px solid var(--border);
     }
 
-    .data-table tr:hover td { background: #f8fafc; }
+    tbody tr:hover {
+      background: var(--bg);
+    }
 
-    .data-table .empty-row td {
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Empty State */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-light);
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Loading */
+    .loading {
       text-align: center;
       padding: 2rem;
-      color: var(--text-muted);
+      color: var(--text-light);
     }
 
-    /* Analytics Table */
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
+    .spinner {
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
     }
 
-    .analytics-item {
-      text-align: center;
-      padding: 1rem;
-      background: #f8fafc;
-      border-radius: 8px;
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
-    .analytics-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .analytics-label {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      margin-top: 0.25rem;
-    }
-
-    /* Success Modal */
+    /* Modal */
     .modal {
+      display: none;
       position: fixed;
       top: 0;
       left: 0;
-      width: 100vw;
-      height: 100vh;
+      right: 0;
+      bottom: 0;
       background: rgba(0,0,0,0.5);
-      display: none;
+      z-index: 1000;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
       padding: 1rem;
     }
 
-    .modal.show { display: flex; }
+    .modal.active { display: flex; }
 
     .modal-content {
       background: var(--surface);
       border-radius: var(--radius);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      max-width: 500px;
       width: 100%;
-      max-width: 380px;
-      text-align: center;
-      padding: 2rem;
-      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
     }
 
     .modal-close {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      width: 32px;
-      height: 32px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f1f5f9;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.25rem;
-      cursor: pointer;
-      color: var(--text-muted);
+      border-radius: 4px;
     }
 
-    .modal-close:hover { background: #e2e8f0; }
+    .modal-close:hover {
+      background: var(--bg);
+    }
 
-    .modal-emoji { font-size: 3rem; margin-bottom: 1rem; }
-    .modal-title { font-size: 1.25rem; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; }
-    .modal-msg { font-size: 0.9375rem; color: var(--text-muted); margin-bottom: 1rem; }
-    .modal-highlight {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--primary);
-      background: var(--primary-light);
-      padding: 0.75rem 1.25rem;
-      border-radius: 8px;
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    /* Success Box */
+    .success-box {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .success-emoji {
+      font-size: 4rem;
       margin-bottom: 1rem;
-      display: none;
     }
-    .modal-highlight.show { display: block; }
-    .modal-note { font-size: 0.875rem; color: var(--text-muted); }
+
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-msg {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .success-highlight {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 1.125rem;
+      margin: 0.5rem 0;
+    }
+
+    .success-note {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      margin-top: 1rem;
+    }
 
     /* Responsive */
     @media (max-width: 768px) {
-      .nav { padding: 0.625rem 1rem; }
-      .main { padding: 1rem; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .form-grid { grid-template-columns: 1fr; }
-      .analytics-grid { grid-template-columns: 1fr; }
-      .days-grid { grid-template-columns: 1fr; }
-    }
+      .container {
+        padding: 1rem;
+      }
 
-    @media (max-width: 480px) {
-      .stat-value { font-size: 1.5rem; }
-      .data-table { font-size: 0.8125rem; }
-      .data-table th, .data-table td { padding: 0.5rem 0.625rem; }
-    }
+      .page-title h1 {
+        font-size: 1.5rem;
+      }
 
-    /* Legacy class support */
-    .small-muted { color: var(--text-muted); font-size: 0.875rem; }
-    .form-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-    .form-row .form-label { min-width: 110px; }
-    .center-card { background: var(--surface); border-radius: var(--radius); }
-    .collapsible-card { overflow: hidden; }
-    .collapsible-header { cursor: pointer; }
-    .collapsible-content[hidden] { display: none; }
-    .analytics-table { width: 100%; }
-    .analytics-table th, .analytics-table td { padding: 0.5rem; text-align: left; }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 0.875rem;
+      }
+
+      th, td {
+        padding: 0.625rem 0.75rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .header-actions {
+        flex-wrap: wrap;
+      }
+
+      .table-container {
+        margin: -1.25rem;
+        padding: 1.25rem;
+        border-radius: 0;
+      }
+
+      table {
+        font-size: 0.8125rem;
+        min-width: 100%;
+      }
+
+      th {
+        font-size: 0.75rem;
+        white-space: nowrap;
+      }
+
+      td {
+        white-space: nowrap;
+      }
+
+      .table-actions {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .table-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .day-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: var(--bg);
+        border-radius: var(--radius);
+      }
+
+      .day-checkbox {
+        min-width: auto;
+        width: 100%;
+      }
+
+      .time-inputs {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .time-inputs input[type="time"] {
+        flex: 1;
+        min-width: 120px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="nav">
-    <a href="/" class="nav-brand">
-      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" />
-      <div>
-        <div class="nav-title">DoctorPod</div>
-        <div class="nav-subtitle">Quick. Smart. Trusted.</div>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" />
+        <div>
+          <div class="logo-text">DoctorPod</div>
+          <div class="logo-subtitle">Quick. Smart. Trusted.</div>
+        </div>
+      </a>
+      <div class="header-actions">
+        <button class="btn btn-outline" onclick="window.location.href='/clinic/home'">🏠 Home</button>
       </div>
-    </a>
-    <div class="nav-actions">
-      <a href="/" class="nav-link">← Home</a>
-      <button id="signOut" class="btn-nav danger">Sign Out</button>
     </div>
-  </nav>
+  </header>
 
   <!-- Main Content -->
-  <main class="main">
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value" id="totalBookings">-</div>
-        <div class="stat-label">Today's Bookings</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="totalConsults">-</div>
-        <div class="stat-label">Consultations</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="revenue">-</div>
-        <div class="stat-label">Revenue (₹)</div>
-      </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div id="successModal" class="modal">
-      <div class="modal-content">
-        <button class="modal-close" id="closeModalBtn">&times;</button>
-        <div class="modal-emoji" id="modalEmoji">🎉</div>
-        <div class="modal-title" id="modalTitle">Success!</div>
-        <div class="modal-msg" id="modalMsg"></div>
-        <div class="modal-highlight" id="modalHighlight"></div>
-        <div class="modal-note" id="modalNote"></div>
-      </div>
-    </div>
-
+  <main class="container">
     <!-- Add Doctor Section -->
-    <div class="section-card">
-      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="addDoctorSection">
-        <div class="section-header-left">
-          <span class="section-icon">🩺</span>
-          <span class="section-title">Add Doctor</span>
-        </div>
-        <span class="section-toggle">▼</span>
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">🩺 Add New Doctor</h2>
       </div>
-      <div id="addDoctorSection" class="section-body collapsible-content" hidden>
-        <form id="addDoctorForm">
+      <div class="section-body">
+        <form id="addDoctorForm" onsubmit="return handleAddDoctor(event)">
+          <input type="hidden" name="clinic_id" id="hiddenClinicId" />
           <div class="form-grid">
-            <div class="form-group full-width">
-              <label class="form-label">Clinic</label>
-              <select name="clinic_id" id="doctorClinicSelect" class="form-select" required disabled></select>
-            </div>
             <div class="form-group">
-              <label class="form-label">Full Name *</label>
-              <input type="text" name="name" class="form-input" placeholder="Dr. Full Name" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone *</label>
-              <input type="text" name="phone" class="form-input" placeholder="10-digit mobile" />
+              <label class="form-label">Doctor Name *</label>
+              <input type="text" name="name" class="form-input" required />
             </div>
             <div class="form-group">
               <label class="form-label">Qualification</label>
-              <input type="text" name="qualification" class="form-input" placeholder="e.g. MBBS, MD" />
+              <input type="text" name="qualification" class="form-input" placeholder="MBBS, MD, etc." />
             </div>
             <div class="form-group">
               <label class="form-label">Specialization</label>
-              <input type="text" name="specialization" class="form-input" placeholder="e.g. Cardiologist" />
+              <input type="text" name="specialization" class="form-input" placeholder="Cardiologist, etc." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile *</label>
+              <input type="tel" name="phone" class="form-input" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" required />
             </div>
             <div class="form-group">
               <label class="form-label">Email</label>
-              <input type="email" name="email" class="form-input" placeholder="doctor@example.com" />
+              <input type="email" name="email" class="form-input" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password *</label>
+              <input type="password" name="password" class="form-input" required />
             </div>
             <div class="form-group">
               <label class="form-label">Registration No</label>
-              <input type="text" name="registration_no" class="form-input" placeholder="Optional" />
-            </div>
-            <div class="form-group full-width">
-              <label class="form-label">Password *</label>
-              <input type="password" name="password" class="form-input" placeholder="Login password" required />
-            </div>
-            <div class="form-group full-width">
-              <label class="form-label">UPI ID</label>
-              <input type="text" name="upi_id" class="form-input" placeholder="e.g. doctor@upi" />
+              <input type="text" name="registration_no" class="form-input" />
             </div>
           </div>
           <div class="form-actions">
-            <button type="reset" class="btn btn-secondary">Reset</button>
+            <button type="reset" class="btn btn-outline">Reset</button>
             <button type="submit" class="btn btn-success">Add Doctor</button>
           </div>
         </form>
       </div>
-    </div>
+    </section>
 
-    <!-- Add Availability Section -->
-    <div class="section-card">
-      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="addAvailabilitySection">
-        <div class="section-header-left">
-          <span class="section-icon">🗓️</span>
-          <span class="section-title">Add Doctor Availability</span>
-        </div>
-        <span class="section-toggle">▼</span>
+    <!-- Add Doctor Availability Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">📅 Set Doctor Availability</h2>
       </div>
-      <div id="addAvailabilitySection" class="section-body collapsible-content" hidden>
-        <form id="addAvailabilityForm">
+      <div class="section-body">
+        <form id="addAvailabilityForm" onsubmit="return handleAddAvailability(event)">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">Doctor ID *</label>
-              <input type="text" name="doctor_id" class="form-input" placeholder="Enter Doctor ID" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Clinic ID *</label>
-              <input type="text" name="clinic_id" class="form-input" placeholder="Enter Clinic ID" required />
+              <label class="form-label">Select Doctor *</label>
+              <select name="doctor_id" id="availabilityDoctorId" class="form-input" required>
+                <option value="">-- Select Doctor --</option>
+              </select>
             </div>
             <div class="form-group">
               <label class="form-label">Slot Duration (minutes)</label>
-              <input type="number" name="interval_minutes" class="form-input" min="5" max="120" step="5" value="15" required />
-              <span class="form-hint">Duration of each appointment slot</span>
+              <input type="number" name="interval_minutes" class="form-input" value="15" min="5" max="120" step="5" style="max-width: 150px;" />
             </div>
           </div>
-          <div class="form-group" style="margin-top:1rem;">
-            <label class="form-label">Days & Timings</label>
-            <div id="availabilityDaysContainer" class="days-grid" style="margin-top:0.75rem;">
-              <!-- Days will be rendered by JS -->
-            </div>
+          <div class="form-group">
+            <label class="form-label">Select Days & Timings</label>
+            <div id="availabilityDaysContainer" class="days-grid"></div>
           </div>
           <div class="form-actions">
-            <button type="reset" class="btn btn-secondary">Reset</button>
+            <button type="reset" class="btn btn-outline">Reset</button>
             <button type="submit" class="btn btn-success">Add Availability</button>
           </div>
         </form>
       </div>
-    </div>
+    </section>
 
-    <!-- Doctor List Section -->
-    <div class="section-card">
-      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="doctorsSection">
-        <div class="section-header-left">
-          <span class="section-icon">📋</span>
-          <span class="section-title">Doctor List</span>
+    <!-- Doctors List Section -->
+    <section class="section">
+      <div class="section-header clickable" onclick="toggleSection('doctorsListBody')">
+        <h2 class="section-title">🩺 Doctors</h2>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="event.stopPropagation(); loadDoctors()" class="btn btn-sm btn-outline">🔄 Refresh</button>
+          <span class="collapse-icon" id="doctorsListIcon">▼</span>
         </div>
-        <span class="section-toggle">▼</span>
       </div>
-      <div id="doctorsSection" class="section-body collapsible-content" hidden>
-        <div style="overflow-x:auto;">
-          <div id="doctorsList">
-            <div class="small-muted" style="text-align:center;padding:2rem;">Loading doctors...</div>
+      <div class="section-body collapsed" id="doctorsListBody">
+        <div class="table-container">
+          <div id="doctorsList" class="loading">
+            <div class="spinner"></div>
+            Loading doctors...
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- Analytics Section -->
-    <div class="section-card">
-      <div class="section-header collapsible-btn" aria-expanded="false" aria-controls="analyticsSection">
-        <div class="section-header-left">
-          <span class="section-icon">📈</span>
-          <span class="section-title">Analytics</span>
+    <!-- Doctor Availability List Section -->
+    <section class="section">
+      <div class="section-header clickable" onclick="toggleSection('availabilityListBody')">
+        <h2 class="section-title">📅 Doctor Schedules</h2>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="event.stopPropagation(); loadAvailability()" class="btn btn-sm btn-outline">🔄 Refresh</button>
+          <span class="collapse-icon" id="availabilityListIcon">▼</span>
         </div>
-        <span class="section-toggle">▼</span>
       </div>
-      <div id="analyticsSection" class="section-body collapsible-content" hidden>
-        <div class="analytics-grid">
-          <div class="analytics-item">
-            <div class="analytics-value" id="analyticsBookings">-</div>
-            <div class="analytics-label">Total Bookings</div>
-          </div>
-          <div class="analytics-item">
-            <div class="analytics-value" id="analyticsConsults">-</div>
-            <div class="analytics-label">Completed</div>
-          </div>
-          <div class="analytics-item">
-            <div class="analytics-value" id="analyticsRevenue">₹0</div>
-            <div class="analytics-label">Total Revenue</div>
+      <div class="section-body collapsed" id="availabilityListBody">
+        <div class="table-container">
+          <div id="availabilityList" class="loading">
+            <div class="spinner"></div>
+            Loading availability...
           </div>
         </div>
       </div>
-    </div>
+    </section>
   </main>
 
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Success</h3>
+        <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="success-box">
+          <div class="success-emoji" id="modalEmoji">🎉</div>
+          <h3 class="success-title" id="modalTitle">Success!</h3>
+          <p class="success-msg" id="modalMsg"></p>
+          <div class="success-highlight" id="modalHighlight"></div>
+          <p class="success-note" id="modalNote"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Clinic Profile</h3>
+        <button class="modal-close" onclick="closeProfileModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="profileForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Clinic Name *</label>
+              <input type="text" name="name" id="profileName" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone *</label>
+              <input type="tel" name="phone" id="profilePhone" class="form-input" required maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="profileEmail" class="form-input" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <input type="text" name="address" id="profileAddress" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">UPI ID</label>
+              <input type="text" name="upi_id" id="profileUpi" class="form-input" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="closeProfileModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-success">Update Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Change Password</h3>
+        <button class="modal-close" onclick="closePasswordModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="passwordForm">
+          <div class="form-group">
+            <label class="form-label">Current Password *</label>
+            <input type="password" name="old_password" class="form-input" required minlength="6" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password *</label>
+            <input type="password" name="new_password" class="form-input" required minlength="6" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password *</label>
+            <input type="password" name="confirm_password" class="form-input" required />
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="closePasswordModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-success">Change Password</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Doctor Modal -->
+  <div id="editDoctorModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Doctor</h3>
+        <button class="modal-close" onclick="closeEditDoctorModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editDoctorForm">
+          <input type="hidden" name="doctor_id" id="editDoctorId" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Doctor Name *</label>
+              <input type="text" name="name" id="editDoctorName" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Qualification</label>
+              <input type="text" name="qualification" id="editDoctorQual" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Specialization</label>
+              <input type="text" name="specialization" id="editDoctorSpec" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile *</label>
+              <input type="tel" name="mobile" id="editDoctorMobile" class="form-input" required maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="editDoctorEmail" class="form-input" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" name="password" id="editDoctorPassword" class="form-input" placeholder="Leave blank to keep current" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Registration No</label>
+              <input type="text" name="registration_no" id="editDoctorReg" class="form-input" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="closeEditDoctorModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-success">Update Doctor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/clinicDashboard.js"></script>
-  <script>
-    // Render availability days
-    const daysContainer = document.getElementById('availabilityDaysContainer');
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    if (daysContainer) {
-      days.forEach(day => {
-        const dayItem = document.createElement('div');
-        dayItem.className = 'day-item';
-        dayItem.innerHTML = `
-          <input type="checkbox" id="day_${day}" name="days" value="${day}" />
-          <label for="day_${day}">${day}</label>
-          <input type="time" name="${day}_start" value="09:00" />
-          <span>to</span>
-          <input type="time" name="${day}_end" value="17:00" />
-        `;
-        daysContainer.appendChild(dayItem);
-      });
-    }
-  </script>
 </body>
 </html>

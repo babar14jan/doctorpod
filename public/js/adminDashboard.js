@@ -1,338 +1,1052 @@
-// adminDashboard.js
+// Admin Dashboard JavaScript
+
+// Global sign out function
+function handleSignOut() {
+  console.log('Sign out clicked');
+  fetch('/admin/logout', { method: 'POST' })
+    .then(() => {
+      window.location.href = '/admin_login.html';
+    })
+    .catch((e) => {
+      console.error('Logout error:', e);
+      // Redirect anyway
+      window.location.href = '/admin_login.html';
+    });
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+}
+
+function isValidMobile(mobile) {
+  const digits = String(mobile || '').replace(/\D/g, '');
+  return digits.length === 10;
+}
+
+// Toggle section collapse
+function toggleSection(bodyId) {
+  const body = document.getElementById(bodyId);
+  const iconId = bodyId.replace('Body', 'Icon');
+  const icon = document.getElementById(iconId);
+  
+  if (body && icon) {
+    body.classList.toggle('collapsed');
+    icon.classList.toggle('collapsed');
+  }
+}
 
 document.addEventListener('DOMContentLoaded', function() {
-      // Populate clinic dropdown for Add Doctor form
-      const doctorClinicSelect = document.getElementById('doctorClinicSelect');
-      async function populateDoctorClinicDropdown() {
-        if (!doctorClinicSelect) return;
-        try {
-          const res = await fetch('/clinic/all');
-          const j = await res.json();
-          const clinics = j.clinics || [];
-          doctorClinicSelect.innerHTML = clinics.length
-            ? clinics.map(c => `<option value="${c.clinic_id}">${c.name} (${c.clinic_id})</option>`).join('')
-            : '<option value="">No clinics found</option>';
-        } catch (e) {
-          doctorClinicSelect.innerHTML = '<option value="">Error loading clinics</option>';
-        }
-      }
-      populateDoctorClinicDropdown();
-    const clinicsList = document.getElementById('clinicsList');
-    loadClinics();
-
-    async function loadClinics(){
-      if (!clinicsList) return;
-      clinicsList.innerHTML = '<div class="small-muted">Loading...</div>';
-      try{
-        const res = await fetch('/clinic/all');
-        if(!res.ok){ clinicsList.innerHTML = '<div class="small-muted">Unable to load clinics</div>'; return; }
-        const j = await res.json();
-        const clinics = j.clinics || [];
-        renderClinics(clinics);
-      }catch(e){ clinicsList.innerHTML = '<div class="small-muted">Error</div>'; }
-    }
-
-    function renderClinics(clinics){
-      let table = `<table style="width:100%;border-collapse:collapse;font-size:1em;border:1px solid #bbb;">
-        <colgroup>
-          <col style="width:22%">
-          <col style="width:34%">
-          <col style="width:22%">
-          <col style="width:22%">
-        </colgroup>
-        <thead>
-          <tr style="background:#f1f3f5;color:#222;">
-            <th style="padding:8px 6px;border:1px solid #bbb;">ID</th>
-            <th style="padding:8px 6px;border:1px solid #bbb;">Name</th>
-            <th style="padding:8px 6px;border:1px solid #bbb;">Phone</th>
-            <th style="padding:8px 6px;border:1px solid #bbb;">Address</th>
-          </tr>
-        </thead>
-        <tbody>`;
-      if(!clinics.length) {
-        table += `<tr><td colspan="4" style="text-align:center;padding:1em;border:1px solid #bbb;"><div class="small-muted">No clinics found</div></td></tr>`;
-      } else {
-        clinics.forEach(c => {
-          table += `<tr style="background:#fff;color:#222;">
-            <td style="padding:8px 6px;border:1px solid #bbb;"><strong>${c.clinic_id}</strong></td>
-            <td style="padding:8px 6px;border:1px solid #bbb;">${c.name}</td>
-            <td style="padding:8px 6px;border:1px solid #bbb;">${c.phone}</td>
-            <td style="padding:8px 6px;border:1px solid #bbb;">${typeof c.address !== 'undefined' ? c.address : (c.email || '')}</td>
-          </tr>`;
-        });
-      }
-      table += '</tbody></table>';
-      clinicsList.innerHTML = table;
-    }
-  // Modal elements (reusable)
-  const successModal = document.getElementById('successModal');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const modalEmoji = document.getElementById('modalEmoji');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalMsg = document.getElementById('modalMsg');
-  const modalHighlight = document.getElementById('modalHighlight');
-  const modalNote = document.getElementById('modalNote');
-
-  function showSuccessModal({emoji, title, msg, highlight, note}) {
-    modalEmoji.textContent = emoji || '🎉';
-    modalTitle.textContent = title || 'Success!';
-    modalMsg.textContent = msg || '';
-    if (highlight) {
-      modalHighlight.textContent = highlight;
-      modalHighlight.style.display = 'inline-block';
-    } else {
-      modalHighlight.style.display = 'none';
-    }
-    modalNote.textContent = note || '';
-    successModal.style.display = 'flex';
-  }
-  function hideSuccessModal() {
-    successModal.style.display = 'none';
-  }
-  if (closeModalBtn) closeModalBtn.onclick = hideSuccessModal;
-  if (successModal) successModal.onclick = function(e) { if (e.target === successModal) hideSuccessModal(); };
-
-  const addForm = document.getElementById('addDoctorForm');
-  const addClinicForm = document.getElementById('addClinicForm');
-  const addAvailabilityForm = document.getElementById('addAvailabilityForm');
-  const doctorsList = document.getElementById('doctorsList');
-
-  async function loadDoctors(){
-    doctorsList.innerHTML = '<div class="small-muted">Loading...</div>';
-    try{
-      const res = await fetch('/doctors/all');
-      if(!res.ok){ doctorsList.innerHTML = '<div class="small-muted">Unable to load doctors</div>'; return; }
-      const j = await res.json();
-      const docs = j.doctors || [];
-      renderDoctors(docs);
-    }catch(e){ doctorsList.innerHTML = '<div class="small-muted">Error</div>'; }
-  }
-
-  function renderDoctors(docs){
-    // Table design with clear border lines for rows and columns
-    let table = `<table style="width:100%;border-collapse:collapse;font-size:1em;border:1px solid #bbb;">
-      <colgroup>
-        <col style="width:18%">
-        <col style="width:40%">
-        <col style="width:28%">
-        <col style="width:14%">
-      </colgroup>
-      <thead>
-        <tr style="background:#f1f3f5;color:#222;">
-          <th style="padding:8px 6px;border:1px solid #bbb;">ID</th>
-          <th style="padding:8px 6px;border:1px solid #bbb;">Name</th>
-          <th style="padding:8px 6px;border:1px solid #bbb;">Phone</th>
-          <th style="padding:8px 6px;border:1px solid #bbb;">Action</th>
-        </tr>
-      </thead>
-      <tbody>`;
-    if(!docs.length) {
-      table += `<tr><td colspan="4" style="text-align:center;padding:1em;border:1px solid #bbb;"><div class="small-muted">No doctors found</div></td></tr>`;
-    } else {
-      docs.forEach(d=>{
-        const id = d.id || d.doctor_id || '';
-        const name = d.name || d.full_name || '';
-        const phone = d.phone || d.mobile || '';
-        table += `<tr style="background:#fff;color:#222;">
-          <td style="padding:8px 6px;border:1px solid #bbb;"><strong>${id}</strong></td>
-          <td style="padding:8px 6px;border:1px solid #bbb;">${name}</td>
-          <td style="padding:8px 6px;border:1px solid #bbb;">${phone}</td>
-          <td style="padding:8px 6px;border:1px solid #bbb;"><button class="btn btn-sm" data-id="${id}">Delete</button></td>
-        </tr>`;
-      });
-    }
-    table += '</tbody></table>';
-    doctorsList.innerHTML = table;
-    // Add event listeners for delete buttons
-    doctorsList.querySelectorAll('button[data-id]').forEach(btn => {
-      btn.addEventListener('click', function(){
-        const id = btn.getAttribute('data-id');
-        if(confirm('Delete doctor?')) deleteDoctor(id);
-      });
-    });
-  }
-
-  async function deleteDoctor(id){
-    try{
-      const res = await fetch('/doctors/delete',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) });
-      const j = await res.json();
-      if(j.success){ loadDoctors(); } else alert('Delete failed');
-    }catch(e){ alert('Delete failed'); }
-  }
-
-  if (addForm) {
-    addForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(addForm);
-      // Debug: print all form fields before sending
-      for (let pair of fd.entries()) {
-        console.log('AddDoctor FormData:', pair[0], pair[1]);
-      }
+  console.log('Admin dashboard loaded');
+  // Load initial data
+  loadClinics();
+  loadDoctors();
+  loadClinicDropdown();
+  loadDemoRequests();
+  
+  // Initialize availability days grid
+  initializeAvailabilityDays();
+  
+  // Sign out handler - with null check
+  const signOutBtn = document.getElementById('signOut');
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', async () => {
       try {
-        const res = await fetch('/doctors/add', { method: 'POST', body: fd, credentials: 'include' });
-        const j = await res.json();
-        if (j.success) {
-          // Show a doctor success modal with doctor_id
-          if (modalEmoji && modalTitle && modalMsg && modalHighlight && modalNote && successModal) {
-            modalEmoji.textContent = '🩺';
-            modalTitle.textContent = 'Doctor Added Successfully!';
-            modalMsg.textContent = 'Your Doctor ID:';
-            modalHighlight.textContent = j.doctor_id || '';
-            modalHighlight.style.display = 'inline-block';
-            modalNote.textContent = 'Share this Doctor ID with the doctor for login.';
-            successModal.style.display = 'flex';
-          }
-          addForm.reset();
-          loadDoctors();
-          loadClinics();
-        } else {
-          alert(j.message || 'Add failed');
-        }
-      } catch (e) { alert('Add failed'); }
-    });
-  }
-
-
-  // Add Clinic handler
-  if (addClinicForm) {
-    addClinicForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(addClinicForm);
-      try {
-        // Update: submit to /admin/addClinic instead of /doctors/addClinic
-        const res = await fetch('/admin/addClinic', {
-          method: 'POST',
-          body: fd,
-          credentials: 'include'
-        });
-        const j = await res.json();
-        if (j.success) {
-          showSuccessModal({
-            emoji: '🏥',
-            title: 'Clinic Added Successfully!',
-            msg: 'Your Clinic ID:',
-            highlight: j.clinic_id || '',
-            note: 'Please save this Clinic ID for future reference.'
-          });
-          addClinicForm.reset();
-        } else {
-          alert(j.message || 'Add clinic failed');
-        }
+        await fetch('/admin/logout', { method: 'POST' });
       } catch (e) {
-        alert('Add clinic failed');
+        console.error('Logout error:', e);
       }
+      window.location.href = '/admin_login.html';
     });
   }
 
-  // Enhanced Doctor Availability handler for new UI
-  if (addAvailabilityForm) {
-    // Render 7 checkboxes for days with time inputs
-    const daysOfWeek = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const container = document.getElementById('availabilityDaysContainer');
-    if (container) {
-      container.innerHTML = daysOfWeek.map(day => `
-        <label style="display:flex;align-items:center;gap:0.3em;margin-bottom:0.5em;">
-          <input type="checkbox" name="day_${day}" value="${day}" />
-          <span>${day}</span>
-          <input type="time" name="start_${day}" style="width:90px;" />
-          <span>-</span>
-          <input type="time" name="end_${day}" style="width:90px;" />
-        </label>
-      `).join('');
-    }
-    addAvailabilityForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(addAvailabilityForm);
-      const doctor_id = fd.get('doctor_id');
-      const clinic_id = fd.get('clinic_id');
-      const interval_minutes = parseInt(fd.get('interval_minutes'), 10) || 15;
-      const daysData = [];
-      daysOfWeek.forEach(day => {
-        const checked = addAvailabilityForm.querySelector(`[name=day_${day}]`).checked;
-        const start = addAvailabilityForm.querySelector(`[name=start_${day}]`).value;
-        const end = addAvailabilityForm.querySelector(`[name=end_${day}]`).value;
-        if (checked && start && end) {
-          daysData.push({ day, start, end });
-        }
+  // Modal close handlers - with null checks
+  const closeModalBtn = document.getElementById('closeModal');
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeSuccessModal);
+  }
+  const successModalEl = document.getElementById('successModal');
+  if (successModalEl) {
+    successModalEl.addEventListener('click', (e) => {
+      if (e.target.id === 'successModal') closeSuccessModal();
+    });
+  }
+
+  // Add Clinic Form
+  const addClinicForm = document.getElementById('addClinicForm');
+  if (addClinicForm) addClinicForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const phone = formData.get('phone');
+    const email = formData.get('email');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+
+    if (!isValidMobile(phone)) {
+      showSuccessModal({
+        emoji: '⚠️',
+        title: 'Validation Error',
+        msg: 'Please enter a valid 10-digit mobile number.',
+        highlight: '',
+        note: 'Numbers only, e.g., 9876543210.'
       });
-      if (!doctor_id || !clinic_id || daysData.length === 0) {
-        alert('Please select doctor, clinic, and at least one day with timings.');
-        return;
+      return false;
+    }
+    
+    try {
+      const res = await fetch('/admin/addClinic', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        showSuccessModal({
+          emoji: '🏥',
+          title: 'Clinic Added Successfully!',
+          msg: 'Your Clinic ID:',
+          highlight: data.clinic_id,
+          note: 'Save this ID for clinic login.'
+        });
+        e.target.reset();
+        loadClinics();
+        loadClinicDropdown();
+      } else {
+        showToast('Failed', data.message || 'Failed to add clinic', 'error');
       }
-      let success = true;
-      for (const entry of daysData) {
+    } catch (error) {
+      showToast('Error', 'Error adding clinic. Please try again.', 'error');
+    }
+  });
+
+  // Add Doctor Form
+  const addDoctorForm = document.getElementById('addDoctorForm');
+  if (addDoctorForm) addDoctorForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    try {
+      const res = await fetch('/doctors/add', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        showSuccessModal({
+          emoji: '🩺',
+          title: 'Doctor Added Successfully!',
+          msg: 'Your Doctor ID:',
+          highlight: data.doctor_id,
+          note: 'Share this ID with the doctor for login.'
+        });
+        e.target.reset();
+        loadDoctors();
+      } else {
+        showToast('Failed', data.message || 'Failed to add doctor', 'error');
+      }
+    } catch (error) {
+      showToast('Error', 'Error adding doctor. Please try again.', 'error');
+    }
+  });
+
+  // Add Availability Form
+  const addAvailabilityForm = document.getElementById('addAvailabilityForm');
+  if (addAvailabilityForm) addAvailabilityForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const doctor_id = formData.get('doctor_id');
+    const clinic_id = formData.get('clinic_id');
+    const interval_minutes = parseInt(formData.get('interval_minutes')) || 15;
+    
+    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const entries = [];
+    
+    daysOfWeek.forEach(day => {
+      if (document.querySelector(`[name="day_${day}"]`).checked) {
+        const start = document.querySelector(`[name="start_${day}"]`).value;
+        const end = document.querySelector(`[name="end_${day}"]`).value;
+        entries.push({ day, start, end });
+      }
+    });
+    
+    if (!doctor_id || !clinic_id) {
+      showToast('Missing Fields', 'Please enter both Doctor ID and Clinic ID', 'warning');
+      return;
+    }
+    
+    if (entries.length === 0) {
+      showToast('No Days Selected', 'Please select at least one day', 'warning');
+      return;
+    }
+    
+    let success = true;
+    for (const entry of entries) {
+      try {
         const res = await fetch('/availability/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             doctor_id,
             clinic_id,
+            interval_minutes,
             days: entry.day,
-            timings: `${entry.start}-${entry.end}`,
-            interval_minutes
+            timings: `${entry.start}-${entry.end}`
           })
         });
-        const j = await res.json();
-        if (!j.success) success = false;
+        
+        const result = await res.json();
+        if (!result.success) success = false;
+      } catch (error) {
+        console.error('Error adding availability:', error);
+        success = false;
       }
-      showSuccessModal({
-        emoji: success ? '📅' : '⚠️',
-        title: success ? 'Doctor Availability Added!' : 'Error Adding Availability',
-        msg: success ? 'Doctor availability has been added successfully.' : 'Some entries failed.',
-        highlight: '',
-        note: ''
-      });
-      addAvailabilityForm.reset();
+    }
+    
+    showSuccessModal({
+      emoji: success ? '📅' : '⚠️',
+      title: success ? 'Availability Added!' : 'Error',
+      msg: success ? 'Schedule updated successfully.' : 'Some entries failed.',
+      highlight: success ? entries.map(e => `${e.day}: ${e.start}-${e.end}`).join(', ') : '',
+      note: success ? 'Patients can now book appointments during these times.' : 'Please try again.'
     });
-  }
+    
+    if (success) {
+      e.target.reset();
+      initializeAvailabilityDays();
+    }
+  });
 
-  loadDoctors();
-
-  // Collapsible card logic for mobile
-  function setupCollapsibleCards() {
-    const collapsibles = document.querySelectorAll('.collapsible-btn');
-    collapsibles.forEach(btn => {
-      btn.addEventListener('click', function() {
-        const content = document.getElementById(this.getAttribute('aria-controls'));
-        const expanded = this.getAttribute('aria-expanded') === 'true';
-        // Close all other cards
-        collapsibles.forEach(otherBtn => {
-          if (otherBtn !== this) {
-            otherBtn.setAttribute('aria-expanded', 'false');
-            const otherContent = document.getElementById(otherBtn.getAttribute('aria-controls'));
-            if (otherContent) otherContent.setAttribute('hidden', '');
-          }
+  // Edit Clinic Form
+  document.getElementById('editClinicForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    // Remove password if empty
+    if (!formData.get('password')) {
+      formData.delete('password');
+    }
+    
+    // Remove image if not selected
+    if (!formData.get('image') || !formData.get('image').name) {
+      formData.delete('image');
+    }
+    
+    try {
+      const res = await fetch('/admin/updateClinic', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        closeEditClinicModal();
+        showSuccessModal({
+          emoji: '✅',
+          title: 'Clinic Updated!',
+          msg: 'Clinic details have been updated successfully.',
+          highlight: '',
+          note: ''
         });
-        // Toggle this card
-        if (!expanded) {
-          this.setAttribute('aria-expanded', 'true');
-          content.removeAttribute('hidden');
-        } else {
-          this.setAttribute('aria-expanded', 'false');
-          content.setAttribute('hidden', '');
-        }
+        loadClinics();
+      } else {
+        showToast('Failed', result.message || 'Failed to update clinic', 'error');
+      }
+    } catch (error) {
+      showToast('Error', 'Error updating clinic. Please try again.', 'error');
+    }
+  });
+
+  // Edit Doctor Form
+  document.getElementById('editDoctorForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+      doctor_id: formData.get('doctor_id'),
+      name: formData.get('name'),
+      qualification: formData.get('qualification'),
+      specialization: formData.get('specialization'),
+      mobile: formData.get('mobile'),
+      email: formData.get('email'),
+      registration_no: formData.get('registration_no')
+    };
+    
+    // Only include password if provided
+    const password = formData.get('password');
+    if (password) data.password = password;
+    
+    try {
+      const res = await fetch('/doctors/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
-    });
-  }
-  setupCollapsibleCards();
-
-  // Analytics: show 0 if no data
-  function setAnalyticsValue(id, value) {
-    document.getElementById(id).textContent = (value === undefined || value === null || value === '-' || value === '') ? '0' : value;
-  }
-
-  // Example: update analytics after loading (replace with real fetch if needed)
-  function updateAnalytics(data) {
-    setAnalyticsValue('totalBookings', data.totalBookings);
-    setAnalyticsValue('totalConsults', data.totalConsults);
-    setAnalyticsValue('revenue', data.revenue);
-  }
-
-  // If you fetch analytics from server, call updateAnalytics with real data
-  // For now, ensure 0 is shown if nothing is set
-  updateAnalytics({
-    totalBookings: document.getElementById('totalBookings').textContent,
-    totalConsults: document.getElementById('totalConsults').textContent,
-    revenue: document.getElementById('revenue').textContent
+      const result = await res.json();
+      
+      if (result.success) {
+        closeEditDoctorModal();
+        showSuccessModal({
+          emoji: '✅',
+          title: 'Doctor Updated!',
+          msg: 'Doctor details have been updated successfully.',
+          highlight: '',
+          note: ''
+        });
+        loadDoctors();
+      } else {
+        showToast('Failed', result.message || 'Failed to update doctor', 'error');
+      }
+    } catch (error) {
+      showToast('Error', 'Error updating doctor. Please try again.', 'error');
+    }
   });
 });
+
+// Load Clinics
+async function loadClinics() {
+  const container = document.getElementById('clinicsList');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading clinics...</div>';
+  
+  try {
+    const res = await fetch('/clinic/all');
+    const data = await res.json();
+    const clinics = data.clinics || [];
+    
+    // Update stats
+    document.getElementById('totalClinics').textContent = clinics.length;
+    
+    if (!clinics.length) {
+      container.innerHTML = '<div class="empty"><div class="empty-icon">🏥</div><p>No clinics found. Add your first clinic above.</p></div>';
+      return;
+    }
+    
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Clinic ID</th>
+            <th>Name</th>
+            <th>Phone</th>
+             // Add Doctor Form
+              let isAddingDoctor = false;
+              document.getElementById('addDoctorForm').addEventListener('submit', async (e) => {
+            <th>Subscription</th>
+                e.stopPropagation();
+    
+                // Prevent double submission
+                if (isAddingDoctor) {
+                  console.log('⚠️ Form already submitting, ignoring duplicate submission');
+                  return false;
+                }
+    
+                isAddingDoctor = true;
+                console.log('=== ADD DOCTOR FORM SUBMITTED (ADMIN) ===');
+    
+                // Disable submit button
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                  submitBtn.disabled = true;
+                  submitBtn.textContent = 'Adding...';
+                }
+    
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${clinics.map(c => {
+            let subscriptionBadge = '';
+            if (c.subscription_type === 'trial') {
+              const trialEnd = new Date(c.trial_end_date);
+              const now = new Date();
+              const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+              
+              if (c.is_trial_expired || daysLeft < 0) {
+                subscriptionBadge = '<span class="badge badge-danger">Trial Expired</span>';
+              } else if (daysLeft <= 7) {
+                      msg: 'Doctor ID:',
+              } else {
+                subscriptionBadge = `<span class="badge badge-primary">Trial (${daysLeft}d left)</span>`;
+              }
+            } else if (c.subscription_type === 'paid') {
+              subscriptionBadge = '<span class="badge badge-success">Paid</span>';
+            } else {
+                    showSuccessModal({
+                      emoji: '⚠️',
+                      title: 'Failed to Add Doctor',
+                      msg: data.message || 'Unknown error occurred',
+                      highlight: '',
+                      note: 'Please check the details and try again.'
+                    });
+            }
+            
+                  console.error('Error adding doctor:', error);
+                  showSuccessModal({
+                    emoji: '❌',
+                    title: 'Error',
+                    msg: 'Could not connect to server',
+                    highlight: '',
+                    note: error.message
+                  });
+                } finally {
+                  // Re-enable form
+                  isAddingDoctor = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Doctor';
+                  }
+            <tr>
+    
+                return false;
+              <td><strong>${c.clinic_id}</strong></td>
+              <td>${c.name}</td>
+             // Add Availability Form
+              let isAddingAvailability = false;
+              document.getElementById('addAvailabilityForm').addEventListener('submit', async (e) => {
+              <td>${c.address || '-'}</td>
+                e.stopPropagation();
+    
+                // Prevent double submission
+                if (isAddingAvailability) {
+                  console.log('⚠️ Availability form already submitting, ignoring duplicate');
+                  return false;
+                }
+    
+                isAddingAvailability = true;
+                console.log('=== ADD AVAILABILITY FORM SUBMITTED (ADMIN) ===');
+    
+                // Disable submit button
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                  submitBtn.disabled = true;
+                  submitBtn.textContent = 'Adding...';
+                }
+    
+              <td>${subscriptionBadge}</td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-sm btn-primary" onclick='editClinic(${JSON.stringify(c).replace(/'/g, "&apos;")})'>✏️ Edit</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteClinic('${c.clinic_id}')">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
+            `;
+                  const dayCheckbox = document.querySelector(`[name="day_${day}"]`);
+                  if (dayCheckbox && dayCheckbox.checked) {
+        </tbody>
+      </table>
+    `;
+  } catch (error) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Error loading clinics</p></div>';
+  }
+}
+                  showSuccessModal({
+                    emoji: '⚠️',
+                    title: 'Validation Error',
+                    msg: 'Please enter both Doctor ID and Clinic ID',
+                    highlight: '',
+                    note: 'All fields are required.'
+                  });
+                  isAddingAvailability = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Availability';
+                  }
+                  return false;
+async function loadDoctors() {
+  const container = document.getElementById('doctorsList');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading doctors...</div>';
+                  showSuccessModal({
+                    emoji: '⚠️',
+                    title: 'Validation Error',
+                    msg: 'Please select at least one day',
+                    highlight: '',
+                    note: 'Check the days and set timings for when the doctor is available.'
+                  });
+                  isAddingAvailability = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Availability';
+                  }
+                  return false;
+    const res = await fetch('/doctors/all');
+    const data = await res.json();
+    const doctors = data.doctors || [];
+                let errorMessages = [];
+    
+    
+    // Update stats
+                    console.log(`Sending availability for ${entry.day}...`);
+    document.getElementById('totalDoctors').textContent = doctors.length;
+    
+    if (!doctors.length) {
+      container.innerHTML = '<div class="empty"><div class="empty-icon">🩺</div><p>No doctors found. Add your first doctor above.</p></div>';
+      return;
+    }
+    
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Doctor ID</th>
+            <th>Name</th>
+                    console.log(`Availability for ${entry.day}:`, result);
+        
+                    if (!result.success) {
+                      success = false;
+                      errorMessages.push(`${entry.day}: ${result.message || 'Failed'}`);
+                    }
+            <th>Specialization</th>
+            <th>Mobile</th>
+            <th>Email</th>
+                    errorMessages.push(`${entry.day}: Network error`);
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${doctors.map(d => `
+                  title: success ? 'Availability Added!' : 'Some Entries Failed',
+                  msg: success ? 'Schedule updated successfully.' : errorMessages.join(', '),
+              <td>${d.name}</td>
+              <td>${d.qualification || '-'}</td>
+              <td>${d.specialization || '-'}</td>
+              <td>${d.mobile || d.phone}</td>
+              <td>${d.email || '-'}</td>
+              <td>
+                <div class="table-actions">
+                  <button class="btn btn-sm btn-primary" onclick='editDoctor(${JSON.stringify(d).replace(/'/g, "&apos;")})'>✏️ Edit</button>
+    
+                // Re-enable form
+                isAddingAvailability = false;
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = 'Add Availability';
+                }
+    
+                return false;
+                  <button class="btn btn-sm btn-danger" onclick="deleteDoctor('${d.doctor_id || d.id}')">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (error) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Error loading doctors</p></div>';
+  }
+}
+
+// Load Clinic Dropdown
+async function loadClinicDropdown() {
+  const doctorSelect = document.getElementById('doctorClinicSelect');
+  const availabilitySelect = document.getElementById('availabilityClinicSelect');
+  if (!doctorSelect && !availabilitySelect) return;
+  
+  try {
+    const res = await fetch('/clinic/all', { credentials: 'include' });
+    const data = await res.json();
+    const clinics = data.clinics || [];
+    const optionsHtml = clinics.length
+      ? '<option value="">Select a clinic</option>' + clinics.map(c => `<option value="${c.clinic_id}">${c.name} (${c.clinic_id})</option>`).join('')
+      : '<option value="">No clinics available</option>';
+    
+    if (doctorSelect) doctorSelect.innerHTML = optionsHtml;
+    if (availabilitySelect) availabilitySelect.innerHTML = optionsHtml;
+  } catch (error) {
+    console.error('Error loading clinics from /clinic/all:', error);
+    try {
+      const fallback = await fetch('/doctors/clinics/all', { credentials: 'include' });
+      const fallbackData = await fallback.json();
+      const clinics = fallbackData.clinics || [];
+      const optionsHtml = clinics.length
+        ? '<option value="">Select a clinic</option>' + clinics.map(c => `<option value="${c.clinic_id}">${c.name} (${c.clinic_id})</option>`).join('')
+        : '<option value="">No clinics available</option>';
+      if (doctorSelect) doctorSelect.innerHTML = optionsHtml;
+      if (availabilitySelect) availabilitySelect.innerHTML = optionsHtml;
+    } catch (fallbackError) {
+      console.error('Error loading clinics from fallback endpoint:', fallbackError);
+      if (doctorSelect) doctorSelect.innerHTML = '<option value="">Error loading clinics</option>';
+      if (availabilitySelect) availabilitySelect.innerHTML = '<option value="">Error loading clinics</option>';
+    }
+  }
+}
+
+// Edit Clinic
+function editClinic(clinic) {
+  document.getElementById('editClinicId').value = clinic.clinic_id;
+  document.getElementById('editClinicName').value = clinic.name;
+  document.getElementById('editClinicPhone').value = clinic.phone;
+  document.getElementById('editClinicEmail').value = clinic.email || '';
+  document.getElementById('editClinicAddress').value = clinic.address || '';
+  document.getElementById('editClinicUpi').value = clinic.upi_id || '';
+  document.getElementById('editClinicPassword').value = '';
+  
+  document.getElementById('editClinicModal').classList.add('active');
+}
+
+function closeEditClinicModal() {
+  document.getElementById('editClinicModal').classList.remove('active');
+}
+
+// Delete Clinic
+async function deleteClinic(clinic_id) {
+  if (!confirm(`Are you sure you want to deactivate clinic ${clinic_id}?\n\nNote: This will mark the clinic and all associated doctors as inactive. They will no longer appear in the system or be able to login, but their data will be preserved.`)) {
+    return;
+  }
+  
+  try {
+    const res = await fetch('/clinic/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clinic_id })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      loadClinics();
+      loadClinicDropdown();
+    } else {
+      showToast('Failed', data.message || 'Failed to deactivate clinic', 'error');
+    }
+  } catch (error) {
+    showToast('Error', 'Error deactivating clinic. Please try again.', 'error');
+  }
+}
+
+// Edit Doctor
+function editDoctor(doctor) {
+  document.getElementById('editDoctorId').value = doctor.doctor_id || doctor.id;
+  document.getElementById('editDoctorName').value = doctor.name;
+  document.getElementById('editDoctorQual').value = doctor.qualification || '';
+  document.getElementById('editDoctorSpec').value = doctor.specialization || '';
+  document.getElementById('editDoctorMobile').value = doctor.mobile || doctor.phone;
+  document.getElementById('editDoctorEmail').value = doctor.email || '';
+  document.getElementById('editDoctorReg').value = doctor.registration_no || '';
+  document.getElementById('editDoctorPassword').value = '';
+  
+  document.getElementById('editDoctorModal').classList.add('active');
+}
+
+function closeEditDoctorModal() {
+  document.getElementById('editDoctorModal').classList.remove('active');
+}
+
+// Delete Doctor
+async function deleteDoctor(doctor_id) {
+  if (!confirm(`Are you sure you want to deactivate doctor ${doctor_id}?\n\nNote: This will mark the doctor as inactive. They will no longer appear in the system or be able to login, but their data will be preserved.`)) {
+    return;
+  }
+  
+  try {
+    const res = await fetch('/doctors/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: doctor_id })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      loadDoctors();
+    } else {
+      showToast('Failed', data.message || 'Failed to deactivate doctor', 'error');
+    }
+  } catch (error) {
+    showToast('Error', 'Error deactivating doctor. Please try again.', 'error');
+  }
+}
+
+// Show Success Modal
+function showSuccessModal({ emoji, title, msg, highlight, note }) {
+  document.getElementById('modalEmoji').textContent = emoji || '🎉';
+  document.getElementById('modalTitle').textContent = title || 'Success!';
+  document.getElementById('modalMsg').textContent = msg || '';
+  
+  const highlightEl = document.getElementById('modalHighlight');
+  if (highlight) {
+    highlightEl.textContent = highlight;
+    highlightEl.style.display = 'inline-block';
+  } else {
+    highlightEl.style.display = 'none';
+  }
+  
+  document.getElementById('modalNote').textContent = note || '';
+  document.getElementById('successModal').classList.add('active');
+}
+
+function closeSuccessModal() {
+  document.getElementById('successModal').classList.remove('active');
+}
+// =====================
+// DEMO REQUESTS MANAGEMENT
+// =====================
+
+let allDemoRequests = [];
+let currentDemoFilter = 'all';
+
+// Load Demo Requests
+async function loadDemoRequests() {
+  try {
+    const res = await fetch('/api/demo/requests', {
+      credentials: 'include'
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      allDemoRequests = data.data || [];
+      renderDemoRequests();
+    } else {
+      document.getElementById('demoRequestsBody').innerHTML = `
+        <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);">
+          ${data.message || 'Failed to load demo requests'}
+        </td></tr>
+      `;
+    }
+  } catch (error) {
+    document.getElementById('demoRequestsBody').innerHTML = `
+      <tr><td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);">
+        Error loading demo requests
+      </td></tr>
+    `;
+  }
+}
+
+// Filter Demo Requests
+function filterDemoRequests(status) {
+  currentDemoFilter = status;
+  
+  // Update button states
+  ['all', 'pending', 'contacted', 'scheduled', 'completed', 'rejected'].forEach(s => {
+    const btn = document.getElementById(`filter-${s}`);
+    if (btn) {
+      if (s === status) {
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn-primary');
+      } else {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+      }
+    }
+  });
+  
+  renderDemoRequests();
+}
+
+// Render Demo Requests
+function renderDemoRequests() {
+  const tbody = document.getElementById('demoRequestsBody');
+  
+  const filtered = currentDemoFilter === 'all' 
+    ? allDemoRequests 
+    : allDemoRequests.filter(req => req.status === currentDemoFilter);
+  
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr><td colspan="8" style="text-align: center; padding: 2rem;">
+        No ${currentDemoFilter === 'all' ? '' : currentDemoFilter} demo requests found
+      </td></tr>
+    `;
+    return;
+  }
+  
+  tbody.innerHTML = filtered.map(req => {
+    const date = new Date(req.created_at).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+    
+    let statusBadge = '';
+    if (req.status === 'pending') {
+      statusBadge = '<span class="badge badge-warning">Pending</span>';
+    } else if (req.status === 'contacted') {
+      statusBadge = '<span class="badge" style="background: #3b82f6;">Contacted</span>';
+    } else if (req.status === 'scheduled') {
+      statusBadge = '<span class="badge" style="background: #8b5cf6;">Scheduled</span>';
+    } else if (req.status === 'completed') {
+      statusBadge = '<span class="badge badge-success">Completed</span>';
+    } else {
+      statusBadge = '<span class="badge badge-danger">Rejected</span>';
+    }
+    
+    let actions = '';
+    if (req.status === 'pending') {
+      actions = `
+        <select onchange="updateDemoStatus(${req.id}, this.value)" class="form-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.8125rem;">
+          <option value="">Update Status</option>
+          <option value="contacted">Mark as Contacted</option>
+          <option value="scheduled">Mark as Scheduled</option>
+          <option value="completed">Mark as Completed</option>
+          <option value="rejected">Reject</option>
+        </select>
+      `;
+    } else if (req.status === 'contacted') {
+      actions = `
+        <select onchange="updateDemoStatus(${req.id}, this.value)" class="form-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.8125rem;">
+          <option value="">Update Status</option>
+          <option value="scheduled">Mark as Scheduled</option>
+          <option value="completed">Mark as Completed</option>
+          <option value="rejected">Reject</option>
+        </select>
+      `;
+    } else if (req.status === 'scheduled') {
+      actions = `
+        <select onchange="updateDemoStatus(${req.id}, this.value)" class="form-select" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.8125rem;">
+          <option value="">Update Status</option>
+          <option value="completed">Mark as Completed</option>
+          <option value="rejected">Reject</option>
+        </select>
+      `;
+    } else if (req.status === 'completed') {
+      actions = `<small style="color: var(--success);">✓ Completed</small>`;
+    } else {
+      actions = `<small style="color: var(--danger);">✗ Rejected</small>`;
+    }
+    
+    return `
+      <tr>
+        <td>${date}</td>
+        <td><strong>${req.clinic_name}</strong></td>
+        <td>${req.contact_person}</td>
+        <td>${req.phone}</td>
+        <td>${req.email}</td>
+        <td>${req.city || '-'}</td>
+        <td>${statusBadge}</td>
+        <td>${actions}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Update Demo Status
+async function updateDemoStatus(demoId, newStatus) {
+  if (!newStatus) return;
+  
+  const confirmMsg = `Are you sure you want to mark this demo request as "${newStatus}"?`;
+  if (!confirm(confirmMsg)) {
+    // Reset the select element
+    event.target.value = '';
+    return;
+  }
+  
+  try {
+    const adminId = sessionStorage.getItem('admin_id') || 'admin';
+    
+    const res = await fetch(`/api/demo/requests/${demoId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        status: newStatus,
+        adminId: adminId
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      showToast('Status Updated! 🎉', `Demo request status changed to "${newStatus}"`, 'success');
+      loadDemoRequests();
+    } else {
+      showToast('Failed', data.message || 'Failed to update status', 'error');
+      event.target.value = '';
+    }
+  } catch (error) {
+    showToast('Error', 'Error updating demo request status. Please try again.', 'error');
+    event.target.value = '';
+  }
+}
+
+// Show Approve Modal
+function showApproveDemoModal(demoId) {
+  const request = allDemoRequests.find(r => r.id === demoId);
+  if (!request) return;
+  
+  // Pre-fill clinic ID suggestion
+  const clinicIdSuggestion = request.clinic_name
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .substring(0, 8) + Math.floor(Math.random() * 100);
+  
+  document.getElementById('approve_demo_id').value = demoId;
+  document.getElementById('approve_clinic_id').value = clinicIdSuggestion;
+  document.getElementById('approve_password').value = '';
+  document.getElementById('approve_subscription_type').value = 'trial';
+  document.getElementById('approve_trial_days').value = '30';
+  document.getElementById('trial_days_group').style.display = 'block';
+  
+  // Show/hide trial days based on subscription type
+  document.getElementById('approve_subscription_type').addEventListener('change', (e) => {
+    const trialDaysGroup = document.getElementById('trial_days_group');
+    trialDaysGroup.style.display = e.target.value === 'trial' ? 'block' : 'none';
+  });
+  
+  document.getElementById('approveDemoModal').classList.add('active');
+}
+
+function closeApproveDemoModal() {
+  document.getElementById('approveDemoModal').classList.remove('active');
+}
+
+// Show Reject Modal
+function showRejectDemoModal(demoId) {
+  document.getElementById('reject_demo_id').value = demoId;
+  document.getElementById('reject_reason').value = '';
+  document.getElementById('rejectDemoModal').classList.add('active');
+}
+
+function closeRejectDemoModal() {
+  document.getElementById('rejectDemoModal').classList.remove('active');
+}
+
+// Handle Approve Form Submit
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('approveDemoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const demoId = document.getElementById('approve_demo_id').value;
+    const clinicId = document.getElementById('approve_clinic_id').value;
+    const password = document.getElementById('approve_password').value;
+    const subscriptionType = document.getElementById('approve_subscription_type').value;
+    const trialDays = subscriptionType === 'trial' ? parseInt(document.getElementById('approve_trial_days').value) : null;
+    
+    try {
+      const res = await fetch('/admin/approve-demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          demo_id: demoId,
+          clinic_id: clinicId,
+          password: password,
+          subscription_type: subscriptionType,
+          trial_days: trialDays
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        closeApproveDemoModal();
+        showSuccessModal({
+          emoji: '✅',
+          title: 'Demo Request Approved!',
+          msg: 'Clinic created with ID:',
+          highlight: clinicId,
+          note: subscriptionType === 'trial' 
+            ? `Trial expires in ${trialDays} days. Contact the clinic with their credentials.`
+            : 'Paid subscription activated. Contact the clinic with their credentials.'
+        });
+        loadDemoRequests();
+        loadClinics();
+      } else {
+        showToast('Failed', data.message || 'Failed to approve demo request', 'error');
+      }
+    } catch (error) {
+      showToast('Error', 'Error approving demo request. Please try again.', 'error');
+    }
+  });
+  
+  // Handle Reject Form Submit
+  document.getElementById('rejectDemoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const demoId = document.getElementById('reject_demo_id').value;
+    const reason = document.getElementById('reject_reason').value;
+    
+    try {
+      const res = await fetch('/admin/reject-demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          demo_id: demoId,
+          rejection_reason: reason
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        closeRejectDemoModal();
+        showSuccessModal({
+          emoji: '❌',
+          title: 'Demo Request Rejected',
+          msg: 'The request has been rejected.',
+          note: 'You may want to follow up with the requester via email.'
+        });
+        loadDemoRequests();
+      } else {
+        showToast('Failed', data.message || 'Failed to reject demo request', 'error');
+      }
+    } catch (error) {
+      showToast('Error', 'Error rejecting demo request. Please try again.', 'error');
+    }
+  });
+  
+  // Load demo requests on page load
+  loadDemoRequests();
+});
+
+// Toast Notification Functions
+function showToast(title, message, type = 'success') {
+  const toast = document.getElementById('toast');
+  const toastIcon = document.getElementById('toastIcon');
+  const toastTitle = document.getElementById('toastTitle');
+  const toastMessage = document.getElementById('toastMessage');
+  
+  // Remove existing type classes
+  toast.classList.remove('toast-success', 'toast-error', 'toast-info', 'toast-warning', 'hiding');
+  
+  // Set content
+  toastTitle.textContent = title;
+  toastMessage.textContent = message;
+  
+  // Set type and icon
+  toast.classList.add(`toast-${type}`);
+  if (type === 'success') {
+    toastIcon.textContent = '✓';
+  } else if (type === 'error') {
+    toastIcon.textContent = '✕';
+  } else if (type === 'info') {
+    toastIcon.textContent = 'ℹ';
+  } else if (type === 'warning') {
+    toastIcon.textContent = '⚠';
+  }
+  
+  // Show toast
+  toast.classList.add('show');
+  
+  // Auto hide after 5 seconds
+  setTimeout(() => hideToast(), 5000);
+}
+
+function hideToast() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('hiding');
+  setTimeout(() => {
+    toast.classList.remove('show', 'hiding');
+  }, 300);
+}
+
+// Initialize availability days grid
+function initializeAvailabilityDays() {
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const container = document.getElementById('availabilityDaysContainer');
+  
+  if (!container) return;
+  
+  container.innerHTML = daysOfWeek.map(day => `
+    <div class="day-row">
+      <div class="day-checkbox">
+        <input type="checkbox" id="day_${day}" name="day_${day}" value="${day}" />
+        <label for="day_${day}">${day}</label>
+      </div>
+      <div class="time-inputs">
+        <input type="time" name="start_${day}" value="09:00" />
+        <span>to</span>
+        <input type="time" name="end_${day}" value="17:00" />
+      </div>
+    </div>
+  `).join('');
+}

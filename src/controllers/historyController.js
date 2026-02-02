@@ -25,7 +25,14 @@ async function saveVisit(req, res) {
   const pdfPaths = require('../utils/pdf_paths.json');
   if (!patient_id || !doctor_id || !clinic_id) return res.status(400).json({ success: false, message: 'Missing fields' });
 
-  let visitId = visit_id || generateVisitId();
+  let visitId = visit_id;
+  if (!visitId) {
+    // Generate visit_id from doctor_id + patient_id + sequence
+    // Get count of visits for this doctor+patient to determine sequence
+    const visitCount = await db.prepare('SELECT COUNT(*) as count FROM visits WHERE doctor_id = ? AND patient_id = ?').get(doctor_id, patient_id);
+    const sequence = (visitCount.count || 0) + 1;
+    visitId = generateVisitId(doctor_id, patient_id, sequence);
+  }
   // Compose PDF key as in pdf_paths.json (e.g., `${patientName}_${visitId}`)
   let pdfKey = `${(req.body.patient_name || '').replace(/\s+/g, '_')}_${visitId}`;
   let pres_path = pdfPaths[pdfKey] || null;
@@ -33,20 +40,67 @@ async function saveVisit(req, res) {
   let patientName = req.body.patient_name || '';
   let patientAge = req.body.patient_age || null;
   let patientGender = req.body.patient_gender || '';
+  let patientMobile = req.body.patient_mobile || '';
+  let bloodGroup = req.body.blood_group || null;
+  
   // If appointment_id is present, try to get from bookings
   if (appointment_id) {
-    const booking = await db.prepare('SELECT patient_name, patient_age, patient_gender FROM bookings WHERE appointment_id = ?').get(appointment_id);
+    const booking = await db.prepare('SELECT patient_name, patient_age, patient_gender, patient_mobile, blood_group FROM bookings WHERE appointment_id = ?').get(appointment_id);
     if (booking) {
       if (!patientName && booking.patient_name) patientName = booking.patient_name;
       if (!patientAge && booking.patient_age) patientAge = booking.patient_age;
       if (!patientGender && booking.patient_gender) patientGender = booking.patient_gender;
+      if (!patientMobile && booking.patient_mobile) patientMobile = booking.patient_mobile;
+      if (!bloodGroup && booking.blood_group) bloodGroup = booking.blood_group;
     }
   }
-  // Fallback to patients table for gender if still missing
-  if ((!patientGender || patientGender === '') && patient_id) {
-    const patient = await db.prepare('SELECT gender FROM patients WHERE patient_id = ?').get(patient_id);
-    if (patient && patient.gender) patientGender = patient.gender;
+  // Fallback to patients table for additional data if still missing
+  if (patient_id) {
+    const patient = await db.prepare('SELECT gender, blood_group, mobile FROM patients WHERE patient_id = ?').get(patient_id);
+    if (patient) {
+      if (!patientGender && patient.gender) patientGender = patient.gender;
+      if (!bloodGroup && patient.blood_group) bloodGroup = patient.blood_group;
+      if (!patientMobile && patient.mobile) patientMobile = patient.mobile;
+    }
   }
+  
+  // ===== SAVE/UPDATE PATIENT DATA IN PATIENTS TABLE =====
+  try {
+    // Check if patient exists
+    const existingPatient = await db.prepare('SELECT * FROM patients WHERE patient_id = ?').get(patient_id);
+    
+    if (existingPatient) {
+      // Update existing patient with latest information
+      const updates = [];
+      const values = [];
+      
+      if (patientName) { updates.push('full_name = ?'); values.push(patientName); }
+      if (patientMobile) { updates.push('mobile = ?'); values.push(patientMobile); }
+      if (patientGender) { updates.push('gender = ?'); values.push(patientGender); }
+      if (bloodGroup) { updates.push('blood_group = ?'); values.push(bloodGroup); }
+      
+      if (updates.length > 0) {
+        updates.push('updated_at = CURRENT_TIMESTAMP');
+        values.push(patient_id);
+        
+        const sql = `UPDATE patients SET ${updates.join(', ')} WHERE patient_id = ?`;
+        await db.prepare(sql).run(...values);
+      }
+    } else {
+      // Insert new patient
+      if (patientName && patientMobile) {
+        await db.prepare(`
+          INSERT INTO patients (patient_id, full_name, mobile, gender, blood_group)
+          VALUES (?, ?, ?, ?, ?)
+        `).run(patient_id, patientName, patientMobile, patientGender || null, bloodGroup || null);
+      }
+    }
+  } catch (patientError) {
+    console.error('Error saving patient data:', patientError);
+    // Continue with visit save even if patient save fails
+  }
+  // ===== END PATIENT DATA SAVE =====
+  
   try {
     await db.prepare('BEGIN TRANSACTION').run();
     // Check if visit exists

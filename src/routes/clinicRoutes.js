@@ -1,10 +1,36 @@
 const express = require('express');
 const router = express.Router();
-
+const multer = require('multer');
 const path = require('path');
 const ctrl = require('../controllers/clinicController');
-// Serve static HTML for Clinic Dashboard
-router.get('/dashboard', (req, res) => {
+
+// Configure multer for QR code uploads
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, '../../public/asset/QR'));
+    },
+    filename: (req, file, cb) => {
+      const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+      cb(null, `${file.fieldname}_${timestamp}${path.extname(file.originalname)}`);
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .png and .jpeg files are allowed'));
+    }
+  }
+});
+
+// Serve static HTML for Clinic Home
+router.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../public/clinic_home.html'));
+});
+
+// Serve static HTML for Manage Doctors
+router.get('/manage-doctors', (req, res) => {
   res.sendFile(path.join(__dirname, '../../public/clinic_dashboard.html'));
 });
 
@@ -17,5 +43,37 @@ router.get('/session', ctrl.clinicSession);
 
 // Clinic login endpoint
 router.post('/login', ctrl.loginClinic);
+
+// Clinic signup endpoint (optional self-registration)
+router.post('/signup', express.json(), ctrl.signupClinic);
+
+// Delete clinic (admin only)
+router.post('/delete', ctrl.deleteClinic);
+
+// Update clinic (admin or clinic itself)
+router.post('/update', express.json(), ctrl.updateClinic);
+
+// Update clinic profile (clinic only)
+router.post('/update-profile', upload.single('qr_image'), ctrl.updateClinicProfile);
+
+// Change password (clinic only)
+router.post('/change-password', express.json(), ctrl.changePassword);
+
+// Logout clinic
+router.post('/logout', ctrl.logoutClinic);
+
+// Get clinic profile (clinic only)
+router.get('/profile', ctrl.getProfile);
+
+// Forgot Password - OTP Flow
+router.post('/forgot-password/send-otp', express.json(), ctrl.sendPasswordResetOTP);
+router.post('/forgot-password/verify-otp', express.json(), ctrl.verifyPasswordResetOTP);
+router.post('/forgot-password/reset', express.json(), ctrl.resetPassword);
+
+// Demo Request
+router.post('/request-demo', express.json(), ctrl.submitDemoRequest);
+
+// Generate QR code for clinic booking
+router.get('/generate-qr/:clinic_id', ctrl.generateBookingQR);
 
 module.exports = router;

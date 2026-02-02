@@ -1,8 +1,9 @@
 node_modules/
 *.env
 doctorpod_dev.db
-doctorpod.db
 package-lock.json
 .pdf
 public/pdfs
-.sql
+docs
+# Keep SQL schema files for deployment
+# .sql

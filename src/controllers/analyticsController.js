@@ -1,5 +1,14 @@
 const db = require('../utils/db');
 
+// Helper function to add "Dr." prefix for display
+function formatDoctorName(name) {
+  if (!name) return '';
+  const trimmed = name.trim();
+  // Don't add if already has Dr./DR./dr. prefix
+  if (/^dr\.?\s/i.test(trimmed)) return trimmed;
+  return `Dr. ${trimmed}`;
+}
+
 // =============================================
 // DASHBOARD SUMMARY
 // =============================================
@@ -221,6 +230,11 @@ async function getDoctorPerformance(req, res) {
       GROUP BY d.doctor_id
       ORDER BY total_revenue DESC
     `).all(...params);
+    
+    // Format doctor names for display
+    doctors.forEach(d => {
+      if (d.doctor_name) d.doctor_name = formatDoctorName(d.doctor_name);
+    });
     
     res.json({ success: true, data: doctors });
   } catch (e) {

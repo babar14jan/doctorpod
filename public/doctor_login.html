@@ -11,11 +11,16 @@
       --primary: #10b981;
       --primary-hover: #059669;
       --primary-light: rgba(16, 185, 129, 0.1);
+      --secondary: #6366f1;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
       --bg: #f8fafc;
       --surface: #ffffff;
       --text: #1e293b;
       --text-muted: #64748b;
       --border: #e2e8f0;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
       --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
       --radius: 12px;
     }
@@ -23,20 +28,21 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       background: var(--bg);
-      color: var(--text);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
       line-height: 1.5;
     }
 
+    /* Navigation */
     .header {
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0.875rem 1.5rem;
+      padding: 0.75rem 1.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .logo {
@@ -44,7 +50,6 @@
       align-items: center;
       gap: 0.75rem;
       text-decoration: none;
-      color: var(--text);
     }
 
     .logo-icon {
@@ -56,85 +61,82 @@
     .logo-text {
       font-weight: 700;
       font-size: 1.25rem;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .logo-tagline { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+    .logo-tagline { font-size: 0.7rem; color: #2563eb; font-weight: 500; letter-spacing: 0.02em; }
 
     .nav-link {
+      font-size: 0.8125rem;
+      font-weight: 600;
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 0.875rem;
-      font-weight: 600;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
       transition: all 0.2s;
     }
 
-    .nav-link:hover {
-      color: var(--primary);
-      background: var(--primary-light);
-    }
+    .nav-link:hover { background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
 
+    /* Main Container */
     .main {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1.5rem;
     }
 
     .login-container {
       width: 100%;
-      max-width: 420px;
     }
 
-    .login-header {
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      padding: 1.25rem;
+      border-bottom: 1px solid #86efac;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
+      gap: 0.75rem;
     }
 
-    .login-text {
-      text-align: center;
-    }
-
-    .login-icon {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 14px;
+    .card-header-icon {
+      width: 44px;
+      height: 44px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.75rem;
-      flex-shrink: 0;
     }
 
-    .login-title {
-      font-size: 1.375rem;
-      font-weight: 700;
-      margin: 0;
-      line-height: 1.2;
+    .card-header-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #065f46;
     }
 
-    .login-subtitle {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-      margin: 0;
+    .card-header-subtitle {
+      font-size: 0.8125rem;
+      color: #047857;
     }
 
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Form Styles */
     .form-card {
       background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-lg);
-      padding: 2rem;
-      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      overflow: hidden;
     }
 
     .form-group {
@@ -144,36 +146,44 @@
     .form-label {
       display: block;
       font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
+      font-weight: 600;
       color: var(--text);
+      margin-bottom: 0.5rem;
     }
 
     .form-input, .form-select {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.875rem 1rem;
       font-size: 1rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
       color: var(--text);
       transition: all 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .form-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
     }
 
     .form-input:focus, .form-select:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
-      background: var(--surface);
+      box-shadow: 0 0 0 4px var(--primary-light);
     }
+
+    .form-input::placeholder { color: #94a3b8; }
 
     .form-input:disabled, .form-select:disabled {
-      opacity: 0.6;
+      background: #f8fafc;
+      color: #94a3b8;
       cursor: not-allowed;
-      background: #f1f5f9;
     }
-
-    .form-input::placeholder { color: var(--text-muted); }
 
     .btn-primary {
       width: 100%;
@@ -181,24 +191,26 @@
       font-size: 1rem;
       font-weight: 600;
       color: white;
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s;
-      margin-top: 0.5rem;
+      position: relative;
     }
 
-    .btn-primary:hover {
-      background: var(--primary-hover);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
     }
 
     .btn-primary:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      transform: none;
     }
 
     .error-msg {
@@ -331,15 +343,15 @@
 
   <main class="main">
     <div class="login-container">
-      <div class="login-header">
-        <div class="login-icon">🩺</div>
-        <div class="login-text">
-          <h1 class="login-title">Doctor Login</h1>
-          <p class="login-subtitle">Sign in to manage appointments and prescriptions</p>
-        </div>
-      </div>
-
       <div class="form-card">
+        <div class="card-header">
+          <div class="card-header-icon">🩺</div>
+          <div>
+            <div class="card-header-title">Doctor Portal</div>
+            <div class="card-header-subtitle">Sign in to manage patient</div>
+          </div>
+        </div>
+        <div class="card-body">
         <div class="step-indicator">
           <div class="step active" id="step1">1</div>
           <div class="step-line" id="line1"></div>
@@ -353,13 +365,13 @@
         
         <form id="doctorLoginForm">
           <div class="form-group">
-            <label class="form-label" for="identifier">Mobile or Email</label>
+            <label class="form-label" for="identifier">Mobile or ID </label>
             <input 
               type="text" 
               id="identifier"
               name="identifier" 
               class="form-input" 
-              placeholder="Enter your registered mobile or email"
+              placeholder="Enter your registered Mobile or ID"
               autocomplete="username"
               required 
             />
@@ -368,7 +380,7 @@
           <div class="form-group">
             <label class="form-label" for="clinicSelect">Select Clinic</label>
             <select id="clinicSelect" name="clinic_id" class="form-select" disabled>
-              <option value="">-- First enter your mobile/email --</option>
+              <option value="">-- First enter your mobile/ID --</option>
             </select>
           </div>
 
@@ -389,8 +401,71 @@
           <button type="submit" class="btn-primary" id="submitBtn" disabled>
             Sign In
           </button>
+          
+          <p class="link-text" style="margin-top: 1rem; text-align: center; font-size: 0.875rem; color: var(--text-muted);">
+            <a href="#" class="link" onclick="showForgotPassword(); return false;" style="color: var(--primary); text-decoration: none; font-weight: 500;">Forgot password?</a>
+          </p>
         </form>
       </div>
+
+      <!-- Forgot Password Modal -->
+      <div id="forgotPasswordModal" class="form-card" style="display: none; margin-top: 1.5rem;">
+        <h3 style="margin-bottom: 1rem; font-size: 1.125rem; font-weight: 600; color: var(--text);">Reset Password</h3>
+        
+        <!-- Alert Box -->
+        <div id="forgotAlertBox" class="error-msg" style="display: none;"></div>
+
+        <!-- Step 1: Enter Doctor ID/Mobile -->
+        <div id="forgotStep1">
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">
+            Enter your Doctor ID or Mobile. We'll send an OTP to your registered email.
+          </p>
+          <form id="forgotForm1" onsubmit="handleForgotStep1(event)">
+            <div class="form-group">
+              <label class="form-label">Doctor ID or Mobile *</label>
+              <input type="text" id="forgotIdentifier" class="form-input" placeholder="Enter Doctor ID or Mobile" required />
+            </div>
+            <button type="submit" class="btn-primary">Send OTP</button>
+            <button type="button" class="btn-primary" onclick="hideForgotPassword()" style="margin-top: 0.75rem; background: var(--border); color: var(--text);">Back to Login</button>
+          </form>
+        </div>
+
+        <!-- Step 2: Enter OTP -->
+        <div id="forgotStep2" style="display: none;">
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+            OTP sent to <strong id="maskedEmail"></strong>
+          </p>
+          <form id="forgotForm2" onsubmit="handleForgotStep2(event)">
+            <div class="form-group">
+              <label class="form-label">Enter OTP *</label>
+              <input type="text" id="otpInput" class="form-input" placeholder="6-digit OTP" maxlength="6" pattern="[0-9]{6}" title="OTP must be exactly 6 digits" required />
+            </div>
+            <button type="submit" class="btn-primary">Verify OTP</button>
+            <button type="button" class="btn-primary" onclick="resetForgotPassword()" style="margin-top: 0.75rem; background: var(--border); color: var(--text);">Back</button>
+          </form>
+          <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 1rem; text-align: center;">
+            Didn't receive OTP? <a href="#" class="link" onclick="resendOTP(); return false;" style="color: var(--primary);">Resend</a>
+          </p>
+        </div>
+
+        <!-- Step 3: Set New Password -->
+        <div id="forgotStep3" style="display: none;">
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">
+            OTP verified! Now set your new password.
+          </p>
+          <form id="forgotForm3" onsubmit="handleForgotStep3(event)">
+            <div class="form-group">
+              <label class="form-label">New Password *</label>
+              <input type="password" id="newPassword" class="form-input" placeholder="Enter new password" required minlength="6" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password *</label>
+              <input type="password" id="confirmPassword" class="form-input" placeholder="Re-enter new password" required minlength="6" />
+            </div>
+            <button type="submit" class="btn-primary">Reset Password</button>
+          </form>
+        </div>
+        </div>
 
       <div class="footer">
         <p>Need help? <a href="/index.html">Contact Support</a></p>

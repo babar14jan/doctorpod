@@ -205,8 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Removed appointment and history button event handlers as per request
   if (signOutBtn) {
     signOutBtn.onclick = () => {
-      sessionStorage.removeItem('doctor_id');
-      window.location.href = '/doctor_login.html';
+      window.location.href = '/doctor_home.html';
     };
   }
 
@@ -833,8 +832,7 @@ document.addEventListener('DOMContentLoaded', function() {
       include_qr
     };
     console.log('[DoctorPod] Save payload:', JSON.stringify(payload, null, 2));
-    // client-side fallback visit id; server may generate canonical one
-    if(!payload.visit_id) payload.visit_id = 'VST-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+    // Let backend generate visit_id using doctor+patient+sequence format
     try{
       const r = await fetch('/history/save',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
       const j = await r.json();

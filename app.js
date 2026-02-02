@@ -32,7 +32,7 @@ app.use(cors());
 // Session
 app.use(
   session({
-    secret: 'dev-secret',
+    secret: process.env.SESSION_SECRET || 'dev-secret',
     resave: false,
     saveUninitialized: true,
   })
@@ -66,6 +66,7 @@ const availabilityRoutes = require('./src/routes/availabilityRoutes');
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const followUpRoutes = require('./src/routes/followUpRoutes');
 const payRoutes = require('./src/routes/payRoutes');
+const demoRoutes = require('./src/routes/demoRoutes');
 
 app.use('/bookings', bookingRoutes);
 app.use('/medicines', medicineRoutes);
@@ -77,6 +78,7 @@ app.use('/whatsapp', whatsappRoutes);
 app.use('/availability', availabilityRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/follow-ups', followUpRoutes);
+app.use('/api/demo', demoRoutes);
 
 /**
  * ✅ WhatsApp-friendly UPI payment links

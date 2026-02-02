@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Clinic Home - DoctorPod</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #0ea5e9;
+      --primary-hover: #0284c7;
+      --bg: #f0f9ff;
+      --surface: #ffffff;
+      --text: #0c4a6e;
+      --text-muted: #64748b;
+      --border: #bae6fd;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--text);
+      flex-shrink: 0;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.125rem;
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-subtitle {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      padding: 0.5rem 0.875rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg);
+    }
+
+    .btn-danger {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .btn-danger:hover {
+      background: #fee2e2;
+    }
+
+    /* Mobile optimization for header buttons */
+    @media (max-width: 768px) {
+      .header-content {
+        gap: 0.5rem;
+      }
+
+      .logo {
+        gap: 0.5rem;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+      }
+
+      .logo-text {
+        font-size: 0.9375rem;
+      }
+
+      .logo-subtitle {
+        font-size: 0.5625rem;
+      }
+
+      .header-right {
+        gap: 0.375rem;
+      }
+
+      .btn {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.6875rem;
+        white-space: nowrap;
+      }
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Welcome Card - Below Header */
+    .welcome-card {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0891b2 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .clinic-name {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .clinic-address {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.375rem;
+    }
+
+    /* Stats Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .stat-label::after {
+      content: ':';
+      margin-left: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-card.primary .stat-value { color: var(--primary); }
+    .stat-card.success .stat-value { color: var(--success); }
+    .stat-card.warning .stat-value { color: var(--warning); }
+
+    /* Stats Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .stat-label::after {
+      content: ':';
+      margin-left: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-card.primary .stat-value { color: var(--primary); }
+    .stat-card.success .stat-value { color: var(--success); }
+    .stat-card.warning .stat-value { color: var(--warning); }
+
+    /* Filter Buttons */
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover {
+      background: var(--bg);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Appointments Table */
+    #appointmentsTable tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    #appointmentsTable tbody tr:hover {
+      background: var(--bg);
+    }
+
+    #appointmentsTable tbody td {
+      padding: 0.75rem;
+      font-size: 0.875rem;
+    }
+
+    .dashboard-section {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .dashboard-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .dashboard-section p {
+      color: var(--text-muted);
+      margin-bottom: 0;
+      font-size: 0.9375rem;
+    }
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      margin-top: 0.75rem;
+    }
+
+    .dashboard-section {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .dashboard-section p {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 1.0625rem;
+    }
+
+    .btn-large {
+      padding: 1.25rem 3rem;
+      font-size: 1.125rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-large:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .quick-link {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: all 0.2s;
+      box-shadow: var(--shadow);
+    }
+
+    .quick-link:hover {
+      box-shadow: 0 8px 24px rgba(14, 165, 233, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .quick-link h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .quick-link p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Section */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .section-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+    }
+
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-body {
+      padding: 1.5rem;
+    }
+
+    /* Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .form-input {
+      padding: 0.625rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      min-width: 500px;
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: var(--text);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .profile-grid {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--surface);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
+
+    .form-group input:disabled {
+      background: #f9fafb;
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 300px;
+      max-width: 400px;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 1rem 1.25rem;
+      display: none;
+      align-items: flex-start;
+      gap: 0.75rem;
+      z-index: 2000;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
+    .toast.hiding {
+      animation: slideOut 0.3s ease-out forwards;
+    }
+
+    .toast-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .toast-success .toast-icon {
+      background: #dbeafe;
+      color: var(--primary);
+    }
+
+    .toast-error .toast-icon {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .toast-warning .toast-icon {
+      background: #fef3c7;
+      color: #f59e0b;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--text);
+      margin-bottom: 0.125rem;
+    }
+
+    .toast-message {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .toast-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .header-right {
+        justify-content: space-between;
+      }
+
+      .welcome-card {
+        padding: 0.875rem 1rem;
+      }
+
+      .dashboard-section {
+        padding: 2rem 1.5rem;
+      }
+
+      .btn-large {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+      }
+
+      .modal-content {
+        min-width: auto;
+        padding: 2rem 1.5rem;
+        max-width: 95vw;
+      }
+
+      .tabs {
+        gap: 0.25rem;
+      }
+
+      .tab {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-group {
+        flex-direction: column;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .toast {
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" />
+        <div>
+          <div class="logo-text">DoctorPod</div>
+          <div class="logo-subtitle">Quick. Smart. Trusted.</div>
+        </div>
+      </a>
+      
+      <div class="header-right">
+        <button class="btn btn-outline" id="manageProfileBtn">Manage Profile</button>
+        <button class="btn btn-danger" id="signOutBtn">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Welcome Card -->
+  <div class="welcome-card">
+    <div class="clinic-name" id="welcomeName">Clinic</div>
+    <div class="clinic-address">
+      <span>📍</span>
+      <span id="welcomeLocation">Loading...</span>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <div class="dashboard-section">
+      <h2>🏥 One Platform to Manage Your Clinic Effortlessly </h2>
+      <p>Manage doctors, appointments, and handle clinic operations</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card primary">
+        <div class="stat-label">Total Doctors</div>
+        <div class="stat-value" id="totalDoctors">0</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Active Today</div>
+        <div class="stat-value" id="activeToday">0</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label">Appointments</div>
+        <div class="stat-value" id="totalAppointments">0</div>
+      </div>
+    </div>
+
+    <div class="quick-links">
+      <div class="quick-link">
+        <h3>👨‍⚕️ Manage Doctors</h3>
+        <p>Add, edit, or remove doctors</p>
+        <button class="btn btn-outline" onclick="window.location.href='/clinic/manage-doctors'">Manage</button>
+      </div>
+
+      <div class="quick-link">
+        <h3>➕ Book Appointment</h3>
+        <p>Schedule new patient appointments</p>
+        <button class="btn btn-outline" onclick="window.location.href='/patient_booking.html?from=clinic'">Book Now</button>
+      </div>
+
+      <div class="quick-link">
+        <h3>🔍 Check Booking</h3>
+        <p>View existing appointments</p>
+        <button class="btn btn-outline" onclick="window.location.href='/check_booking.html?from=clinic'">Check Status</button>
+      </div>
+    </div>
+
+    <!-- Today's Appointments Section -->
+    <div class="section">
+      <div class="section-header" style="cursor: pointer;" onclick="toggleAppointments()">
+        <h2 class="section-title" id="appointmentsHeading">📅 Today's Appointments</h2>
+        <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-sm" onclick="event.stopPropagation(); refreshAppointments();" title="Refresh appointments" style="padding: 0.5rem 0.75rem; font-size: 1rem; min-width: auto;">
+            <span id="refreshIcon">🔄</span>
+          </button>
+          <button class="btn btn-sm btn-outline" style="padding: 0.5rem 0.75rem; font-size: 1rem; min-width: auto;">
+            <span id="toggleIcon">▼</span>
+          </button>
+        </div>
+      </div>
+      <div class="section-body" id="appointmentsBody" style="padding: 0;">
+        <div style="padding: 1rem; text-align: center; color: var(--text-muted);">
+          <span id="loadingAppointments">⏳ Loading appointments...</span>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div style="display: none; padding: 1rem; border-bottom: 1px solid var(--border); background: var(--bg);" id="appointmentFilters">
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+              <input type="date" id="dateFilter" class="form-input" style="padding: 0.5rem; font-size: 0.875rem; width: auto; min-width: 150px;" onchange="selectDate()" />
+              <button class="filter-btn" onclick="selectAllDates()">📋 All Dates</button>
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+              <select id="doctorFilter" class="form-select" onchange="applyFilters()" style="padding: 0.5rem; font-size: 0.875rem;">
+                <option value="">All Doctors</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Appointments Table -->
+        <div style="display: none; overflow-x: auto;" id="appointmentsTable">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: var(--bg); border-bottom: 2px solid var(--border);">
+              <tr>
+                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Patient</th>
+                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Doctor</th>
+                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Date</th>
+                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Time</th>
+                <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Queue</th>
+                <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Status</th>
+              </tr>
+            </thead>
+            <tbody id="appointmentsTableBody">
+              <!-- Rows will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking QR Code Section -->
+    <div class="section" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border: 2px solid #7dd3fc; margin-bottom: 2rem;">
+      <div class="section-header" style="background: transparent; border: none; padding: 0.75rem 1rem;">
+        <h2 class="section-title" style="color: var(--primary); font-size: 1rem;">📱 Your Clinic Booking QR Code</h2>
+      </div>
+      <div class="section-body" style="padding: 0.75rem 1rem;">
+        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+          <!-- QR Code Display -->
+          <div id="qrCodeContainer" style="flex-shrink: 0; padding: 0.75rem; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div id="qrCodeImage" style="min-height: 150px; min-width: 150px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+              <span style="font-size: 0.75rem;">⏳ Loading...</span>
+            </div>
+          </div>
+          
+          <!-- QR Info and Actions -->
+          <div style="flex: 1; min-width: 250px;">
+            <p style="color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.875rem; line-height: 1.5;">
+              📋 Patients scan this to book appointments instantly<br>
+              🖨️ Print and display at your clinic reception
+            </p>
+            
+            <div style="margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button onclick="downloadQRCode()" class="btn btn-primary btn-sm" id="downloadQRBtn" style="display: none;">
+                📥 Download
+              </button>
+              <button onclick="copyBookingLink()" class="btn btn-outline btn-sm" id="copyLinkBtn" style="display: none;">
+                🔗 Copy Link
+              </button>
+            </div>
+            
+            <div id="bookingLinkDisplay" style="display: none; padding: 0.5rem; background: white; border-radius: 6px; border: 1px dashed var(--border); font-size: 0.75rem;">
+              <div style="color: var(--text-muted); margin-bottom: 0.25rem;">Booking Link:</div>
+              <div id="bookingLinkText" style="color: var(--primary); word-break: break-all; font-family: monospace;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Manage Profile Modal -->
+  <div id="manageProfileModal" class="modal">
+    <div class="modal-content">
+      <h3>Manage Profile</h3>
+      
+      <div class="tabs">
+        <button class="tab active" data-tab="profile">Profile Details</button>
+        <button class="tab" data-tab="password">Change Password</button>
+      </div>
+
+      <!-- Profile Tab -->
+      <div class="tab-content active" id="profileTab">
+        <form id="updateProfileForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Clinic Name *</label>
+              <input type="text" id="editName" required />
+            </div>
+            <div class="form-group">
+              <label>Phone *</label>
+              <input type="tel" id="editPhone" required maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="editEmail" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
+          </div>
+
+          <div class="form-group">
+            <label>Address *</label>
+            <input type="text" id="editAddress" required />
+          </div>
+          
+          <div class="form-group">
+            <label>UPI ID</label>
+            <input type="text" id="editUpi" placeholder="Optional" />
+          </div>
+
+          <div class="form-group">
+            <label>QR Code (Payment)</label>
+            <input type="file" id="editQrCode" accept="image/png,image/jpeg" />
+            <small style="color: var(--text-muted); font-size: 0.8125rem;">Upload a new QR code for payments (optional)</small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-success" style="flex:1;">Save Changes</button>
+            <button type="button" class="btn btn-outline" onclick="loadClinicInfo()" style="flex:1;">Reset</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Password Tab -->
+      <div class="tab-content" id="passwordTab">
+        <form id="changePasswordForm">
+          <div class="form-group">
+            <label>Current Password *</label>
+            <input type="password" id="currentPassword" autocomplete="current-password" required minlength="6" />
+          </div>
+          <div class="form-group">
+            <label>New Password *</label>
+            <input type="password" id="newPassword" autocomplete="new-password" required minlength="6" />
+            <small style="color: var(--text-muted); font-size: 0.8125rem;">Minimum 6 characters</small>
+          </div>
+          <div class="form-group">
+            <label>Confirm New Password *</label>
+            <input type="password" id="confirmPassword" autocomplete="new-password" required />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-success" style="flex:1;">Update Password</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="btn-group" style="margin-top: 1.5rem;">
+        <button class="btn btn-outline" id="closeManageProfileModal" style="flex:1;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <div class="toast-content">
+      <div class="toast-title" id="toastTitle">Success</div>
+      <div class="toast-message" id="toastMessage">Action completed successfully</div>
+    </div>
+    <button class="toast-close" onclick="hideToast()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 4L4 12M4 4l8 8"/>
+      </svg>
+    </button>
+  </div>
+
+  <script>
+    // Toast notification system
+    function showToast(title, message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+      
+      toast.classList.remove('toast-success', 'toast-error', 'toast-warning', 'hiding');
+      
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      
+      toast.classList.add(`toast-${type}`);
+      if (type === 'success') {
+        toastIcon.textContent = '✓';
+      } else if (type === 'error') {
+        toastIcon.textContent = '✕';
+      } else if (type === 'warning') {
+        toastIcon.textContent = '⚠';
+      }
+      
+      toast.classList.add('show');
+      setTimeout(() => hideToast(), 5000);
+    }
+    
+    function hideToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('hiding');
+      setTimeout(() => {
+        toast.classList.remove('show', 'hiding');
+      }, 300);
+    }
+
+    // Load clinic info
+    async function loadClinicInfo() {
+      const clinicId = sessionStorage.getItem('clinic_id');
+      if (clinicId) {
+        document.getElementById('welcomeLocation').textContent = sessionStorage.getItem('clinic_address') || 'Your Clinic';
+      }
+      
+      try {
+        const res = await fetch('/clinic/profile');
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (data.success && data.clinic) {
+          const clinic = data.clinic;
+          document.getElementById('welcomeName').textContent = clinic.name || 'Clinic';
+          
+          if (clinic.address) {
+            document.getElementById('welcomeLocation').textContent = clinic.address;
+          }
+          
+          document.getElementById('editName').value = clinic.name || '';
+          document.getElementById('editPhone').value = clinic.phone || '';
+          document.getElementById('editAddress').value = clinic.address || '';
+          document.getElementById('editEmail').value = clinic.email || '';
+          document.getElementById('editUpi').value = clinic.upi_id || '';
+        } else {
+          console.error('Invalid response format');
+          document.getElementById('welcomeName').textContent = 'Clinic';
+        }
+      } catch (err) {
+        console.error('Failed to load profile:', err.message);
+        const address = sessionStorage.getItem('clinic_address');
+        if (address) {
+          document.getElementById('welcomeLocation').textContent = address;
+        }
+      }
+    }
+
+    // Modal handlers
+    document.getElementById('manageProfileBtn').addEventListener('click', () => {
+      document.getElementById('manageProfileModal').classList.add('active');
+      switchTab('profile');
+    });
+
+    document.getElementById('closeManageProfileModal').addEventListener('click', () => {
+      document.getElementById('manageProfileModal').classList.remove('active');
+      document.getElementById('changePasswordForm').reset();
+    });
+
+    // Tab switching
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+      document.getElementById(tabName + 'Tab').classList.add('active');
+    }
+
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+    });
+
+    // Close modals on backdrop click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // Update profile form
+    document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('editName').value.trim();
+      const phone = document.getElementById('editPhone').value.trim();
+      const address = document.getElementById('editAddress').value.trim();
+      const email = document.getElementById('editEmail').value.trim();
+      const upi_id = document.getElementById('editUpi').value.trim();
+      const qrCodeFile = document.getElementById('editQrCode').files[0];
+
+      if (!name || !phone || !email || !address) {
+        showToast('Missing Fields', 'Please fill all required fields (Name, Phone, Email, Address)', 'warning');
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('phone', phone);
+        formData.append('address', address);
+        formData.append('email', email);
+        formData.append('upi_id', upi_id);
+        if (qrCodeFile) {
+          formData.append('qr_image', qrCodeFile);
+        }
+
+        const res = await fetch('/clinics/update-profile', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast('Profile Updated', 'Your clinic profile has been updated successfully', 'success');
+          loadClinicInfo();
+          document.getElementById('manageProfileModal').classList.remove('active');
+        } else {
+          showToast('Update Failed', data.message || 'Failed to update profile', 'error');
+        }
+      } catch (err) {
+        showToast('Error', 'Error updating profile. Please try again.', 'error');
+      }
+    });
+
+    // Change password form
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const current = document.getElementById('currentPassword').value;
+      const newPass = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+
+      if (newPass !== confirm) {
+        showToast('Password Mismatch', 'New passwords do not match', 'warning');
+        return;
+      }
+
+      try {
+        const res = await fetch('/clinics/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast('Password Updated', 'Your password has been changed successfully', 'success');
+          document.getElementById('manageProfileModal').classList.remove('active');
+          document.getElementById('changePasswordForm').reset();
+        } else {
+          showToast('Update Failed', data.message || 'Failed to update password', 'error');
+        }
+      } catch (err) {
+        showToast('Error', 'Error updating password. Please try again.', 'error');
+      }
+    });
+
+    // Sign out
+    document.getElementById('signOutBtn').addEventListener('click', async () => {
+      try {
+        await fetch('/clinics/logout', { method: 'POST' });
+      } catch (err) {}
+      sessionStorage.clear();
+      window.location.href = '/clinic_login.html';
+    });
+
+    // Initialize
+    loadClinicInfo();
+    loadStats();
+    loadBookingQRCode();
+    loadAppointments();
+
+    // Global variables for appointments
+    let allAppointments = [];
+    let selectedDate = null; // null means "today", empty string means "all dates"
+    let selectedDoctor = '';
+
+    // Load appointments function
+    async function loadAppointments() {
+      try {
+        const sessionRes = await fetch('/clinic/session');
+        const sessionData = await sessionRes.json();
+        
+        if (!sessionData.success || !sessionData.clinic || !sessionData.clinic.clinic_id) {
+          document.getElementById('loadingAppointments').textContent = 'Please log in to view appointments';
+          return;
+        }
+        
+        const clinicId = sessionData.clinic.clinic_id;
+        
+        const bookingsRes = await fetch(`/bookings/clinic/${clinicId}`);
+        const bookingsData = await bookingsRes.json();
+        
+        if (bookingsData.success && bookingsData.bookings) {
+          allAppointments = bookingsData.bookings;
+          
+          // Populate doctor dropdown
+          const doctors = [...new Set(allAppointments.map(a => a.doctor_name).filter(Boolean))];
+          const doctorSelect = document.getElementById('doctorFilter');
+          doctorSelect.innerHTML = '<option value="">All Doctors</option>' + 
+            doctors.map(d => `<option value="${d}">${d}</option>`).join('');
+          
+          // Set today's date in date picker
+          const today = new Date();
+          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+          document.getElementById('dateFilter').value = todayStr;
+          selectedDate = todayStr;
+          
+          document.getElementById('loadingAppointments').style.display = 'none';
+          document.getElementById('appointmentFilters').style.display = 'block';
+          document.getElementById('appointmentsTable').style.display = 'block';
+          updateHeading();
+          applyFilters();
+        } else {
+          document.getElementById('loadingAppointments').textContent = 'No appointments found';
+        }
+      } catch (error) {
+        console.error('Error loading appointments:', error);
+        document.getElementById('loadingAppointments').textContent = 'Error loading appointments';
+      }
+    }
+
+    // Select date from picker
+    function selectDate() {
+      selectedDate = document.getElementById('dateFilter').value;
+      document.querySelector('.filter-btn')?.classList.remove('active');
+      updateHeading();
+      applyFilters();
+    }
+
+    // Select all dates
+    function selectAllDates() {
+      selectedDate = '';
+      document.getElementById('dateFilter').value = '';
+      document.querySelector('.filter-btn')?.classList.add('active');
+      updateHeading();
+      applyFilters();
+    }
+
+    // Update heading based on filter
+    function updateHeading() {
+      const heading = document.getElementById('appointmentsHeading');
+      if (!heading) return;
+      
+      if (!selectedDate || selectedDate === '') {
+        heading.textContent = 'All Appointments';
+      } else {
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        if (selectedDate === todayStr) {
+          heading.textContent = "Today's Appointments";
+        } else {
+          // Format date nicely
+          const dateObj = new Date(selectedDate + 'T00:00:00');
+          const options = { day: 'numeric', month: 'short', year: 'numeric' };
+          const formattedDate = dateObj.toLocaleDateString('en-GB', options);
+          heading.textContent = `Appointments for ${formattedDate}`;
+        }
+      }
+    }
+
+    // Toggle appointments section
+    function toggleAppointments() {
+      const body = document.getElementById('appointmentsBody');
+      const icon = document.getElementById('toggleIcon');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.textContent = '▼';
+      } else {
+        body.style.display = 'none';
+        icon.textContent = '▶';
+      }
+    }
+
+    // Refresh appointments
+    async function refreshAppointments() {
+      const refreshIcon = document.getElementById('refreshIcon');
+      if (!refreshIcon) return;
+      
+      // Start rotation animation
+      refreshIcon.style.transition = 'none';
+      refreshIcon.style.display = 'inline-block';
+      refreshIcon.style.animation = 'spin 1s linear infinite';
+      
+      try {
+        await loadAppointments();
+      } catch (error) {
+        console.error('Error refreshing appointments:', error);
+      } finally {
+        // Stop animation after a delay
+        setTimeout(() => {
+          refreshIcon.style.animation = '';
+        }, 500);
+      }
+    }
+
+    // Apply both date and doctor filters
+    function applyFilters() {
+      selectedDoctor = document.getElementById('doctorFilter')?.value || '';
+      
+      let filtered = allAppointments;
+      
+      // Filter by date
+      if (selectedDate) {
+        filtered = filtered.filter(a => a.appointment_date === selectedDate);
+        console.log(`Filtering for specific date: ${selectedDate}`);
+      } else if (selectedDate !== '') {
+        // selectedDate is null, means all dates
+        console.log('Showing all dates');
+      }
+      
+      // Filter by doctor
+      if (selectedDoctor) {
+        filtered = filtered.filter(a => a.doctor_name === selectedDoctor);
+      }
+      
+      // Sort by appointment date and time
+      filtered.sort((a, b) => {
+        const dateCompare = (a.appointment_date || '').localeCompare(b.appointment_date || '');
+        if (dateCompare !== 0) return dateCompare;
+        return (a.appointment_time || '').localeCompare(b.appointment_time || '');
+      });
+      
+      console.log(`Filtered ${filtered.length} appointments${selectedDate ? ' for date: ' + selectedDate : ' (all dates)'}${selectedDoctor ? ' - Doctor: ' + selectedDoctor : ''}`);
+      
+      renderAppointmentsTable(filtered);
+    }
+
+    // Render appointments table
+    function renderAppointmentsTable(appointments) {
+      const tbody = document.getElementById('appointmentsTableBody');
+      
+      if (!appointments || appointments.length === 0) {
+        const dateMsg = selectedDate ? `for ${selectedDate}` : 'for selected filters';
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              No appointments found ${dateMsg}
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = appointments.map(apt => {
+        const statusColors = {
+          'pending': '#f59e0b',
+          'not_seen': '#f59e0b',
+          'seen': '#10b981',
+          'completed': '#10b981',
+          'cancelled': '#ef4444',
+          'no_show': '#ef4444'
+        };
+        const statusColor = statusColors[apt.consult_status] || '#64748b';
+        const statusText = (apt.consult_status || 'pending').replace('_', ' ');
+        
+        return `
+          <tr>
+            <td>
+              <div style="font-weight: 600;">${apt.patient_name || '-'}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${apt.patient_mobile || ''}</div>
+            </td>
+            <td>${apt.doctor_name || '-'}</td>
+            <td>${apt.appointment_date || '-'}</td>
+            <td>${apt.appointment_time || '-'}</td>
+            <td style="text-align: center;">
+              <span style="background: var(--primary-light); color: var(--primary); padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 600;">#${apt.queue_number || '-'}</span>
+            </td>
+            <td style="text-align: center;">
+              <span style="background: ${statusColor}22; color: ${statusColor}; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize;">${statusText}</span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Load stats function
+    async function loadStats() {
+      try {
+        console.log('[loadStats] Starting...');
+        const sessionRes = await fetch('/clinic/session');
+        const sessionData = await sessionRes.json();
+        console.log('[loadStats] Session data:', sessionData);
+        
+        if (!sessionData.success || !sessionData.clinic || !sessionData.clinic.clinic_id) {
+          console.log('[loadStats] No clinic session found');
+          return;
+        }
+        
+        const clinicId = sessionData.clinic.clinic_id;
+        console.log('[loadStats] Clinic ID:', clinicId);
+        
+        // Load doctors count
+        const doctorsRes = await fetch(`/doctors/by-clinic/${clinicId}`);
+        const doctorsData = await doctorsRes.json();
+        const doctors = doctorsData.doctors || [];
+        console.log('[loadStats] Doctors:', doctors.length);
+        
+        document.getElementById('totalDoctors').textContent = doctors.length;
+        
+        // Load today's active doctors (doctors with availability slots today)
+        const activeDoctorsToday = doctors.filter(doc => doc.is_active === 1).length;
+        console.log('[loadStats] Active today:', activeDoctorsToday);
+        document.getElementById('activeToday').textContent = activeDoctorsToday;
+        
+        // Load total appointments for this clinic
+        const bookingsRes = await fetch(`/bookings/clinic/${clinicId}`);
+        const bookingsData = await bookingsRes.json();
+        const appointments = bookingsData.bookings || [];
+        console.log('[loadStats] Appointments:', appointments.length);
+        
+        document.getElementById('totalAppointments').textContent = appointments.length;
+        console.log('[loadStats] Stats loaded successfully!');
+      } catch (error) {
+        console.error('[loadStats] Error loading stats:', error);
+        // Set to 0 on error
+        document.getElementById('totalDoctors').textContent = '0';
+        document.getElementById('activeToday').textContent = '0';
+        document.getElementById('totalAppointments').textContent = '0';
+      }
+    }
+
+    // QR Code Functions
+    let currentQRData = null;
+
+    async function loadBookingQRCode() {
+      try {
+        const sessionRes = await fetch('/clinic/session');
+        const sessionData = await sessionRes.json();
+        
+        if (!sessionData.success || !sessionData.clinic || !sessionData.clinic.clinic_id) {
+          document.getElementById('qrCodeImage').innerHTML = '<span style="color: var(--danger);">❌ Please log in to view QR code</span>';
+          return;
+        }
+
+        const clinicId = sessionData.clinic.clinic_id;
+        const res = await fetch(`/clinic/generate-qr/${clinicId}`);
+        const data = await res.json();
+        
+        if (data.success) {
+          currentQRData = data;
+          
+          // Display QR code image (smaller on page)
+          document.getElementById('qrCodeImage').innerHTML = `
+            <div style="display: inline-block; text-align: center;">
+              <div style="margin-bottom: 6px; font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: capitalize; letter-spacing: 0.5px;">Scan for Booking</div>
+              <img src="${data.qrCode}" 
+                   alt="Booking QR Code" 
+                   style="width: 180px; height: 180px; border: 2px solid #e5e7eb; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: block;" />
+              <div style="margin-top: 6px; font-size: 0.75rem; color: #1e293b; font-weight: 700;">${data.clinic_name}</div>
+            </div>
+          `;
+          
+          // Show buttons
+          document.getElementById('downloadQRBtn').style.display = 'inline-flex';
+          document.getElementById('copyLinkBtn').style.display = 'inline-flex';
+          
+          // Display booking link
+          document.getElementById('bookingLinkText').textContent = data.bookingUrl;
+          document.getElementById('bookingLinkDisplay').style.display = 'block';
+          
+        } else {
+          document.getElementById('qrCodeImage').innerHTML = `
+            <div style="color: var(--danger); padding: 2rem; text-align: center;">
+              <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">❌</p>
+              <p style="font-weight: 600;">Failed to generate QR code</p>
+              <p style="font-size: 0.875rem; margin-top: 0.5rem; color: var(--text-muted);">${data.message || 'Unknown error'}</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading QR code:', error);
+        document.getElementById('qrCodeImage').innerHTML = `
+          <div style="color: var(--danger); padding: 2rem; text-align: center;">
+            <p style="font-size: 1.5rem; margin-bottom: 0.5rem;">❌</p>
+            <p style="font-weight: 600;">Error loading QR code</p>
+            <p style="font-size: 0.875rem; margin-top: 0.5rem; color: var(--text-muted);">${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function downloadQRCode() {
+      if (!currentQRData || !currentQRData.qrCode) {
+        showToast('Error', 'QR code not available', 'error');
+        return;
+      }
+
+      // Create a canvas to generate full-size QR code for download
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const qrSize = 600;
+      const topTextHeight = 50;
+      const bottomTextHeight = 60;
+      canvas.width = qrSize;
+      canvas.height = topTextHeight + qrSize + bottomTextHeight;
+
+      const img = new Image();
+      img.onload = function() {
+        // Fill white background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Add text on top
+        ctx.fillStyle = '#64748b';
+        ctx.font = '600 28px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Scan for booking', qrSize / 2, 35);
+        
+        // Draw QR code in middle
+        ctx.drawImage(img, 0, topTextHeight, qrSize, qrSize);
+        
+        // Add clinic name at bottom
+        ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 36px Arial';
+        ctx.fillText(currentQRData.clinic_name || 'Clinic', qrSize / 2, topTextHeight + qrSize + 48);
+        
+        // Download
+        canvas.toBlob(function(blob) {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = `${currentQRData.clinic_name || 'clinic'}_booking_qr.png`;
+          link.click();
+          URL.revokeObjectURL(link.href);
+          showToast('Success', 'QR code downloaded successfully!', 'success');
+        });
+      };
+      img.src = currentQRData.qrCode;
+    }
+
+    function copyBookingLink() {
+      if (!currentQRData || !currentQRData.bookingUrl) {
+        showToast('Error', 'Booking link not available', 'error');
+        return;
+      }
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(currentQRData.bookingUrl).then(() => {
+        showToast('Copied!', 'Booking link copied to clipboard', 'success');
+      }).catch(err => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = currentQRData.bookingUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          showToast('Copied!', 'Booking link copied to clipboard', 'success');
+        } catch (err) {
+          showToast('Error', 'Failed to copy link', 'error');
+        }
+        document.body.removeChild(textArea);
+      });
+    }
+  </script>
+</body>
+</html>
