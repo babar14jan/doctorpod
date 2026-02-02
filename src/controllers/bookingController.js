@@ -101,49 +101,98 @@ async function getClinicTimings(req, res){
   }
 }
 const { getNextQueueNumber, getBookingCountForDate } = require('../utils/dbHelper');
-const { generateBookingId } = require('../utils/idGenerator');
+const { generateBookingId, generateBookingIdV2, generatePatientIdV2, generateUniqueId } = require('../utils/idGenerator');
 
 async function bookAppointment(req, res){
-  const {
-    patient_name,
-    mobile,
-    age,
-    gender,
-    blood_group,
-    doctor_id,
-    clinic_id,
-    appointment_date
-  } = req.body;
+  try {
+    const {
+      patient_name,
+      mobile,
+      age,
+      gender,
+      blood_group,
+      doctor_id,
+      clinic_id,
+      appointment_date,
+      booking_source
+    } = req.body;
 
-  // Generate patient_id (first 4 chars of name + last 6 of mobile)
-  const patient_id = (patient_name.replace(/\s+/g, '').substring(0,4).toUpperCase() + (mobile.slice(-6))).toUpperCase();
+    console.log('[BOOKING DEBUG] Request body received:', req.body);
+    console.log('[BOOKING DEBUG] Field validation:', {
+      patient_name: !!patient_name,
+      mobile: !!mobile,
+      age: !!age,
+      doctor_id: !!doctor_id,
+      clinic_id: !!clinic_id,
+      appointment_date: !!appointment_date,
+      booking_source: booking_source || 'online (default)'
+    });
 
-  if (!patient_name || !mobile || !age || !doctor_id || !clinic_id || !appointment_date) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
+    // Generate patient_id using secure random generation with collision handling
+    const patient_id = await generateUniqueId(
+      db,
+      'patients',
+      'patient_id',
+      () => generatePatientIdV2(),
+      50
+    );
 
-  // Use availability_slots for validation
-  // Convert appointment_date to short day name (Mon, Tue, etc.)
-  const jsDate = new Date(appointment_date);
-  const shortDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const dayName = shortDays[jsDate.getDay()];
-  // Debug: log all availabilities for this doctor/clinic
-  const allAvail = await db.prepare('SELECT * FROM availability_slots WHERE doctor_id = ? AND clinic_id = ?').all(doctor_id, clinic_id);
-  console.log('[BOOKING DEBUG] All availability_slots for doctor/clinic:', allAvail);
-  // Debug: log the dayName being searched
-  console.log('[BOOKING DEBUG] Searching for day_of_week:', dayName);
-  // Try to match day_of_week case-insensitively and trimmed
-  const avail = allAvail.find(a => (a.day_of_week || '').trim().toLowerCase() === dayName.trim().toLowerCase());
-  console.log('[BOOKING DEBUG] Matched doctor_availability:', avail);
-  if (!avail) {
-    return res.status(400).json({ success: false, message: 'Doctor is not available on selected date. Please choose a valid day as per timings.' });
-  }
-  // Generate all possible slots for the day
-  const [sh, sm] = avail.start_time.split(':').map(Number);
-  const [eh, em] = avail.end_time.split(':').map(Number);
-  const startMins = sh * 60 + sm;
-  const endMins = eh * 60 + em;
-  const interval = parseInt(avail.interval_minutes, 10) || 10;
+    if (!patient_name || !mobile || !age || !doctor_id || !clinic_id || !appointment_date) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    // Validate appointment date is not in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
+    const [year, month, day] = appointment_date.split('-').map(Number);
+    const appointmentDate = new Date(year, month - 1, day);
+    appointmentDate.setHours(0, 0, 0, 0);
+    
+    if (appointmentDate < today) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Cannot book appointments for past dates. Please select today or a future date.' 
+      });
+    }
+
+    // Use availability_slots for validation
+    // Convert appointment_date to day name (short + full)
+    const jsDate = new Date(year, month - 1, day);
+    console.log('[BOOKING DEBUG] Date parsing:', { 
+      appointment_date, 
+      year, 
+      month, 
+      day, 
+      jsDate: jsDate.toString(), 
+      dayIndex: jsDate.getDay() 
+    });
+    const shortDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dayShort = shortDays[jsDate.getDay()];
+    const dayFull = jsDate.toLocaleDateString('en-US', { weekday: 'long' }); // e.g., Monday
+    console.log('[BOOKING DEBUG] Calculated days:', { dayShort, dayFull });
+    // Debug: log all availabilities for this doctor/clinic
+    const allAvail = await db.prepare('SELECT * FROM availability_slots WHERE doctor_id = ? AND clinic_id = ?').all(doctor_id, clinic_id);
+    console.log('[BOOKING DEBUG] All availability_slots for doctor/clinic:', allAvail);
+    console.log('[BOOKING DEBUG] Number of availability records found:', allAvail.length);
+    // Debug: log the day names being searched
+    console.log('[BOOKING DEBUG] Searching for day_of_week:', { dayShort, dayFull });
+    // Match day_of_week against short or full, case-insensitive
+    const avail = allAvail.find(a => {
+      const stored = (a.day_of_week || '').trim().toLowerCase();
+      const matched = stored === dayShort.toLowerCase() || stored === dayFull.toLowerCase();
+      console.log('[BOOKING DEBUG] Comparing:', { stored, dayShort: dayShort.toLowerCase(), dayFull: dayFull.toLowerCase(), matched });
+      return matched;
+    });
+    console.log('[BOOKING DEBUG] Matched doctor_availability:', avail);
+    if (!avail) {
+      return res.status(400).json({ success: false, message: `Doctor is not available on ${dayShort}. Please choose a valid day based on the timings shown above.` });
+    }
+    // Generate all possible slots for the day
+    const [sh, sm] = avail.start_time.split(':').map(Number);
+    const [eh, em] = avail.end_time.split(':').map(Number);
+    const startMins = sh * 60 + sm;
+    const endMins = eh * 60 + em;
+    const interval = parseInt(avail.interval_minutes, 10) || 10;
   let slots = [];
   for (let mins = startMins; mins + interval <= endMins; mins += interval) {
     const h = Math.floor(mins / 60).toString().padStart(2, '0');
@@ -157,7 +206,7 @@ async function bookAppointment(req, res){
   const availableSlot = slots.find(s => !bookedSet.has(s));
   // Debug logging for troubleshooting date/day issues
   console.log('[BOOKING DEBUG] Received:', { appointment_date, doctor_id, clinic_id });
-  console.log('[BOOKING DEBUG] Calculated dayName:', dayName);
+  console.log('[BOOKING DEBUG] Calculated day:', dayShort, '/', dayFull);
   if (!availableSlot) {
     return res.status(400).json({ success: false, message: 'All slots are booked for this date. Please choose another date.' });
   }
@@ -171,12 +220,24 @@ async function bookAppointment(req, res){
   // Calculate queue number (1-based)
   const queue_number = slots.findIndex(s => s === availableSlot) + 1;
   const bookingCount = await getBookingCountForDate(appointment_date) + 1;
-  const booking_id = generateBookingId(appointment_date, bookingCount);
+  const booking_id = generateBookingIdV2(appointment_date, bookingCount);
   const uuid = 'BKG-' + Date.now().toString(36) + Math.random().toString(36).substr(2,5).toUpperCase();
+  
+  // Determine booking source: clinic, qr_scan, or online (default)
+  const source = booking_source || 'online';
+  
+  // Calculate tentative visit time based on queue number
+  // Tentative time = start_time + (queue_number - 1) * interval_minutes
+  const [startHour, startMin] = avail.start_time.split(':').map(Number);
+  const startMinutes = startHour * 60 + startMin;
+  const tentativeMinutes = startMinutes + (queue_number - 1) * interval;
+  const tentativeHour = Math.floor(tentativeMinutes / 60);
+  const tentativeMin = tentativeMinutes % 60;
+  const tentative_time = `${tentativeHour.toString().padStart(2, '0')}:${tentativeMin.toString().padStart(2, '0')}`;
 
   await db.prepare(`INSERT INTO bookings (
-    appointment_id, doctor_id, clinic_id, patient_id, patient_name, patient_mobile, patient_age, patient_gender, blood_group, appointment_date, queue_number, appointment_time, consult_status
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    appointment_id, doctor_id, clinic_id, patient_id, patient_name, patient_mobile, patient_age, patient_gender, blood_group, appointment_date, queue_number, appointment_time, consult_status, booking_source
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     booking_id,
     doctor_id,
@@ -190,7 +251,8 @@ async function bookAppointment(req, res){
     appointment_date,
     queue_number,
     availableSlot,
-    'not_seen'
+    'not_seen',
+    source
   );
 
   res.json({
@@ -199,28 +261,76 @@ async function bookAppointment(req, res){
     queue_number,
     doctor_name,
     clinic_name,
-    appointment_time: availableSlot
+    appointment_time: availableSlot,
+    tentative_time
   });
+  } catch (error) {
+    console.error('[BOOKING ERROR]', error);
+    res.status(500).json({ success: false, message: error.message || 'Booking failed. Please try again.' });
+  }
 }
 
 async function verifyBooking(req, res){
-  const { mobile, booking_id, appointment_id, doctor_id } = req.query;
+  const { mobile, booking_id, appointment_id, doctor_id, clinic_id } = req.query;
   // Use appointment_id if present, else booking_id
   const lookupId = appointment_id || booking_id;
   let rows;
   // Join bookings, clinics, and doctors tables to get all required info
   const bookingSelect = `SELECT b.*, c.name AS clinic_name, c.phone AS clinic_phone, d.name AS doctor_name FROM bookings b LEFT JOIN clinics c ON b.clinic_id = c.clinic_id LEFT JOIN doctors d ON b.doctor_id = d.doctor_id`;
-  if (mobile && lookupId) {
-    rows = await db.prepare(bookingSelect + ' WHERE b.patient_mobile = ? AND b.appointment_id = ?').all(mobile, lookupId);
-  } else if (mobile) {
-    rows = await db.prepare(bookingSelect + ' WHERE b.patient_mobile = ?').all(mobile);
-  } else if (lookupId) {
-    rows = await db.prepare(bookingSelect + ' WHERE b.appointment_id = ?').all(lookupId);
-  } else if (doctor_id) {
-    rows = await db.prepare(bookingSelect + ' WHERE b.doctor_id = ?').all(doctor_id);
-  } else {
-    return res.status(400).json({ success: false, message: 'Provide mobile, booking_id, or doctor_id' });
+  
+  // Build dynamic WHERE clause
+  let whereConditions = [];
+  let params = [];
+  
+  if (mobile) {
+    whereConditions.push('b.patient_mobile = ?');
+    params.push(mobile);
   }
+  if (lookupId) {
+    whereConditions.push('b.appointment_id = ?');
+    params.push(lookupId);
+  }
+  if (doctor_id) {
+    whereConditions.push('b.doctor_id = ?');
+    params.push(doctor_id);
+  }
+  if (clinic_id) {
+    whereConditions.push('b.clinic_id = ?');
+    params.push(clinic_id);
+  }
+  
+  if (whereConditions.length === 0) {
+    return res.status(400).json({ success: false, message: 'Provide mobile, booking_id, doctor_id, or clinic_id' });
+  }
+  
+  const query = bookingSelect + ' WHERE ' + whereConditions.join(' AND ');
+  rows = await db.prepare(query).all(...params);
+  
+  // Calculate tentative_time for each booking
+  for (let booking of rows) {
+    if (booking.doctor_id && booking.clinic_id && booking.appointment_date && booking.queue_number) {
+      // Get availability for this booking
+      const [year, month, day] = booking.appointment_date.split('-').map(Number);
+      const jsDate = new Date(year, month - 1, day);
+      const shortDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const dayShort = shortDays[jsDate.getDay()];
+      
+      const avail = await db.prepare(
+        'SELECT start_time, interval_minutes FROM availability_slots WHERE doctor_id = ? AND clinic_id = ? AND LOWER(day_of_week) = ?'
+      ).get(booking.doctor_id, booking.clinic_id, dayShort.toLowerCase());
+      
+      if (avail && avail.start_time && avail.interval_minutes) {
+        const [startHour, startMin] = avail.start_time.split(':').map(Number);
+        const startMinutes = startHour * 60 + startMin;
+        const interval = parseInt(avail.interval_minutes, 10) || 15;
+        const tentativeMinutes = startMinutes + (booking.queue_number - 1) * interval;
+        const tentativeHour = Math.floor(tentativeMinutes / 60);
+        const tentativeMin = tentativeMinutes % 60;
+        booking.tentative_time = `${tentativeHour.toString().padStart(2, '0')}:${tentativeMin.toString().padStart(2, '0')}`;
+      }
+    }
+  }
+  
   res.json({ success: true, bookings: rows });
 }
 
@@ -262,6 +372,24 @@ async function getDoctorBookings(req, res){
   }
 }
 
+// Get all bookings for a clinic
+async function getClinicBookings(req, res) {
+  try {
+    const clinicId = req.params.clinicId;
+    const query = `
+      SELECT b.*, d.name AS doctor_name 
+      FROM bookings b 
+      LEFT JOIN doctors d ON b.doctor_id = d.doctor_id 
+      WHERE b.clinic_id = ? 
+      ORDER BY b.appointment_date DESC, b.appointment_time ASC
+    `;
+    const bookings = await db.prepare(query).all(clinicId);
+    res.json({ success: true, bookings });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+}
+
 async function updateBookingStatus(req, res){
   try {
     const appointmentId = req.params.id;
@@ -276,4 +404,4 @@ async function updateBookingStatus(req, res){
   }
 }
 
-module.exports = { bookAppointment, verifyBooking, getDoctorBookings, updateBookingStatus, getClinicTimings, getAvailability, getDoctorBookingFilters };
+module.exports = { bookAppointment, verifyBooking, getDoctorBookings, getClinicBookings, updateBookingStatus, getClinicTimings, getAvailability, getDoctorBookingFilters };

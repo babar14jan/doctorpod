@@ -5,6 +5,15 @@ const db = require('../utils/db');
 const { ensurePdfDir } = require('../utils/fileHelper');
 const { uploadToDrive, isConfigured: isDriveConfigured } = require('../utils/googleDriveHelper');
 
+// Helper function to add "Dr." prefix for display
+function formatDoctorName(name) {
+  if (!name) return '';
+  const trimmed = name.trim();
+  // Don't add if already has Dr./DR./dr. prefix
+  if (/^dr\.?\s/i.test(trimmed)) return trimmed;
+  return `Dr. ${trimmed}`;
+}
+
 // Load QR config from JSON (qr_code_path.json)
 const qrConfigPath = path.join(__dirname, '../utils/qr_code_path.json');
 let qrPaths = {};
@@ -99,7 +108,7 @@ async function generatePdf(req, res) {
     const contentWidth = pageWidth - (pageMargin * 2);
 
     // Doctor/Clinic info
-    const doctorName = doctor?.name || 'Doctor';
+    const doctorName = formatDoctorName(doctor?.name) || 'Doctor';
     const doctorDegree = doctor?.qualification || '';
     const doctorSpec = doctor?.specialization || '';
     const doctorMobile = doctor?.mobile || '';

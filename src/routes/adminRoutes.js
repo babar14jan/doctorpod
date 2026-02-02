@@ -37,12 +37,26 @@ router.get('/dashboard', (req, res) => {
 
 router.get('/session', ctrl.adminSession);
 router.post('/login', ctrl.adminLogin);
+router.post('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Logout failed' });
+    }
+    res.json({ success: true });
+  });
+});
 
 // Google Drive configuration
 router.post('/set-drive-folder', ctrl.setDriveFolder);
 router.get('/drive-status', ctrl.getDriveStatus);
 
-// Add Clinic route
+// Clinic routes
 router.post('/addClinic', upload.single('image'), ctrl.addClinic);
+router.post('/updateClinic', upload.single('image'), ctrl.updateClinic);
+
+// Demo request management
+router.get('/demo-requests', ctrl.getAllDemoRequests);
+router.post('/approve-demo', express.json(), ctrl.approveDemoRequest);
+router.post('/reject-demo', express.json(), ctrl.rejectDemoRequest);
 
 module.exports = router;

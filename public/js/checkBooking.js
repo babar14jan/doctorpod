@@ -64,6 +64,7 @@ async function doSearch(){
   const mobile = mobileEl.value.trim();
   const appointment_id = bookingEl.value.trim();
   const doctor_id = doctorEl ? doctorEl.value.trim() : '';
+  
   // Build params from all fields
   const params = new URLSearchParams();
   if (!mobile && !appointment_id && !doctor_id) {
@@ -79,6 +80,21 @@ async function doSearch(){
   }
   if (appointment_id) params.set('appointment_id', appointment_id);
   if (doctor_id) params.set('doctor_id', doctor_id);
+
+  // If in clinic mode, add clinic_id filter
+  const urlParams = new URLSearchParams(window.location.search);
+  const isClinicMode = urlParams.get('from') === 'clinic';
+  if (isClinicMode) {
+    try {
+      const sessionRes = await fetch('/clinic/session', { credentials: 'include' });
+      const sessionJ = await sessionRes.json();
+      if (sessionJ.success && sessionJ.clinic) {
+        params.set('clinic_id', sessionJ.clinic.clinic_id);
+      }
+    } catch (err) {
+      console.warn('Could not fetch clinic session:', err);
+    }
+  }
 
   feedback.textContent = 'Searching…';
   try{

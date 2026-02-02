@@ -9,15 +9,18 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --primary-light: rgba(79, 70, 229, 0.08);
-      --secondary: #10b981;
-      --text: #1e293b;
-      --text-muted: #64748b;
-      --bg: #f8fafc;
+      --primary: #2563eb;        /* Calm professional blue */
+      --primary-hover: #1d4ed8;  /* Darker blue on hover */
+      --primary-light: rgba(37, 99, 235, 0.08);
+      --secondary: #0891b2;      /* Trustworthy cyan */
+      --accent: #059669;         /* Success green accent */
+      --text: #1e293b;           /* Dark slate for readability */
+      --text-muted: #64748b;     /* Muted slate */
+      --bg: #f8fafc;             /* Soft off-white background */
       --surface: #ffffff;
-      --border: #e2e8f0;
+      --border: #e2e8f0;         /* Light border */
+      --success: #10b981;        /* Emerald green */
+      --info: #0ea5e9;           /* Sky blue */
     }
 
     body {
@@ -26,6 +29,8 @@
       color: var(--text);
       line-height: 1.5;
       min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     /* Navigation */
@@ -57,12 +62,12 @@
     .nav-title {
       font-weight: 700;
       font-size: 1.25rem;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+    .nav-subtitle { font-size: 0.7rem; color: #2563eb; font-weight: 500; letter-spacing: 0.02em; }
 
     .nav-link {
       font-size: 0.8125rem;
@@ -83,19 +88,22 @@
 
     /* Hero */
     .hero {
-      background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       color: white;
       padding: 3rem 1.5rem;
       text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 0;
     }
 
-    .hero-content { max-width: 600px; margin: 0 auto; }
+    .hero-content { max-width: 520px; margin: 0 auto; }
 
     .hero h1 {
-      font-size: 2rem;
+      font-size: 1.625rem;
       font-weight: 700;
       margin-bottom: 0.625rem;
-      line-height: 1.2;
+      line-height: 1.3;
     }
 
     .hero-tagline {
@@ -151,111 +159,329 @@
       padding: 2rem 1.5rem;
     }
 
-    /* Portal Cards */
-    .portals {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
+    /* Portal Button Header */
+    .portal-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
-    .portal-row {
+    .portal-header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .portal-btn {
+      padding: 0.625rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: 2px solid;
+    }
+
+    .portal-btn.doctor {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-color: #047857;
+      color: #ffffff;
+    }
+
+    .portal-btn.doctor:hover {
+      border-color: #065f46;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+    }
+
+    .portal-btn.clinic {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-color: #1d4ed8;
+      color: #ffffff;
+    }
+
+    .portal-btn.clinic:hover {
+      border-color: #1e40af;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    .portal-btn.booking {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      border-color: #b45309;
+      color: #ffffff;
+    }
+
+    .portal-btn.booking:hover {
+      border-color: #92400e;
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4);
+    }
+
+    .portal-btn.check {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      border-color: #6d28d9;
+      color: #ffffff;
+    }
+
+    .portal-btn.check:hover {
+      border-color: #5b21b6;
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    /* Portal Cards */
+    .portals {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 1rem;
+      margin-bottom: 2rem;
     }
 
     .portal-card {
-      background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-      border-radius: 12px;
-      padding: 1.25rem;
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 1.25rem 1rem;
       text-align: center;
-      border: 2px solid #86efac;
+      border: 2px solid var(--border);
       text-decoration: none;
       color: var(--text);
       transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .portal-card:hover {
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2);
-      transform: translateY(-3px);
-      border-color: #10b981;
-      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
     }
 
-    /* Featured Provider Card */
-    .portal-card-featured {
-      display: flex;
-      align-items: center;
-      text-align: left;
-      padding: 1.5rem;
-      background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-      border: 2px solid #a5b4fc;
+    .portal-card.doctor {
+      border-color: #6ee7b7;
+      background: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%);
     }
 
-    .portal-card-featured:hover {
-      border-color: #6366f1;
-      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
+    .portal-card.doctor:hover {
+      border-color: #059669;
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.15);
     }
 
-    .portal-card-featured .portal-icon {
-      margin: 0 1.25rem 0 0;
-      width: 56px;
-      height: 56px;
-      flex-shrink: 0;
+    .portal-card.clinic {
+      border-color: #93c5fd;
+      background: linear-gradient(135deg, #ffffff 0%, #dbeafe 100%);
     }
 
-    .portal-featured-content {
-      flex: 1;
+    .portal-card.clinic:hover {
+      border-color: #2563eb;
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.15);
     }
 
-    .portal-featured-content h3 {
-      font-size: 1.125rem;
-      margin-bottom: 0.25rem;
+    .portal-card.booking {
+      border-color: #6ee7b7;
+      background: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%);
     }
 
-    .portal-featured-content p {
-      font-size: 0.8125rem;
-      color: var(--text-muted);
-      margin: 0;
+    .portal-card.booking:hover {
+      border-color: #059669;
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.15);
     }
 
-    .portal-arrow {
-      font-size: 1.25rem;
-      color: var(--primary);
-      margin-left: 1rem;
-      transition: transform 0.2s;
+    .portal-card.check {
+      border-color: #67e8f9;
+      background: linear-gradient(135deg, #ffffff 0%, #cffafe 100%);
     }
 
-    .portal-card-featured:hover .portal-arrow {
-      transform: translateX(4px);
+    .portal-card.check:hover {
+      border-color: #0891b2;
+      background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
+      box-shadow: 0 6px 20px rgba(8, 145, 178, 0.15);
     }
 
     .portal-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
-      margin: 0 auto 0.75rem;
+      font-size: 1.375rem;
+      margin-bottom: 0.625rem;
     }
 
-    .portal-icon.doctor { background: #d1fae5; }
-    .portal-icon.clinic { background: #dbeafe; }
-    .portal-icon.admin { background: #fef3c7; }
+    .portal-icon.doctor { background: #a7f3d0; }
+    .portal-icon.clinic { background: #bfdbfe; }
+    .portal-icon.booking { background: #a7f3d0; }
+    .portal-icon.check { background: #a5f3fc; }
 
     .portal-card h3 {
       font-size: 0.9375rem;
       font-weight: 600;
       margin-bottom: 0.25rem;
+      color: var(--text);
     }
 
     .portal-card p {
       font-size: 0.75rem;
       color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* Pricing Cards */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      border: 2px solid;
+      position: relative;
+    }
+
+    .pricing-card.trial {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-color: #6ee7b7;
+    }
+
+    .pricing-card.professional {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      border-color: #93c5fd;
+    }
+
+    .pricing-card.enterprise {
+      background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
+      border-color: #67e8f9;
+    }
+
+    .price-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2563eb;
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .pricing-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .price-amount {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .pricing-card.trial .price-amount { color: #10b981; }
+    .pricing-card.professional .price-amount { color: #0ea5e9; }
+    .pricing-card.enterprise .price-amount { color: #8b5cf6; }
+
+    .price-period {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-features {
+      text-align: left;
+      font-size: 0.8125rem;
+      margin-bottom: 1.5rem;
+      list-style: none;
+      padding: 0;
+    }
+
+    .pricing-features li {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pricing-card.trial .pricing-features span { color: #10b981; }
+    .pricing-card.professional .pricing-features span { color: #0ea5e9; }
+    .pricing-card.enterprise .pricing-features span { color: #8b5cf6; }
+
+    .pricing-btn {
+      width: 100%;
+      padding: 0.75rem 1.5rem;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .pricing-btn.trial { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .pricing-btn.professional { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+    .pricing-btn.enterprise { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+    .pricing-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* FAQ Section */
+    .faq-container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    details {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+
+    summary {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    details p {
+      margin-top: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      line-height: 1.6;
     }
 
     /* Features Section */
@@ -502,31 +728,341 @@
 
     .footer a:hover { color: var(--primary); }
 
+    /* Demo Modal */
+    .demo-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .demo-modal.active {
+      display: flex;
+    }
+
+    .demo-modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .demo-modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: var(--bg);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      color: var(--text-muted);
+    }
+
+    .demo-modal-close:hover {
+      background: var(--border);
+      color: var(--text);
+      transform: rotate(90deg);
+    }
+
+    .demo-modal h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .demo-modal-subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 0.9375rem;
+    }
+
+    .demo-form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .demo-form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    .demo-form-group input,
+    .demo-form-group select,
+    .demo-form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .demo-form-group input:focus,
+    .demo-form-group select:focus,
+    .demo-form-group textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .demo-form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .demo-submit-btn {
+      width: 100%;
+      padding: 0.875rem;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .demo-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+    }
+
+    .demo-submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 300px;
+      max-width: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 1rem 1.25rem;
+      display: none;
+      align-items: flex-start;
+      gap: 0.75rem;
+      z-index: 2000;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+    }
+
+    .toast.hiding {
+      animation: slideOut 0.3s ease-out forwards;
+    }
+
+    .toast-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .toast-success .toast-icon {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .toast-error .toast-icon {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .toast-info .toast-icon {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .toast-message {
+      font-size: 0.875rem;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .toast-close {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toast-close:hover {
+      background: #f1f5f9;
+      color: #334155;
+    }
+
     /* Responsive */
     @media (max-width: 700px) {
-      .portal-row { grid-template-columns: 1fr; }
-      .portal-card-featured { flex-direction: column; text-align: center; }
-      .portal-card-featured .portal-icon { margin: 0 0 1rem 0; }
-      .portal-arrow { display: none; }
+      .portal-header-container { gap: 0.5rem; grid-template-columns: repeat(2, 1fr); }
+      .portal-btn { padding: 0.5rem 0.875rem; font-size: 0.8125rem; }
+      .portals { grid-template-columns: repeat(2, 1fr); }
       .features { grid-template-columns: 1fr; }
       .contact-grid { grid-template-columns: 1fr; gap: 1rem; }
+      
+      /* Responsive pricing */
+      .pricing-grid { grid-template-columns: 1fr !important; }
+      
+      /* Responsive how it works */
+      section > div[style*="grid-template-columns: repeat(3, 1fr)"] { 
+        grid-template-columns: 1fr !important; 
+      }
+      
+      /* Responsive problem-solution */
+      section > div[style*="grid-template-columns: repeat(2, 1fr)"] { 
+        grid-template-columns: 1fr !important; 
+      }
+
+      /* Hero buttons */
+      .hero div[style*="display: flex"] {
+        flex-direction: column !important;
+      }
+      .hero .action-btn {
+        width: 100% !important;
+      }
     }
 
     @media (max-width: 500px) {
-      .hero { padding: 2rem 0; }
-      .hero-content { padding: 0 1rem; }
-      .hero h1 { font-size: 1.625rem; }
+      .hero { padding: 2rem 0; max-width: 100%; }
+      .hero-content { padding: 0 1rem; max-width: 100%; }
+      .hero h1 { font-size: 1.375rem; }
+      .portal-header { padding: 0.75rem 0.5rem; }
+      .portal-header-container { gap: 0.375rem; grid-template-columns: repeat(2, 1fr); }
+      .portal-btn { padding: 0.5rem 0.75rem; font-size: 0.75rem; gap: 0.375rem; }
       .actions { grid-template-columns: 1fr; max-width: 280px; }
       .action-btn.primary { grid-column: auto; }
       .main { padding: 1.5rem 1rem; }
       .nav { padding: 0.625rem 0.75rem; }
       .nav-link { font-size: 0.7rem; padding: 0.25rem 0.375rem; }
-      .nav-links { gap: 0.125rem; }
+      .nav-links { 
+        gap: 0.125rem; 
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
       .nav-logo { height: 28px; }
       .nav-title { font-size: 1rem; }
       .nav-subtitle { font-size: 0.6rem; }
       .contact-section { padding: 2rem 0; }
       .contact-container { padding: 0 1rem; }
+      
+      /* About section mobile adjustments */
+      section h1[style*="font-size: 1.75rem"] {
+        font-size: 1.25rem !important;
+      }
+      section p[style*="font-size: 1.0625rem"] {
+        font-size: 0.875rem !important;
+      }
+      
+      /* Reduce Start Free Trial button size on mobile */
+      .nav-link[style*="background: linear-gradient"] {
+        padding: 0.375rem 0.625rem !important;
+        font-size: 0.7rem !important;
+      }
+
+      /* Toast mobile adjustments */
+      .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+      }
+      
+      /* Portal sections mobile - stack vertically and center */
+      section[style*="padding: 1.5rem 1rem"] div[style*="grid-template-columns: repeat(auto-fit, minmax(420px, 1fr))"] {
+        grid-template-columns: 1fr !important;
+        max-width: 100% !important;
+      }
     }
   </style>
 </head>
@@ -541,163 +1077,410 @@
       </div>
     </a>
     <div class="nav-links">
-      <button class="nav-link" onclick="scrollToAbout()">About</button>
       <button class="nav-link" onclick="scrollToFeatures()">Features</button>
+      <button class="nav-link" onclick="scrollToPricing()">Pricing</button>
       <button class="nav-link" onclick="scrollToContact()">Contact</button>
       <a href="/admin_login.html" class="nav-link">Admin</a>
+      <button class="nav-link" onclick="openDemoModal()" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 0.5rem 1rem; border: none; cursor: pointer;">Book Demo</button>
+      <a href="/clinic_login.html?mode=trial" class="nav-link" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; padding: 0.5rem 1rem;">Start Free Trial</a>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Smart Healthcare for Modern Clinics</h1>
-      <p class="hero-tagline">AI-powered bookings, digital prescriptions, and effortless practice management — all in one place.</p>
+  <!-- About DoctorPod -->
+  <section style="background: linear-gradient(135deg, #1e40af 0%, #0891b2 100%); padding: 2.5rem 1.5rem; border-bottom: 3px solid #60a5fa; box-shadow: inset 0 2px 20px rgba(0, 0, 0, 0.1);">
+    <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+      <p style="font-size: 1.0625rem; color: #ffffff; margin-bottom: 1rem; line-height: 1.7; font-weight: 400;"><strong style="color: #fbbf24; font-size: 1.25rem; font-weight: 700;">DoctorPod</strong> streamlines clinic operations with real-time appointment booking, instant digital prescriptions, and complete patient records — all in one platform.</p>
+      <!-- UNCOMMENT WHEN STATS VERIFIED: <p style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.9); font-weight: 500; background: rgba(255, 255, 255, 0.1); padding: 0.75rem 1rem; border-radius: 8px; display: inline-block;">Trusted by 50+ clinics across India • 99.9% uptime • 500+ appointments booked monthly</p> -->
+    </div>
+  </section>
+
+  <!-- Portal Sections -->
+  <section style="padding: 1.5rem 1rem; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+    <div style="max-width: 1000px; margin: 0 auto;">
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.5rem;">
+        
+        <!-- Healthcare Provider Portals -->
+        <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; padding: 2rem 1.5rem; box-shadow: 0 10px 40px rgba(37, 99, 235, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04); border: 2px solid rgba(37, 99, 235, 0.15);">
+          <h3 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary); font-size: 1.25rem; font-weight: 600;">For Healthcare Provider</h3>
+          <p style="text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">Manage appointments, prescriptions & patient records</p>
+          <div class="portal-header-container">
+            <a href="/clinic_login.html?mode=login" class="portal-btn clinic">🏥 Clinic Portal</a>
+            <a href="/doctor_login.html?mode=login" class="portal-btn doctor">👨‍⚕️ Doctor Portal</a>
+          </div>
+        </div>
+
+        <!-- Patient Services -->
+        <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; padding: 2rem 1.5rem; box-shadow: 0 10px 40px rgba(16, 185, 129, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04); border: 2px solid rgba(16, 185, 129, 0.15);">
+          <h3 style="text-align: center; margin-bottom: 0.5rem; color: var(--primary); font-size: 1.25rem; font-weight: 600;">For Patients</h3>
+          <p style="text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">Book appointments & track your bookings</p>
+          
+          <div class="portal-header-container">
+            <a href="/patient_booking.html" class="portal-btn booking">📅 Book Appointment</a>
+            <a href="/check_booking.html" class="portal-btn check">🔍 Check Booking</a>
+          </div>
+        </div>
+        
+      </div>
     </div>
   </section>
 
   <!-- Main Content -->
   <main class="main">
-    <!-- Portal Cards -->
-    <div class="portals">
-      <!-- Featured Card - Healthcare Providers -->
-      <a href="/provider_portal.html" class="portal-card portal-card-featured">
-        <div class="portal-icon" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-          <span style="font-size: 1.5rem;">🏥</span>
-        </div>
-        <div class="portal-featured-content">
-          <h3>For Healthcare Providers</h3>
-          <p>Doctors & Clinics — Manage patients, prescriptions, appointments & more</p>
-        </div>
-        <span class="portal-arrow">→</span>
-      </a>
-      
-      <!-- Patient Options Row -->
-      <div class="portal-row">
-        <a href="/patient_booking.html" class="portal-card">
-          <div class="portal-icon" style="background: #d1fae5;">➕</div>
-          <h3>Book Appointment</h3>
-          <p>Schedule a Visit</p>
-        </a>
-        <a href="/check_booking.html" class="portal-card">
-          <div class="portal-icon" style="background: #ede9fe;">🔍</div>
-          <h3>Search Appointment</h3>
-          <p>Check Booking Status</p>
-        </a>
-      </div>
-    </div>
-
-    <!-- About Section -->
-    <section id="aboutSection" style="margin-bottom: 2.5rem;">
-      <h2 class="section-title">About DoctorPod</h2>
-      <div style="background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #99f6e4 100%); border-radius: 12px; padding: 1.5rem; border: 2px solid #2dd4bf; box-shadow: 0 4px 15px rgba(45, 212, 191, 0.15);">
-        <p style="font-size: 0.9375rem; color: var(--text); margin-bottom: 1rem; line-height: 1.7;">
-          <strong style="color: #0d9488;">DoctorPod</strong> is a comprehensive healthcare management platform designed to modernize clinic operations. Built for doctors, clinics, and patients, we simplify the entire healthcare journey — from appointment booking to prescription delivery.
-        </p>
-        <p style="font-size: 0.9375rem; color: var(--text); margin-bottom: 1rem; line-height: 1.7;">
-          Our AI-powered system enables seamless patient management, digital prescriptions, automated WhatsApp notifications, and real-time analytics — all accessible from any device.
-        </p>
-        <p style="font-size: 0.875rem; color: #0f766e; margin: 0; font-weight: 500;">
-          🏥 Trusted by clinics across India • 📱 Mobile-first design • 🔒 Secure & HIPAA-ready
-        </p>
-      </div>
-    </section>
-
-    <!-- Features -->
+    <!-- Features - Detailed Capabilities -->
     <section id="featuresSection">
-      <h2 class="section-title">Why Choose DoctorPod</h2>
-      <div class="features">
-        <div class="feature">
-          <div class="feature-icon">📅</div>
-          <div>
-            <h4>Smart Appointment Booking</h4>
-            <p>24/7 online booking with real-time slot availability & instant confirmation</p>
+      <h2 class="section-title" style="text-align: center;">Powerful Features for Every User</h2>
+      
+      <!-- Features grouped by user type -->
+      <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #2563eb;">🏥 For Clinic Owners</h3>
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">🏥</div>
+            <div>
+              <h4>Multi-Clinic Management</h4>
+              <p>Control multiple locations, staff & operations from one dashboard</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📊</div>
+            <div>
+              <h4>Analytics & Insights</h4>
+              <p>Track appointment trends, patient flow & revenue in real-time</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">👨‍⚕️</div>
+            <div>
+              <h4>Staff Management</h4>
+              <p>Manage doctor availability with automated slot scheduling</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🎯</div>
+            <div>
+              <h4>Payment Integration</h4>
+              <p>Secure UPI payments with QR codes & digital receipts</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📱</div>
+            <div>
+              <h4>Patient Database</h4>
+              <p>Centralized patient records accessible on phone, tablet & desktop</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🔗</div>
+            <div>
+              <h4>Multi-Device Access</h4>
+              <p>Manage bookings seamlessly across all your devices anytime</p>
+            </div>
           </div>
         </div>
-        <div class="feature">
-          <div class="feature-icon">📋</div>
-          <div>
-            <h4>Digital Prescriptions</h4>
-            <p>Generate professional PDF prescriptions with medicine database & dosage info</p>
+      </div>
+
+      <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #059669;">👨‍⚕️ For Doctors</h3>
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">📋</div>
+            <div>
+              <h4>Digital Prescriptions</h4>
+              <p>Generate professional PDFs with medicine database & WhatsApp delivery</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📁</div>
+            <div>
+              <h4>Patient Records</h4>
+              <p>Complete medical history with past visits & prescription archive</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">📅</div>
+            <div>
+              <h4>Appointment Management</h4>
+              <p>View daily schedule with patient details & confirm bookings instantly</p>
+            </div>
           </div>
         </div>
-        <div class="feature">
-          <div class="feature-icon">💬</div>
-          <div>
-            <h4>WhatsApp Integration</h4>
-            <p>Automated appointment reminders, prescription delivery & booking confirmations</p>
+      </div>
+
+      <div style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #0891b2;">👥 For Patients</h3>
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">📅</div>
+            <div>
+              <h4>Book Appointments</h4>
+              <p>24/7 online booking with real-time availability & instant confirmation</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">💬</div>
+            <div>
+              <h4>WhatsApp Updates</h4>
+              <p>Automated reminders, prescriptions & confirmations via WhatsApp</p>
+            </div>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">🔍</div>
+            <div>
+              <h4>Track Bookings</h4>
+              <p>Check appointment status & access prescription history anytime</p>
+            </div>
           </div>
         </div>
-        <div class="feature">
-          <div class="feature-icon">📊</div>
-          <div>
-            <h4>Analytics Dashboard</h4>
-            <p>Track daily appointments, patient flow & revenue insights at a glance</p>
+      </div>
+
+      <div>
+        <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #64748b;">🔒 Security & Compliance</h3>
+        <div class="features">
+          <div class="feature">
+            <div class="feature-icon">🔐</div>
+            <div>
+              <h4>Bank-Level Security</h4>
+              <p>Enterprise encryption with role-based access & HIPAA-aligned infrastructure</p>
+            </div>
           </div>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">📁</div>
-          <div>
-            <h4>Patient History</h4>
-            <p>Complete medical records, visit history & prescription archive for each patient</p>
-          </div>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">🏥</div>
-          <div>
-            <h4>Multi-Clinic Support</h4>
-            <p>Manage multiple clinic locations, doctors & schedules from one platform</p>
-          </div>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">🔐</div>
-          <div>
-            <h4>Secure & Private</h4>
-            <p>Role-based access control with encrypted patient data & HIPAA-ready security</p>
-          </div>
-        </div>
-        <div class="feature">
-          <div class="feature-icon">📱</div>
-          <div>
-            <h4>Mobile Friendly</h4>
-            <p>Fully responsive design — works seamlessly on phones, tablets & desktops</p>
+          <div class="feature">
+            <div class="feature-icon">☁️</div>
+            <div>
+              <h4>Secure Cloud Storage</h4>
+              <p>Automatic backups, encrypted data & 99.9% uptime guarantee</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    </div>
+    <!-- How It Works - User Journey -->
+    <section style="padding: 2rem 1rem; background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%); margin-bottom: 2rem;">
+      <div style="max-width: 900px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; padding: 2rem 1.5rem; box-shadow: 0 10px 40px rgba(5, 150, 105, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04); border: 2px solid rgba(5, 150, 105, 0.15);">
+          <h2 class="section-title" style="text-align: center; margin-bottom: 1.5rem; color: #059669; font-size: 1.5rem;">Get Started in 3 Steps</h2>
+          <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+            <div style="text-align: center; padding: 0.75rem 1rem; background: linear-gradient(135deg, #fff 0%, #dbeafe 100%); border-radius: 6px; border: 2px solid #93c5fd; flex: 1; min-width: 140px; max-width: 200px;">
+              <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #2563eb;">Sign Up</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.3;">Free 30-day trial</p>
+            </div>
+            <div style="text-align: center; padding: 0.75rem 1rem; background: linear-gradient(135deg, #fff 0%, #dbeafe 100%); border-radius: 6px; border: 2px solid #60a5fa; flex: 1; min-width: 140px; max-width: 200px;">
+              <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #2563eb;">Setup</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.3;">Add doctors & slots</p>
+            </div>
+            <div style="text-align: center; padding: 0.75rem 1rem; background: linear-gradient(135deg, #fff 0%, #d1fae5 100%); border-radius: 6px; border: 2px solid #6ee7b7; flex: 1; min-width: 140px; max-width: 200px;">
+              <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; color: #059669;">Launch</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.3;">Accept appointments</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricingSection" style="margin-bottom: 2.5rem; margin-top: 3rem;">
+      <h2 class="section-title" style="text-align: center; margin-bottom: 1.5rem;">Simple, Transparent Pricing</h2>
+      <div class="pricing-grid">
+        
+        <!-- Trial Plan -->
+        <div class="pricing-card trial">
+          <div class="pricing-icon">🆓</div>
+          <h3 class="pricing-title">Trial</h3>
+          <div class="price-amount">Free</div>
+          <p class="price-period">for 30 days</p>
+          <ul class="pricing-features">
+            <li><span>✓</span> 1 clinic location</li>
+            <li><span>✓</span> Up to 2 doctors</li>
+            <li><span>✓</span> 100 appointments/month</li>
+            <li><span>✓</span> All core features</li>
+            <li><span>✓</span> WhatsApp notifications</li>
+            <li><span>✓</span> WhatsApp support</li>
+          </ul>
+          <a href="/clinic_login.html" class="pricing-btn trial">Start Free Trial →</a>
+        </div>
+
+        <!-- Professional Plan -->
+        <div class="pricing-card professional">
+          <div class="price-badge">POPULAR</div>
+          <div class="pricing-icon">💼</div>
+          <h3 class="pricing-title">Professional</h3>
+          <div class="price-amount">₹2,999</div>
+          <p class="price-period">per month</p>
+          <ul class="pricing-features">
+            <li><span>✓</span> Unlimited clinics</li>
+            <li><span>✓</span> Unlimited doctors</li>
+            <li><span>✓</span> Unlimited appointments</li>
+            <li><span>✓</span> All features included</li>
+            <li><span>✓</span> Priority WhatsApp support</li>
+            <li><span>✓</span> Advanced analytics</li>
+          </ul>
+          <button onclick="scrollToContact()" class="pricing-btn professional">Contact Us →</button>
+        </div>
+
+        <!-- Enterprise Plan -->
+        <div class="pricing-card enterprise">
+          <div class="pricing-icon">🏢</div>
+          <h3 class="pricing-title">Enterprise</h3>
+          <div class="price-amount">Custom</div>
+          <p class="price-period">pricing</p>
+          <ul class="pricing-features">
+            <li><span>✓</span> Everything in Pro</li>
+            <li><span>✓</span> Dedicated support</li>
+            <li><span>✓</span> Custom integrations</li>
+            <li><span>✓</span> SLA guarantee</li>
+            <li><span>✓</span> On-premise option</li>
+            <li><span>✓</span> Training & onboarding</li>
+          </ul>
+          <button onclick="scrollToContact()" class="pricing-btn enterprise">Contact Sales →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section style="margin-bottom: 2.5rem;">
+      <h2 class="section-title" style="text-align: center; margin-bottom: 1.5rem;">Frequently Asked Questions</h2>
+      <div class="faq-container">
+        <details>
+          <summary>Do I need technical knowledge to use DoctorPod?</summary>
+          <p>No technical knowledge required! DoctorPod is designed to be user-friendly with an intuitive interface. We also provide complete onboarding support and training materials to get you started.</p>
+        </details>
+        
+        <details>
+          <summary>Can I migrate my existing patient data?</summary>
+          <p>Yes! We offer data migration assistance for Enterprise customers. For smaller clinics, you can manually add patient records as you go, or contact our support team for guidance.</p>
+        </details>
+        
+        <details>
+          <summary>What happens after the free trial ends?</summary>
+          <p>After 30 days, you can choose to upgrade to a paid plan to continue using all features. If you don't upgrade, your data will be preserved for 30 days, giving you time to decide. No surprise charges!</p>
+        </details>
+
+        <details>
+          <summary>What are the paid plans pricing?</summary>
+          <p>Our Professional plan is ₹2,999/month with unlimited features. Enterprise plans are customized based on your requirements. Check our pricing section above or contact sales for a custom quote.</p>
+        </details>
+        
+        <details>
+          <summary>Is there a money-back guarantee?</summary>
+          <p>Yes! If you're not satisfied within the first 30 days, we offer a full refund. Your data and setup costs are not charged if you decide to cancel during this period.</p>
+        </details>
+        
+        <details>
+          <summary>Is patient data secure and HIPAA compliant?</summary>
+          <p>Absolutely! We use bank-level encryption (AES-256) for all data storage and transmission. Our infrastructure is HIPAA-aligned with role-based access controls and regular security audits.</p>
+        </details>
+        
+        <details>
+          <summary>Can I customize prescription templates?</summary>
+          <p>Yes! You can customize your prescription header with clinic logo, doctor details, and registration numbers. The prescription format follows medical standards while allowing personalization.</p>
+        </details>
+
+        <details>
+          <summary>How does WhatsApp integration work?</summary>
+          <p>DoctorPod automatically sends booking confirmations, appointment reminders, and prescriptions via WhatsApp to patients. All notifications are sent from your clinic's number for a professional touch.</p>
+        </details>
+      </div>
+    </section>
+
   </main>
 
   <!-- Contact Section -->
   <section class="contact-section" id="contactSection">
     <div class="contact-container">
-      <h2>Get In Touch</h2>
-      <p class="contact-subtitle">Have questions? We're here to help.</p>
+      <h2>Ready to Transform Your Clinic?</h2>
+      <!-- VERIFY STATS: 50+ clinics, 500+ appointments monthly, 5-minute setup before uncommenting below -->
+      <!-- <p class="contact-subtitle">Join 50+ clinics managing 500+ appointments monthly</p>
+      <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 1.5rem;">✓ 14-day free trial &nbsp;•&nbsp; ✓ No credit card required &nbsp;•&nbsp; ✓ Setup in 5 minutes</p> -->
+      <p style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 1.5rem;">✓ 30-day free trial &nbsp;•&nbsp; ✓ No credit card required &nbsp;•&nbsp; ✓ Quick setup</p>
       <div class="contact-grid">
         <div class="contact-grid-item">
           <h4>📧 Email</h4>
-          <a href="mailto:support@doctorpod.in">support@doctorpod.in</a>
+          <a href="mailto:doctorpod.info@gmail.com">doctorpod.info@gmail.com</a>
         </div>
         <div class="contact-grid-item">
           <h4>📞 Phone</h4>
-          <a href="tel:+91 9330317102">+91 9330317102</a>
+          <a href="tel:+919330317102">+91 9330317102</a>
         </div>
         <div class="contact-grid-item">
           <h4>📍 Location</h4>
           <p>Kolkata, India</p>
         </div>
       </div>
-      <a href="mailto:support@doctorpod.in" class="contact-email-btn">Contact Support</a>
     </div>
   </section>
+
+  <!-- Demo Request Modal -->
+  <div id="demoModal" class="demo-modal" onclick="closeModalOnBackdrop(event)">
+    <div class="demo-modal-content" onclick="event.stopPropagation()">
+      <button class="demo-modal-close" onclick="closeDemoModal()" aria-label="Close">×</button>
+      <h2>📞 Book a Demo</h2>
+      <p class="demo-modal-subtitle">Schedule a personalized walkthrough with our team</p>
+      
+      <form id="demoForm" onsubmit="handleDemoSubmit(event)">
+        <div class="demo-form-group">
+          <label for="demoName">Full Name *</label>
+          <input type="text" id="demoName" name="name" required placeholder="Dr. Rajesh Kumar" pattern="[a-zA-Z\s]{3,}" title="Name should contain only letters (minimum 3 characters)">
+        </div>
+        
+        <div class="demo-form-group">
+          <label for="demoEmail">Email Address *</label>
+          <input type="email" id="demoEmail" name="email" required placeholder="rajesh@clinic.com" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email (e.g., name@example.com)">
+        </div>
+        
+        <div class="demo-form-group">
+          <label for="demoPhone">Phone Number *</label>
+          <input type="tel" id="demoPhone" name="phone" required placeholder="+91 98765 43210" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter a valid 10-digit phone number">
+        </div>
+        
+        <div class="demo-form-group">
+          <label for="demoClinic">Clinic/Hospital Name *</label>
+          <input type="text" id="demoClinic" name="clinic" required placeholder="City Care Clinic" pattern="[a-zA-Z\s]{3,}" title="Clinic name should contain only letters (minimum 3 characters)">
+        </div>
+        
+        <div class="demo-form-group">
+          <label for="demoSize">Clinic Size</label>
+          <select id="demoSize" name="size">
+            <option value="">Select clinic size</option>
+            <option value="1-2">1-2 doctors</option>
+            <option value="3-5">3-5 doctors</option>
+            <option value="6-10">6-10 doctors</option>
+            <option value="10+">10+ doctors</option>
+          </select>
+        </div>
+        
+        <div class="demo-form-group">
+          <label for="demoMessage">Questions or Requirements (Optional)</label>
+          <textarea id="demoMessage" name="message" placeholder="Tell us what you'd like to see in the demo..."></textarea>
+        </div>
+        
+        <button type="submit" class="demo-submit-btn" id="demoSubmitBtn">
+          Request Demo
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <div class="toast-content">
+      <div class="toast-title" id="toastTitle">Success</div>
+      <div class="toast-message" id="toastMessage">Action completed successfully</div>
+    </div>
+    <button class="toast-close" onclick="hideToast()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 4L4 12M4 4l8 8"/>
+      </svg>
+    </button>
+  </div>
 
   <!-- Footer -->
   <footer class="footer">
     <p>© 2026 DoctorPod. Quick. Smart. Trusted.</p>
     <p>
-      <a href="#">Privacy</a>
-      <a href="#">Terms</a>
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms of Service</a>
     </p>
   </footer>
 
@@ -710,8 +1493,124 @@
       document.getElementById('featuresSection').scrollIntoView({ behavior: 'smooth' });
     }
     
+    function scrollToPricing() {
+      document.getElementById('pricingSection').scrollIntoView({ behavior: 'smooth' });
+    }
+    
     function scrollToContact() {
       document.getElementById('contactSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Demo Modal Functions
+    function openDemoModal() {
+      document.getElementById('demoModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDemoModal() {
+      document.getElementById('demoModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOnBackdrop(event) {
+      if (event.target.id === 'demoModal') {
+        closeDemoModal();
+      }
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeDemoModal();
+      }
+    });
+
+    // Handle demo form submission
+    function handleDemoSubmit(event) {
+      event.preventDefault();
+      
+      const submitBtn = document.getElementById('demoSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending Request...';
+      
+      // Get form data
+      const formData = {
+        name: document.getElementById('demoName').value,
+        email: document.getElementById('demoEmail').value,
+        phone: document.getElementById('demoPhone').value,
+        clinic: document.getElementById('demoClinic').value,
+        size: document.getElementById('demoSize').value,
+        message: document.getElementById('demoMessage').value
+      };
+      
+      // API call to submit demo request
+      fetch('/api/demo/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      .then(response => {
+        return response.json().then(data => ({ data, status: response.status }));
+      })
+      .then(({ data, status }) => {
+        if (data.success) {
+          showToast('Demo Request Submitted! 🎉', `${data.message}\n\nRequest ID: #${data.requestId}`, 'success');
+          document.getElementById('demoForm').reset();
+          closeDemoModal();
+        } else if (status === 429) {
+          // Already submitted - show as info, not error
+          showToast('Already Submitted', data.message, 'info');
+          closeDemoModal();
+        } else {
+          showToast('Error', data.message, 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showToast('Request Failed', 'Failed to submit demo request. Please try again or contact us directly at +91 9330317102', 'error');
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request Demo';
+      });
+    }
+
+    function showToast(title, message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastIcon = document.getElementById('toastIcon');
+      const toastTitle = document.getElementById('toastTitle');
+      const toastMessage = document.getElementById('toastMessage');
+      
+      // Remove existing type classes
+      toast.classList.remove('toast-success', 'toast-error', 'toast-info', 'hiding');
+      
+      // Set content
+      toastTitle.textContent = title;
+      toastMessage.textContent = message;
+      
+      // Set type and icon
+      toast.classList.add(`toast-${type}`);
+      if (type === 'success') {
+        toastIcon.textContent = '✓';
+      } else if (type === 'error') {
+        toastIcon.textContent = '✕';
+      } else if (type === 'info') {
+        toastIcon.textContent = 'ℹ';
+      }
+      
+      // Show toast
+      toast.classList.add('show');
+      
+      // Auto hide after 6 seconds
+      setTimeout(() => hideToast(), 6000);
+    }
+    
+    function hideToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('hiding');
+      setTimeout(() => {
+        toast.classList.remove('show', 'hiding');
+      }, 300);
     }
   </script>
 </body>

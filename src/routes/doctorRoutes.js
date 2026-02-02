@@ -27,6 +27,8 @@ router.get('/availability', ctrl.getDoctorAvailability);
 router.get('/all', ctrl.getAllDoctors);
 router.get('/clinics/all', ctrl.getAllClinics); // New: get all clinics
 router.get('/by-clinic/:clinic_id', ctrl.getDoctorsByClinic); // New: get doctors by clinic_id
+router.get('/session', ctrl.getDoctorSession); // Get doctor session info
+router.get('/profile', ctrl.getDoctorProfile); // Get doctor profile (doctor only)
 // Apply body parser only for /login route to support JSON
 router.post('/login', express.json(), express.urlencoded({ extended: true }), ctrl.loginDoctor);
 router.post('/add', upload.none(), (req, res, next) => {
@@ -35,6 +37,16 @@ router.post('/add', upload.none(), (req, res, next) => {
 	next();
 }, ctrl.addDoctor); // Add doctor (support multipart/form-data for form fields)
 router.post('/delete', ctrl.deleteDoctor);
+router.post('/update', express.json(), ctrl.updateDoctor);
+router.post('/update-profile', express.json(), ctrl.updateDoctorProfile); // Update doctor profile (doctor only)
+router.post('/change-password', express.json(), ctrl.changeDoctorPassword); // Change password (doctor only)
+router.post('/logout', ctrl.logoutDoctor); // Logout doctor
+
+// Forgot Password - OTP Flow
+router.post('/forgot-password/send-otp', express.json(), ctrl.sendPasswordResetOTP);
+router.post('/forgot-password/verify-otp', express.json(), ctrl.verifyPasswordResetOTP);
+router.post('/forgot-password/reset', express.json(), ctrl.resetPassword);
+
 router.get('/:id', ctrl.getDoctorById);
 
 

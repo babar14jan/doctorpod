@@ -62,12 +62,12 @@
     .nav-title {
       font-weight: 700;
       font-size: 1.25rem;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+    .nav-subtitle { font-size: 0.7rem; color: #2563eb; font-weight: 500; letter-spacing: 0.02em; }
 
     .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
 
@@ -133,9 +133,9 @@
     }
 
     .card-header {
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
       padding: 1.25rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #86efac;
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -144,23 +144,21 @@
     .card-header-icon {
       width: 44px;
       height: 44px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.375rem;
+      font-size: 1.75rem;
     }
 
     .card-header-title {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #1e293b;
+      color: #065f46;
     }
 
     .card-header-subtitle {
       font-size: 0.8125rem;
-      color: #64748b;
+      color: #047857;
     }
 
     .card-body {
@@ -209,6 +207,17 @@
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    /* Hide number input spinner arrows */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    input[type="number"] {
+      -moz-appearance: textfield;
     }
 
     .form-input::placeholder { color: #94a3b8; }
@@ -350,8 +359,9 @@
     }
 
     .modal-header {
-      padding: 1.25rem;
+      padding: 0.875rem 1.25rem;
       text-align: center;
+      position: relative;
     }
 
     .modal-header.success {
@@ -364,36 +374,51 @@
       color: white;
     }
 
-    .modal-icon {
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
+    .modal-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
     }
 
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+
     .modal-title {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 700;
     }
 
     .modal-body {
-      padding: 1.5rem;
+      padding: 1rem;
     }
 
     .booking-detail {
       display: flex;
       justify-content: space-between;
-      padding: 0.75rem 0;
+      padding: 0.5rem 0;
       border-bottom: 1px solid var(--border);
     }
 
     .booking-detail:last-child { border-bottom: none; }
 
     .booking-detail-label {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-muted);
     }
 
     .booking-detail-value {
-      font-size: 0.9375rem;
+      font-size: 0.875rem;
       font-weight: 600;
       color: var(--text);
     }
@@ -402,9 +427,9 @@
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
       text-align: center;
-      padding: 1rem;
+      padding: 0.875rem;
       border-radius: 10px;
-      margin-top: 1rem;
+      margin-top: 0.875rem;
     }
 
     .booking-highlight-label {
@@ -489,34 +514,72 @@
       </div>
     </a>
     <div class="nav-actions">
-      <a href="/" class="nav-link">← Home</a>
+      <a href="/" class="nav-link" id="homeLink">← Home</a>
     </div>
   </nav>
 
+  <script>
+    // Check if user came from clinic home or QR code
+    const urlParams = new URLSearchParams(window.location.search);
+    const isClinicMode = urlParams.get('from') === 'clinic';
+    const qrClinicId = urlParams.get('clinic_id');
+    
+    if (isClinicMode) {
+      document.getElementById('homeLink').href = '/clinic/home';
+    } else if (qrClinicId) {
+      // QR code mode - replace Home with Close button (red background)
+      const homeLink = document.getElementById('homeLink');
+      homeLink.textContent = '✕';
+      homeLink.href = '#';
+      homeLink.style.background = '#ef4444';
+      homeLink.style.color = 'white';
+      homeLink.style.padding = '0.5rem 1rem';
+      homeLink.style.borderRadius = '6px';
+      homeLink.style.fontWeight = '700';
+      homeLink.style.fontSize = '1.25rem';
+      homeLink.onclick = function(e) {
+        e.preventDefault();
+        
+        // Try to close the tab
+        window.close();
+        
+        // Most browsers block window.close() for security unless window was opened by JavaScript
+        // If close doesn't work, use history.back() or do nothing
+        setTimeout(() => {
+          // If we're still here, browser blocked the close
+          // Try going back in history, or just stay on page
+          if (window.history.length > 1) {
+            window.history.back();
+          }
+          // else: user can manually close the tab
+        }, 100);
+      };
+    }
+    
+    // Hide footer when loaded from QR code (after DOM loads)
+    document.addEventListener('DOMContentLoaded', function() {
+      if (qrClinicId) {
+        const footerText = document.getElementById('footerText');
+        if (footerText) {
+          footerText.style.display = 'none';
+        }
+      }
+    });
+  </script>
+
   <!-- Main Content -->
   <main class="main">
-    <!-- Hero Section -->
-    <div class="hero">
-      <div class="hero-icon">📅</div>
-      <div class="hero-text">
-        <h1 class="hero-title">Book Your Appointment</h1>
-        <p class="hero-subtitle">Quick and easy online booking</p>
-      </div>
-    </div>
-
-    <!-- Steps Indicator -->
-    <div class="steps">
-      <div class="step active"></div>
-      <div class="step"></div>
-      <div class="step"></div>
+    <!-- Clinic Mode Indicator (hidden by default) -->
+    <div id="clinicModeIndicator" style="display:none;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:white;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1rem;text-align:center;font-size:0.875rem;font-weight:600;">
+      🏥 Clinic Mode: Booking on behalf of patient
     </div>
 
     <!-- Booking Form Card -->
     <div class="card">
       <div class="card-header">
-        <div class="card-header-icon">👤</div>
+        <div class="card-header-icon">📅</div>
         <div>
-          <div class="card-header-title">Patient Details</div>
+          <div class="card-header-title">Book Appointment</div>
           <div class="card-header-subtitle">Fill in your information</div>
         </div>
       </div>
@@ -525,17 +588,17 @@
           <!-- Patient Info -->
           <div class="form-group">
             <label class="form-label">Full Name <span class="required">*</span></label>
-            <input type="text" name="patient_name" class="form-input" placeholder="Enter your full name" required />
+            <input type="text" name="patient_name" class="form-input" placeholder="Enter your full name" required pattern="[a-zA-Z\s]{3,}" title="Name should contain only letters (minimum 3 characters)" />
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Mobile <span class="required">*</span></label>
-              <input type="tel" name="mobile" id="mobileInput" class="form-input" inputmode="numeric" maxlength="10" placeholder="9876543210" required />
+              <input type="tel" name="mobile" id="mobileInput" class="form-input" inputmode="numeric" maxlength="10" placeholder="9876543210" required pattern="[0-9]{10}" title="Please enter exactly 10 digits" />
             </div>
             <div class="form-group">
               <label class="form-label">Age <span class="required">*</span></label>
-              <input type="number" name="age" class="form-input" min="1" max="120" placeholder="Age" required />
+              <input type="text" name="age" class="form-input" maxlength="3" placeholder="Age" inputmode="numeric" pattern="[0-9]{1,3}" required />
             </div>
           </div>
 
@@ -589,7 +652,7 @@
     </div>
 
     <!-- Footer Text -->
-    <div class="footer-text">
+    <div class="footer-text" id="footerText">
       Already booked? <a href="/check_booking.html">Check your appointment</a>
     </div>
   </main>
@@ -598,7 +661,7 @@
   <div id="resultModal" class="modal">
     <div class="modal-content">
       <div id="modalHeader" class="modal-header success">
-        <div id="modalIcon" class="modal-icon">🎉</div>
+        <button class="modal-close" id="closeModalBtn">&times;</button>
         <div id="modalTitle" class="modal-title">Booking Successful!</div>
       </div>
       <div class="modal-body">
@@ -609,9 +672,6 @@
           <div class="booking-highlight-label">Your Queue Number</div>
           <div id="queueNumber" class="booking-highlight-value">#1</div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button id="closeModalBtn" class="btn-modal">Done</button>
       </div>
     </div>
   </div>
@@ -630,7 +690,6 @@
       const mobileInput = document.getElementById('mobileInput');
       const resultModal = document.getElementById('resultModal');
       const modalHeader = document.getElementById('modalHeader');
-      const modalIcon = document.getElementById('modalIcon');
       const modalTitle = document.getElementById('modalTitle');
       const bookingDetails = document.getElementById('bookingDetails');
       const queueHighlight = document.getElementById('queueHighlight');
@@ -646,20 +705,99 @@
       const today = new Date().toISOString().split('T')[0];
       dateInput.setAttribute('min', today);
 
-      // Fetch clinics on load
-      fetch('/doctors/clinics/all')
-        .then(r => r.json())
-        .then(j => {
-          if (j.success && Array.isArray(j.clinics) && j.clinics.length > 0) {
-            clinicSelect.innerHTML = '<option value="">Select a clinic</option>' +
-              j.clinics.map(c => `<option value="${c.clinic_id}">${c.name}</option>`).join('');
-          } else {
-            clinicSelect.innerHTML = '<option value="">No clinics available</option>';
-          }
-        })
-        .catch(() => {
-          clinicSelect.innerHTML = '<option value="">Error loading clinics</option>';
-        });
+      // Check for clinic_id in URL parameters (from QR code scan)
+      const urlParams = new URLSearchParams(window.location.search);
+      const qrClinicId = urlParams.get('clinic_id');
+      const urlMode = urlParams.get('mode');
+      const isClinicMode = urlMode === 'clinic';
+
+      // Check if in clinic mode
+      let clinicModeData = null;
+      if (isClinicMode) {
+        // Show clinic mode indicator
+        document.getElementById('clinicModeIndicator').style.display = 'block';
+        
+        // Fetch clinic session data
+        fetch('/clinic/session', { credentials: 'include' })
+          .then(r => r.json())
+          .then(j => {
+            if (j.success && j.clinic) {
+              clinicModeData = j.clinic;
+              // Update indicator with clinic name
+              document.getElementById('clinicModeIndicator').innerHTML = `🏥 Clinic Mode: Booking for <strong>${j.clinic.name}</strong>`;
+              // Pre-fill clinic dropdown and lock it
+              clinicSelect.innerHTML = `<option value="${j.clinic.clinic_id}">${j.clinic.name}</option>`;
+              clinicSelect.disabled = true;
+              clinicSelect.style.background = '#f8fafc';
+              clinicSelect.style.cursor = 'not-allowed';
+              // Auto-trigger clinic change to load doctors
+              clinicSelect.dispatchEvent(new Event('change'));
+            } else {
+              // Fallback to normal mode if session not found
+              loadAllClinics();
+            }
+          })
+          .catch(() => {
+            // Fallback to normal mode on error
+            loadAllClinics();
+          });
+      } else if (qrClinicId) {
+        // QR code mode - pre-select clinic from URL parameter
+        loadAllClinicsWithPreselect(qrClinicId);
+      } else {
+        loadAllClinics();
+      }
+
+      function loadAllClinicsWithPreselect(preselectedClinicId) {
+        // Fetch clinics and pre-select the one from QR code
+        fetch('/doctors/clinics/all')
+          .then(r => r.json())
+          .then(j => {
+            if (j.success && Array.isArray(j.clinics) && j.clinics.length > 0) {
+              // Find the specific clinic from QR code
+              const selectedClinic = j.clinics.find(c => c.clinic_id === preselectedClinicId);
+              
+              if (selectedClinic) {
+                // Show only the selected clinic and disable dropdown
+                clinicSelect.innerHTML = `<option value="${selectedClinic.clinic_id}" selected>${selectedClinic.name}</option>`;
+                clinicSelect.disabled = true;
+                clinicSelect.style.opacity = '0.7';
+                clinicSelect.style.cursor = 'not-allowed';
+                
+                // Trigger change event to load doctors
+                setTimeout(() => {
+                  clinicSelect.dispatchEvent(new Event('change'));
+                }, 100);
+              } else {
+                // Clinic not found, show all clinics
+                clinicSelect.innerHTML = '<option value="">Select a clinic</option>' +
+                  j.clinics.map(c => `<option value="${c.clinic_id}">${c.name}</option>`).join('');
+              }
+            } else {
+              clinicSelect.innerHTML = '<option value="">No clinics available</option>';
+            }
+          })
+          .catch(() => {
+            clinicSelect.innerHTML = '<option value="">Error loading clinics</option>';
+          });
+      }
+
+      function loadAllClinics() {
+        // Fetch clinics on load (patient mode)
+        fetch('/doctors/clinics/all')
+          .then(r => r.json())
+          .then(j => {
+            if (j.success && Array.isArray(j.clinics) && j.clinics.length > 0) {
+              clinicSelect.innerHTML = '<option value="">Select a clinic</option>' +
+                j.clinics.map(c => `<option value="${c.clinic_id}">${c.name}</option>`).join('');
+            } else {
+              clinicSelect.innerHTML = '<option value="">No clinics available</option>';
+            }
+          })
+          .catch(() => {
+            clinicSelect.innerHTML = '<option value="">Error loading clinics</option>';
+          });
+      }
 
       // When clinic changes, fetch doctors
       clinicSelect.addEventListener('change', function() {
@@ -748,7 +886,6 @@
       // Show modal
       function showModal(success, data) {
         modalHeader.className = `modal-header ${success ? 'success' : 'error'}`;
-        modalIcon.textContent = success ? '🎉' : '❌';
         modalTitle.textContent = success ? 'Booking Successful!' : 'Booking Failed';
 
         if (success && data) {
@@ -765,17 +902,21 @@
               <span class="booking-detail-label">Date</span>
               <span class="booking-detail-value">${data.date || '-'}</span>
             </div>
-            ${data.tentativeTime ? `
-            <div class="booking-detail">
-              <span class="booking-detail-label">Expected Time</span>
-              <span class="booking-detail-value">${data.tentativeTime}</span>
-            </div>` : ''}
             <div class="booking-detail">
               <span class="booking-detail-label">Booking ID</span>
               <span class="booking-detail-value">${data.bookingId || '-'}</span>
             </div>
           `;
-          queueNumber.textContent = `#${data.queueNumber || '1'}`;
+          
+          // Update queue highlight with tentative time
+          if (data.tentativeTime) {
+            queueNumber.innerHTML = `
+              <div style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">#${data.queueNumber || '1'}</div>
+              <div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">Expected Visit Time: ${data.tentativeTime}</div>
+            `;
+          } else {
+            queueNumber.textContent = `#${data.queueNumber || '1'}`;
+          }
           queueHighlight.style.display = 'block';
         } else {
           bookingDetails.innerHTML = `<p style="text-align:center;color:#991b1b;">${data?.message || 'Something went wrong. Please try again.'}</p>`;
@@ -790,6 +931,7 @@
         resultModal.classList.remove('show');
       });
 
+      // Close modal by clicking outside
       resultModal.addEventListener('click', function(e) {
         if (e.target === resultModal) {
           resultModal.classList.remove('show');
@@ -806,6 +948,34 @@
         const data = Object.fromEntries(fd.entries());
         const did = doctorSelect.value;
         const cid = clinicSelect.value;
+        
+        // Ensure doctor_id and clinic_id are in the data object
+        data.doctor_id = did;
+        data.clinic_id = cid;
+        
+        // Determine booking source
+        const urlParams = new URLSearchParams(window.location.search);
+        const isClinicMode = urlParams.get('from') === 'clinic';
+        const qrClinicId = urlParams.get('clinic_id');
+        
+        console.log('[BOOKING SOURCE DEBUG]', {
+          url: window.location.href,
+          search: window.location.search,
+          from: urlParams.get('from'),
+          clinic_id: urlParams.get('clinic_id'),
+          isClinicMode,
+          qrClinicId
+        });
+        
+        if (isClinicMode) {
+          data.booking_source = 'clinic';
+        } else if (qrClinicId) {
+          data.booking_source = 'qr_scan';
+        } else {
+          data.booking_source = 'online';
+        }
+        
+        console.log('[BOOKING SOURCE FINAL]', data.booking_source);
 
         // Validate availability
         if (did && cid && data.appointment_date) {
@@ -815,12 +985,22 @@
 
             if (availJ.success && Array.isArray(availJ.availability) && availJ.availability.length > 0) {
               const shortDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-              const jsDate = new Date(data.appointment_date);
-              const dayName = shortDays[jsDate.getDay()];
-              const available = availJ.availability.find(a => a.day_of_week === dayName);
+              const fullDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+              // Parse date correctly to avoid timezone issues
+              const [year, month, day] = data.appointment_date.split('-').map(Number);
+              const jsDate = new Date(year, month - 1, day);
+              const dayIndex = jsDate.getDay();
+              const dayShort = shortDays[dayIndex];
+              const dayFull = fullDays[dayIndex];
+              
+              // Check if doctor is available (match both short and full day names, case-insensitive)
+              const available = availJ.availability.find(a => {
+                const stored = (a.day_of_week || '').trim().toLowerCase();
+                return stored === dayShort.toLowerCase() || stored === dayFull.toLowerCase();
+              });
 
               if (!available) {
-                showModal(false, { message: `Doctor is not available on ${dayName}. Please select a valid day based on the timings shown above.` });
+                showModal(false, { message: `Doctor is not available on ${dayShort}. Please select a valid day based on the timings shown above.` });
                 return;
               }
             } else {

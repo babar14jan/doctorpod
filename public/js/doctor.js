@@ -33,8 +33,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       meds.push({ name, frequency: row.querySelector('.med-frequency').value, meal_timing: row.querySelector('.med-meal').value, dosage: row.querySelector('.med-dosage').value, instructions: row.querySelector('.med-instr').value });
     });
     obj.medicines = meds;
-    // fallback visit_id if not present
-    if (!obj.visit_id) obj.visit_id = 'VST-' + Date.now() + '-' + Math.random().toString(36).substr(2,5);
+    // Let backend generate visit_id using doctor+patient+sequence format
     const res = await fetch('/history/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(obj) });
     const j = await res.json();
     document.getElementById('prescMsg').innerText = j.success ? ('Saved, visit_id: '+j.visit_id) : (j.message || 'Error');

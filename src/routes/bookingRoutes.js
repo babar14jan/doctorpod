@@ -14,6 +14,7 @@ router.get('/clinic-timings', ctrl.getClinicTimings);
 router.post('/book', ctrl.bookAppointment);
 router.get('/verify', ctrl.verifyBooking);
 router.get('/doctor/:id', ctrl.getDoctorBookings);
+router.get('/clinic/:clinicId', ctrl.getClinicBookings);
 router.put('/:id/status', ctrl.updateBookingStatus);
 
 module.exports = router;

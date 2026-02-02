@@ -5,344 +5,390 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard - DoctorPod</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     
     :root {
       --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --primary-light: rgba(79, 70, 229, 0.08);
+      --primary-dark: #4338ca;
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --bg: #f1f5f9;
+      --bg: #f8fafc;
       --surface: #ffffff;
       --text: #1e293b;
-      --text-muted: #64748b;
+      --text-light: #64748b;
       --border: #e2e8f0;
-      --radius: 12px;
-      --radius-sm: 8px;
+      --radius: 8px;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
+    /* Header */
     .header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       position: sticky;
       top: 0;
       z-index: 100;
     }
 
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
       text-decoration: none;
       color: var(--text);
+      flex-shrink: 0;
     }
 
     .logo-icon {
+      width: 36px;
       height: 36px;
-      width: auto;
       border-radius: 8px;
     }
 
     .logo-text {
       font-weight: 700;
-      font-size: 1.25rem;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      font-size: 1.125rem;
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
-    .logo-tagline { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
 
-    .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+    .logo-subtitle {
+      font-size: 0.625rem;
+      color: var(--text-light);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
 
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.875rem;
       border: none;
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      white-space: nowrap;
     }
 
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-    .btn-outline:hover { background: var(--bg); }
-
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-danger:hover { background: #dc2626; }
-
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
     .btn-success { background: var(--success); color: white; }
-    .btn-success:hover { background: #059669; }
-
+    .btn-success:hover:not(:disabled) { background: #059669; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover:not(:disabled) { background: #dc2626; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--bg); }
     .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
 
-    .main {
-      max-width: 1200px;
+    /* Mobile optimization for header */
+    @media (max-width: 768px) {
+      .header-content {
+        gap: 0.5rem;
+      }
+
+      .logo {
+        gap: 0.5rem;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+      }
+
+      .logo-text {
+        font-size: 0.9375rem;
+      }
+
+      .logo-subtitle {
+        font-size: 0.5625rem;
+      }
+
+      .header-right {
+        gap: 0.375rem;
+      }
+
+      .btn {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.6875rem;
+        white-space: nowrap;
+      }
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
       margin: 0 auto;
       padding: 1.5rem;
     }
 
-    .welcome { margin-bottom: 1.5rem; }
-    .welcome h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .welcome p { color: var(--text-muted); font-size: 0.9375rem; }
+    /* Page Title */
+    .page-title {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
 
-    .stats-grid {
+    .page-title h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .page-title p {
+      color: var(--text-light);
+      font-size: 0.9375rem;
+    }
+
+    /* Stats Grid */
+    .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
 
     .stat-card {
       background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.25rem;
-      border: 1px solid var(--border);
     }
 
-    .stat-label { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 0.25rem; }
-    .stat-value { font-size: 1.75rem; font-weight: 700; }
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
     .stat-card.primary .stat-value { color: var(--primary); }
     .stat-card.success .stat-value { color: var(--success); }
     .stat-card.warning .stat-value { color: var(--warning); }
 
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .action-card {
+    /* Section */
+    .section {
       background: var(--surface);
-      border-radius: var(--radius);
       border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
       overflow: hidden;
     }
 
-    .action-header {
+    .section-header {
       padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
       display: flex;
-      align-items: center;
       justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
       cursor: pointer;
       transition: background 0.2s;
     }
 
-    .action-header:hover { background: var(--bg); }
+    .section-header:hover {
+      background: #f1f5f9;
+    }
 
-    .action-title {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
+    .section-header.clickable {
+      cursor: pointer;
+    }
+
+    .section-title {
+      font-size: 1.125rem;
       font-weight: 600;
-    }
-
-    .action-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .section-body {
+      padding: 1.25rem;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      overflow: hidden;
+    }
+
+    .section-body.collapsed {
+      max-height: 0;
+      padding: 0 1.25rem;
+      overflow: hidden;
+    }
+
+    .collapse-icon {
       font-size: 1.25rem;
+      transition: transform 0.3s;
+      color: var(--text-light);
     }
 
-    .action-icon.clinic { background: #dbeafe; }
-    .action-icon.doctor { background: #d1fae5; }
-    .action-icon.schedule { background: #fef3c7; }
-
-    .chevron {
-      width: 20px;
-      height: 20px;
-      color: var(--text-muted);
-      transition: transform 0.2s;
+    .collapse-icon.collapsed {
+      transform: rotate(-90deg);
     }
 
-    .action-header[aria-expanded="true"] .chevron { transform: rotate(180deg); }
-
-    .action-content {
-      padding: 0 1.25rem 1.25rem;
-      display: none;
+    /* Form */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
 
-    .action-content.open { display: block; }
-
-    .form-group { margin-bottom: 1rem; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
 
     .form-label {
-      display: block;
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       font-weight: 500;
-      margin-bottom: 0.375rem;
+      color: var(--text);
     }
 
     .form-input, .form-select {
-      width: 100%;
-      padding: 0.625rem 0.875rem;
-      font-size: 0.9375rem;
+      padding: 0.625rem 0.75rem;
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      transition: border-color 0.2s;
       background: var(--surface);
-      color: var(--text);
-      transition: all 0.2s;
     }
 
     .form-input:focus, .form-select:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
     }
 
     .form-actions {
       display: flex;
       gap: 0.75rem;
+      justify-content: flex-end;
       margin-top: 1rem;
       padding-top: 1rem;
       border-top: 1px solid var(--border);
     }
 
-    .data-section {
-      background: var(--surface);
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      margin-bottom: 1.5rem;
-      overflow: hidden;
+    /* Table */
+    .table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: -0.5rem;
+      padding: 0.5rem;
     }
 
-    .data-header {
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-    }
-
-    .data-header:hover { background: var(--bg); }
-
-    .data-title {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-weight: 600;
-    }
-
-    .data-content { display: none; }
-    .data-content.open { display: block; }
-
-    .data-table {
+    table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 0.9375rem;
+      min-width: 600px;
     }
 
-    .data-table th, .data-table td {
+    thead {
+      background: var(--bg);
+      border-bottom: 2px solid var(--border);
+    }
+
+    th {
       padding: 0.75rem 1rem;
       text-align: left;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.875rem;
-    }
-
-    .data-table th {
-      background: var(--bg);
       font-weight: 600;
-      color: var(--text-muted);
-      font-size: 0.75rem;
+      font-size: 0.8125rem;
       text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-light);
     }
 
-    .data-table tbody tr:hover { background: var(--bg); }
-    .data-table tbody tr:last-child td { border-bottom: none; }
-
-    .table-wrapper { overflow-x: auto; }
-
-    .empty-state {
-      padding: 2rem;
-      text-align: center;
-      color: var(--text-muted);
-    }
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
+    td {
       padding: 1rem;
+      border-bottom: 1px solid var(--border);
     }
 
-    .modal-overlay.open { display: flex; }
+    tbody tr:hover {
+      background: var(--bg);
+    }
 
-    .modal {
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      max-width: 400px;
-      width: 100%;
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Empty State */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-light);
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Loading */
+    .loading {
       text-align: center;
       padding: 2rem;
-      position: relative;
+      color: var(--text-light);
     }
 
-    .modal-close {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: var(--text-muted);
-      cursor: pointer;
+    .spinner {
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
     }
 
-    .modal-icon { font-size: 3rem; margin-bottom: 1rem; }
-    .modal-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
-    .modal-message { color: var(--text-muted); margin-bottom: 1rem; }
-
-    .modal-highlight {
-      display: inline-block;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-weight: 700;
-      font-size: 1.25rem;
-      padding: 0.5rem 1.25rem;
-      border-radius: var(--radius-sm);
-      margin-bottom: 0.75rem;
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
-    .modal-note { font-size: 0.875rem; color: var(--text-muted); }
-
-    .days-grid { display: grid; gap: 0.75rem; }
+    /* Days Grid for Availability */
+    .days-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
 
     .day-row {
       display: flex;
@@ -355,7 +401,7 @@
       display: flex;
       align-items: center;
       gap: 0.375rem;
-      min-width: 70px;
+      min-width: 100px;
     }
 
     .day-checkbox input[type="checkbox"] {
@@ -371,73 +417,389 @@
     }
 
     .time-inputs input[type="time"] {
-      padding: 0.375rem 0.5rem;
+      padding: 0.5rem 0.625rem;
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius);
       font-size: 0.875rem;
     }
 
-    .loading {
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: var(--radius);
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--text-light);
+      padding: 0;
+      width: 2rem;
+      height: 2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
-      color: var(--text-muted);
+      border-radius: 4px;
     }
 
-    .spinner {
+    .modal-close:hover {
+      background: var(--bg);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    /* Success Message */
+    .success-box {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .success-emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-msg {
+      color: var(--text-light);
+      margin-bottom: 1rem;
+    }
+
+    .success-highlight {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 1.125rem;
+      margin: 0.5rem 0;
+    }
+
+    .success-note {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      margin-top: 1rem;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+
+    .badge-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .badge-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+    }
+
+    .badge-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .badge-primary {
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--primary);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .page-title h1 {
+        font-size: 1.5rem;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 0.875rem;
+      }
+
+      th, td {
+        padding: 0.625rem 0.75rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .table-container {
+        margin: -1.25rem;
+        padding: 1.25rem;
+        border-radius: 0;
+      }
+
+      table {
+        font-size: 0.8125rem;
+        min-width: 100%;
+      }
+
+      th {
+        font-size: 0.75rem;
+        white-space: nowrap;
+      }
+
+      td {
+        white-space: nowrap;
+      }
+
+      .table-actions {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .table-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .day-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: var(--bg);
+        border-radius: var(--radius);
+      }
+
+      .day-checkbox {
+        min-width: auto;
+        width: 100%;
+      }
+
+      .time-inputs {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .time-inputs input[type="time"] {
+        flex: 1;
+        min-width: 120px;
+      }
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      min-width: 320px;
+      max-width: 420px;
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      padding: 1rem 1.25rem;
+      display: none;
+      align-items: flex-start;
+      gap: 0.75rem;
+      z-index: 2000;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(420px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(420px);
+        opacity: 0;
+      }
+    }
+
+    .toast.hiding {
+      animation: slideOut 0.3s ease-out forwards;
+    }
+
+    .toast-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .toast-success .toast-icon {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .toast-error .toast-icon {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .toast-info .toast-icon {
+      background: rgba(79, 70, 229, 0.15);
+      color: var(--primary);
+    }
+
+    .toast-warning .toast-icon {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .toast-message {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    .toast-close {
+      background: transparent;
+      border: none;
+      color: var(--text-light);
+      cursor: pointer;
+      padding: 0;
       width: 24px;
       height: 24px;
-      border: 2px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-right: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+      flex-shrink: 0;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast-close:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
 
     @media (max-width: 768px) {
-      .header { padding: 0.625rem 1rem; }
-      .logo-tagline { display: none; }
-      .main { padding: 1rem; }
-      .welcome h1 { font-size: 1.25rem; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .actions-grid { grid-template-columns: 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 480px) {
-      .stats-grid { grid-template-columns: 1fr; }
-      .header-actions .btn span { display: none; }
+      .toast {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        max-width: none;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <header class="header">
-    <a href="/" class="logo">
-      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" />
-      <div>
-        <div class="logo-text">DoctorPod</div>
-        <div class="logo-tagline">Quick. Smart. Trusted.</div>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" />
+        <div>
+          <div class="logo-text">DoctorPod</div>
+          <div class="logo-subtitle">Quick. Smart. Trusted.</div>
+        </div>
+      </a>
+      <div class="header-right">
+        <button class="btn btn-outline" onclick="window.location.href='/'">Home</button>
+        <button class="btn btn-danger" onclick="fetch('/admin/logout', {method: 'POST'}).then(() => window.location.href = '/admin_login.html').catch(() => window.location.href = '/admin_login.html')">Sign Out</button>
       </div>
-    </a>
-    <div class="header-actions">
-      <span id="adminName" style="color: var(--text-muted); font-size: 0.875rem;"></span>
-      <button id="signOut" class="btn btn-outline">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-        <span>Sign Out</span>
-      </button>
     </div>
   </header>
 
-  <main class="main">
-    <div class="welcome">
-      <h1>Welcome back, <span id="welcomeName">Admin</span>!</h1>
-      <p>Manage your clinics, doctors, and appointments from here.</p>
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Page Title -->
+    <div class="page-title">
+      <h1>🎯 Complete Control Over Your Healthcare Network</h1>
+      <p>Manage clinics, doctors, appointments, and system-wide operations from one powerful dashboard</p>
     </div>
 
-    <div class="stats-grid">
+    <!-- Stats -->
+    <div class="stats">
       <div class="stat-card primary">
         <div class="stat-label">Total Clinics</div>
         <div class="stat-value" id="totalClinics">0</div>
@@ -447,385 +809,416 @@
         <div class="stat-value" id="totalDoctors">0</div>
       </div>
       <div class="stat-card warning">
-        <div class="stat-label">Bookings Today</div>
-        <div class="stat-value" id="totalBookings">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Patients</div>
-        <div class="stat-value" id="totalPatients">0</div>
+        <div class="stat-label">Total Appointments</div>
+        <div class="stat-value" id="totalAppointments">0</div>
       </div>
     </div>
 
-    <div class="actions-grid">
-      <div class="action-card">
-        <div class="action-header" aria-expanded="false" data-target="addClinicSection">
-          <div class="action-title">
-            <div class="action-icon clinic">🏥</div>
-            <span>Add Clinic</span>
-          </div>
-          <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div id="addClinicSection" class="action-content">
-          <form id="addClinicForm" enctype="multipart/form-data">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Clinic Name *</label>
-                <input type="text" name="name" class="form-input" placeholder="Enter clinic name" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Phone *</label>
-                <input type="tel" name="phone" class="form-input" placeholder="Enter phone number" required />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-input" placeholder="Enter email" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Password *</label>
-                <input type="password" name="password" class="form-input" placeholder="Set password" required />
-              </div>
+    <!-- Add Clinic Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">🏥 Add New Clinic</h2>
+      </div>
+      <div class="section-body">
+        <form id="addClinicForm" enctype="multipart/form-data">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Clinic Name *</label>
+              <input type="text" name="name" class="form-input" required pattern="[a-zA-Z\s]{3,}" title="Clinic name should contain only letters (minimum 3 characters)" />
             </div>
             <div class="form-group">
-              <label class="form-label">Address</label>
-              <input type="text" name="address" class="form-input" placeholder="Enter address" />
+              <label class="form-label">Phone *</label>
+              <input type="tel" name="phone" class="form-input" required maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" />
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">UPI ID</label>
-                <input type="text" name="upi_id" class="form-input" placeholder="Enter UPI ID" />
-              </div>
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input type="email" name="email" class="form-input" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Upload QR image</label>
-                <input type="file" name="image" class="form-input" accept="image/png, image/jpeg" required />
-              </div>
+            <div class="form-group">
+              <label class="form-label">Address *</label>
+              <input type="text" name="address" class="form-input" required />
             </div>
-            <div class="form-actions">
-              <button type="reset" class="btn btn-outline">Reset</button>
-              <button type="submit" class="btn btn-success">Add Clinic</button>
+            <div class="form-group">
+              <label class="form-label">Password *</label>
+              <input type="password" name="password" class="form-input" required />
             </div>
-          </form>
-        </div>
-      </div>
-
-      <div class="action-card">
-        <div class="action-header" aria-expanded="false" data-target="addDoctorSection">
-          <div class="action-title">
-            <div class="action-icon doctor">🩺</div>
-            <span>Add Doctor</span>
+            <div class="form-group">
+              <label class="form-label">UPI ID</label>
+              <input type="text" name="upi_id" class="form-input" placeholder="Optional" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">QR Code Image *</label>
+              <input type="file" name="image" class="form-input" accept="image/png,image/jpeg" required />
+            </div>
           </div>
-          <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div id="addDoctorSection" class="action-content">
-          <form id="addDoctorForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Select Clinic *</label>
-                <select name="clinic_id" id="doctorClinicSelect" class="form-select" required>
-                  <option value="">Loading clinics...</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Full Name *</label>
-                <input type="text" name="name" class="form-input" placeholder="Dr. Full Name" required />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Qualification</label>
-                <input type="text" name="qualification" class="form-input" placeholder="MBBS, MD, etc." />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Specialization</label>
-                <input type="text" name="specialization" class="form-input" placeholder="Cardiology, etc." />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Mobile *</label>
-                <input type="tel" name="phone" class="form-input" placeholder="Mobile number" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Email</label>
-                <input type="email" name="email" class="form-input" placeholder="Email address" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Registration No</label>
-                <input type="text" name="registration_no" class="form-input" placeholder="Optional" />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Password *</label>
-                <input type="password" name="password" class="form-input" placeholder="Set password" required />
-              </div>
-            </div>
-            <div class="form-actions">
-              <button type="reset" class="btn btn-outline">Reset</button>
-              <button type="submit" class="btn btn-success">Add Doctor</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div class="action-card">
-        <div class="action-header" aria-expanded="false" data-target="addAvailabilitySection">
-          <div class="action-title">
-            <div class="action-icon schedule">🗓️</div>
-            <span>Set Doctor Availability</span>
+          <div class="form-actions">
+            <button type="reset" class="btn btn-outline">Reset</button>
+            <button type="submit" class="btn btn-success">Add Clinic</button>
           </div>
-          <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </div>
-        <div id="addAvailabilitySection" class="action-content">
-          <form id="addAvailabilityForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Doctor ID *</label>
-                <input type="text" name="doctor_id" class="form-input" placeholder="Enter Doctor ID" required />
-              </div>
-              <div class="form-group">
-                <label class="form-label">Clinic ID *</label>
-                <input type="text" name="clinic_id" class="form-input" placeholder="Enter Clinic ID" required />
-              </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Add Doctor Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">🩺 Add New Doctor</h2>
+      </div>
+      <div class="section-body">
+        <form id="addDoctorForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Select Clinic *</label>
+              <select name="clinic_id" id="doctorClinicSelect" class="form-select" required>
+                <option value="">Loading...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Doctor Name *</label>
+              <input type="text" name="name" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Qualification</label>
+              <input type="text" name="qualification" class="form-input" placeholder="MBBS, MD, etc." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Specialization</label>
+              <input type="text" name="specialization" class="form-input" placeholder="Cardiologist, etc." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile *</label>
+              <input type="tel" name="phone" class="form-input" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-input" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password *</label>
+              <input type="password" name="password" class="form-input" required minlength="6" title="Password must be at least 6 characters" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Registration No</label>
+              <input type="text" name="registration_no" class="form-input" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="reset" class="btn btn-outline">Reset</button>
+            <button type="submit" class="btn btn-success">Add Doctor</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Set Doctor Availability Section -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">📅 Set Doctor Availability</h2>
+      </div>
+      <div class="section-body">
+        <form id="addAvailabilityForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Doctor ID *</label>
+              <input type="text" name="doctor_id" id="availabilityDoctorId" class="form-input" placeholder="Enter Doctor ID" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Clinic ID *</label>
+              <select name="clinic_id" id="availabilityClinicSelect" class="form-select" required>
+                <option value="">Loading...</option>
+              </select>
             </div>
             <div class="form-group">
               <label class="form-label">Slot Duration (minutes)</label>
               <input type="number" name="interval_minutes" class="form-input" value="15" min="5" max="120" step="5" style="max-width: 150px;" />
             </div>
-            <div class="form-group">
-              <label class="form-label">Select Days & Timings</label>
-              <div id="availabilityDaysContainer" class="days-grid"></div>
-            </div>
-            <div class="form-actions">
-              <button type="reset" class="btn btn-outline">Reset</button>
-              <button type="submit" class="btn btn-success">Add Availability</button>
-            </div>
-          </form>
-        </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Select Days & Timings</label>
+            <div id="availabilityDaysContainer" class="days-grid"></div>
+          </div>
+          <div class="form-actions">
+            <button type="reset" class="btn btn-outline">Reset</button>
+            <button type="submit" class="btn btn-success">Add Availability</button>
+          </div>
+        </form>
       </div>
-    </div>
+    </section>
 
-    <div class="data-section">
-      <div class="data-header" data-target="clinicsContent">
-        <div class="data-title">
-          <span style="font-size: 1.25rem;">🏨</span>
-          <span>Clinics List</span>
+    <!-- Demo Requests Section -->
+    <section class="section">
+      <div class="section-header clickable" onclick="toggleSection('demoRequestsSectionBody')">
+        <h2 class="section-title">📋 Demo Requests</h2>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button onclick="event.stopPropagation(); filterDemoRequests('all')" class="btn btn-sm btn-primary" id="filter-all">All</button>
+            <button onclick="event.stopPropagation(); filterDemoRequests('pending')" class="btn btn-sm btn-outline" id="filter-pending">Pending</button>
+            <button onclick="event.stopPropagation(); filterDemoRequests('contacted')" class="btn btn-sm btn-outline" id="filter-contacted">Contacted</button>
+            <button onclick="event.stopPropagation(); filterDemoRequests('scheduled')" class="btn btn-sm btn-outline" id="filter-scheduled">Scheduled</button>
+            <button onclick="event.stopPropagation(); filterDemoRequests('completed')" class="btn btn-sm btn-outline" id="filter-completed">Completed</button>
+            <button onclick="event.stopPropagation(); filterDemoRequests('rejected')" class="btn btn-sm btn-outline" id="filter-rejected">Rejected</button>
+            <button onclick="event.stopPropagation(); loadDemoRequests()" class="btn btn-sm btn-outline">🔄 Refresh</button>
+          </div>
+          <span class="collapse-icon" id="demoRequestsSectionIcon">▼</span>
         </div>
-        <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
       </div>
-      <div id="clinicsContent" class="data-content">
-        <div class="table-wrapper">
-          <div id="clinicsList"></div>
+      <div class="section-body collapsed" id="demoRequestsSectionBody">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Clinic Name</th>
+                <th>Contact Person</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>City</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="demoRequestsBody">
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 2rem;">Loading demo requests...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="data-section">
-      <div class="data-header" data-target="doctorsContent">
-        <div class="data-title">
-          <span style="font-size: 1.25rem;">👨‍⚕️</span>
-          <span>Doctors List</span>
-        </div>
-        <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-      </div>
-      <div id="doctorsContent" class="data-content">
-        <div class="table-wrapper">
-          <div id="doctorsList"></div>
+    <!-- Clinics List Section -->
+    <section class="section">
+      <div class="section-header clickable" onclick="toggleSection('clinicsListBody')">
+        <h2 class="section-title">🏥 Clinics</h2>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="event.stopPropagation(); loadClinics()" class="btn btn-sm btn-outline">🔄 Refresh</button>
+          <span class="collapse-icon" id="clinicsListIcon">▼</span>
         </div>
       </div>
-    </div>
+      <div class="section-body collapsed" id="clinicsListBody">
+        <div class="table-container">
+          <div id="clinicsList" class="loading">
+            <div class="spinner"></div>
+            Loading clinics...
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Doctors List Section -->
+    <section class="section">
+      <div class="section-header clickable" onclick="toggleSection('doctorsListBody')">
+        <h2 class="section-title">🩺 Doctors</h2>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="event.stopPropagation(); loadDoctors()" class="btn btn-sm btn-outline">🔄 Refresh</button>
+          <span class="collapse-icon" id="doctorsListIcon">▼</span>
+        </div>
+      </div>
+      <div class="section-body collapsed" id="doctorsListBody">
+        <div class="table-container">
+          <div id="doctorsList" class="loading">
+            <div class="spinner"></div>
+            Loading doctors...
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
-  <script src="/js/adminDashboard.js"></script>
 
-  <div id="successModal" class="modal-overlay">
-    <div class="modal">
-      <button id="closeModalBtn" class="modal-close">&times;</button>
-      <div id="modalEmoji" class="modal-icon">🎉</div>
-      <div id="modalTitle" class="modal-title">Success!</div>
-      <div id="modalMsg" class="modal-message"></div>
-      <div id="modalHighlight" class="modal-highlight" style="display:none;"></div>
-      <div id="modalNote" class="modal-note"></div>
+  <!-- Approve Demo Modal -->
+  <div id="approveDemoModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Approve Demo Request</h3>
+        <button class="modal-close" onclick="closeApproveDemoModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="approveDemoForm">
+          <input type="hidden" id="approve_demo_id" />
+          <div class="form-group">
+            <label class="form-label">Clinic ID *</label>
+            <input type="text" id="approve_clinic_id" class="form-input" required placeholder="e.g., CLINIC001" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password *</label>
+            <input type="password" id="approve_password" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subscription Type *</label>
+            <select id="approve_subscription_type" class="form-select" required>
+              <option value="trial">Trial (30 days)</option>
+              <option value="paid">Paid (No expiry)</option>
+            </select>
+          </div>
+          <div class="form-group" id="trial_days_group">
+            <label class="form-label">Trial Days</label>
+            <input type="number" id="approve_trial_days" class="form-input" value="30" min="1" />
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="closeApproveDemoModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-success">Approve & Create Clinic</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
-  <script>
-    (async function() {
-      try {
-        const res = await fetch('/admin/session');
-        const data = await res.json();
-        if (!data.success || !data.admin) {
-          window.location.href = '/admin_login.html';
-          return;
-        }
-        document.getElementById('welcomeName').textContent = data.admin.name || 'Admin';
-        document.getElementById('adminName').textContent = data.admin.name || '';
-      } catch {
-        window.location.href = '/admin_login.html';
-      }
-    })();
+  <!-- Reject Demo Modal -->
+  <div id="rejectDemoModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Reject Demo Request</h3>
+        <button class="modal-close" onclick="closeRejectDemoModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="rejectDemoForm">
+          <input type="hidden" id="reject_demo_id" />
+          <div class="form-group">
+            <label class="form-label">Rejection Reason *</label>
+            <textarea id="reject_reason" class="form-input" rows="4" required placeholder="Enter reason for rejection..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="closeRejectDemoModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-danger">Reject Request</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-    document.getElementById('signOut').onclick = () => {
-      window.location.href = '/admin_login.html';
-    };
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Success</h3>
+        <button class="modal-close" id="closeModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="success-box">
+          <div class="success-emoji" id="modalEmoji">🎉</div>
+          <h3 class="success-title" id="modalTitle">Success!</h3>
+          <p class="success-msg" id="modalMsg"></p>
+          <div class="success-highlight" id="modalHighlight"></div>
+          <p class="success-note" id="modalNote"></p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    document.querySelectorAll('.action-header, .data-header').forEach(header => {
-      header.addEventListener('click', () => {
-        const targetId = header.dataset.target;
-        const content = document.getElementById(targetId);
-        const isOpen = content.classList.contains('open');
-        
-        document.querySelectorAll('.action-content, .data-content').forEach(c => c.classList.remove('open'));
-        document.querySelectorAll('.action-header, .data-header').forEach(h => h.setAttribute('aria-expanded', 'false'));
-        
-        if (!isOpen) {
-          content.classList.add('open');
-          header.setAttribute('aria-expanded', 'true');
-        }
-      });
-    });
+  <!-- Edit Clinic Modal -->
+  <div id="editClinicModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Clinic</h3>
+        <button class="modal-close" onclick="closeEditClinicModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editClinicForm" enctype="multipart/form-data">
+          <input type="hidden" name="clinic_id" id="editClinicId" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Clinic Name *</label>
+              <input type="text" name="name" id="editClinicName" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone *</label>
+              <input type="tel" name="phone" id="editClinicPhone" class="form-input" required maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="editClinicEmail" class="form-input" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <input type="text" name="address" id="editClinicAddress" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" name="password" id="editClinicPassword" class="form-input" placeholder="Leave blank to keep current" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">UPI ID</label>
+              <input type="text" name="upi_id" id="editClinicUpi" class="form-input" />
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label class="form-label">QR Code Image</label>
+              <input type="file" name="image" id="editClinicImage" class="form-input" accept="image/png,image/jpeg" />
+              <small style="color: #64748b; font-size: 0.875rem;">Upload new QR code (leave empty to keep current)</small>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="closeEditClinicModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-success">Update Clinic</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-    const modal = document.getElementById('successModal');
-    const closeBtn = document.getElementById('closeModalBtn');
-    
-    function showModal({emoji, title, msg, highlight, note}) {
-      document.getElementById('modalEmoji').textContent = emoji || '🎉';
-      document.getElementById('modalTitle').textContent = title || 'Success!';
-      document.getElementById('modalMsg').textContent = msg || '';
-      const highlightEl = document.getElementById('modalHighlight');
-      if (highlight) {
-        highlightEl.textContent = highlight;
-        highlightEl.style.display = 'inline-block';
-      } else {
-        highlightEl.style.display = 'none';
-      }
-      document.getElementById('modalNote').textContent = note || '';
-      modal.classList.add('open');
-    }
+  <!-- Edit Doctor Modal -->
+  <div id="editDoctorModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Doctor</h3>
+        <button class="modal-close" onclick="closeEditDoctorModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editDoctorForm">
+          <input type="hidden" name="doctor_id" id="editDoctorId" />
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Doctor Name *</label>
+              <input type="text" name="name" id="editDoctorName" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Qualification</label>
+              <input type="text" name="qualification" id="editDoctorQual" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Specialization</label>
+              <input type="text" name="specialization" id="editDoctorSpec" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile *</label>
+              <input type="tel" name="mobile" id="editDoctorMobile" class="form-input" required maxlength="10" pattern="[0-9]{10}" inputmode="numeric" title="Please enter exactly 10 digits" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="editDoctorEmail" class="form-input" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Please enter a valid email" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" name="password" id="editDoctorPassword" class="form-input" placeholder="Leave blank to keep current" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Registration No</label>
+              <input type="text" name="registration_no" id="editDoctorReg" class="form-input" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" onclick="closeEditDoctorModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-success">Update Doctor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
-    function hideModal() { modal.classList.remove('open'); }
-    closeBtn.onclick = hideModal;
-    modal.onclick = (e) => { if (e.target === modal) hideModal(); };
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <div class="toast-icon" id="toastIcon">✓</div>
+    <div class="toast-content">
+      <div class="toast-title" id="toastTitle">Success</div>
+      <div class="toast-message" id="toastMessage">Action completed successfully</div>
+    </div>
+    <button class="toast-close" onclick="hideToast()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 4L4 12M4 4l8 8"/>
+      </svg>
+    </button>
+  </div>
 
-    async function loadClinicDropdown() {
-      const select = document.getElementById('doctorClinicSelect');
-      try {
-        const res = await fetch('/clinic/all');
-        const data = await res.json();
-        const clinics = data.clinics || [];
-        select.innerHTML = clinics.length
-          ? clinics.map(c => `<option value="${c.clinic_id}">${c.name} (${c.clinic_id})</option>`).join('')
-          : '<option value="">No clinics found</option>';
-      } catch {
-        select.innerHTML = '<option value="">Error loading clinics</option>';
-      }
-    }
-
-    async function loadClinics() {
-      const container = document.getElementById('clinicsList');
-      container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
-      try {
-        const res = await fetch('/clinic/all');
-        const data = await res.json();
-        const clinics = data.clinics || [];
-        document.getElementById('totalClinics').textContent = clinics.length;
-        
-        if (!clinics.length) {
-          container.innerHTML = '<div class="empty-state">No clinics found</div>';
-          return;
-        }
-        
-        container.innerHTML = `
-          <table class="data-table">
-            <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Address</th></tr></thead>
-            <tbody>${clinics.map(c => `<tr><td><strong>${c.clinic_id}</strong></td><td>${c.name}</td><td>${c.phone}</td><td>${c.address || '-'}</td></tr>`).join('')}</tbody>
-          </table>`;
-      } catch {
-        container.innerHTML = '<div class="empty-state">Error loading clinics</div>';
-      }
-    }
-
-    async function loadDoctors() {
-      const container = document.getElementById('doctorsList');
-      container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
-      try {
-        const res = await fetch('/doctors/all');
-        const data = await res.json();
-        const doctors = data.doctors || [];
-        document.getElementById('totalDoctors').textContent = doctors.length;
-        
-        if (!doctors.length) {
-          container.innerHTML = '<div class="empty-state">No doctors found</div>';
-          return;
-        }
-        
-        container.innerHTML = `
-          <table class="data-table">
-            <thead><tr><th>ID</th><th>Name</th><th>Specialization</th><th>Mobile</th><th>Action</th></tr></thead>
-            <tbody>${doctors.map(d => `<tr><td><strong>${d.doctor_id || d.id}</strong></td><td>${d.name}</td><td>${d.specialization || '-'}</td><td>${d.mobile || d.phone}</td><td><button class="btn btn-sm btn-danger" data-delete="${d.doctor_id || d.id}">Delete</button></td></tr>`).join('')}</tbody>
-          </table>`;
-        
-        container.querySelectorAll('[data-delete]').forEach(btn => {
-          btn.onclick = async () => {
-            if (!confirm('Delete this doctor?')) return;
-            await fetch('/doctors/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: btn.dataset.delete }) });
-            loadDoctors();
-          };
-        });
-      } catch {
-        container.innerHTML = '<div class="empty-state">Error loading doctors</div>';
-      }
-    }
-
-    const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    document.getElementById('availabilityDaysContainer').innerHTML = daysOfWeek.map(day => `
-      <div class="day-row">
-        <div class="day-checkbox"><input type="checkbox" id="day_${day}" name="day_${day}" value="${day}" /><label for="day_${day}">${day}</label></div>
-        <div class="time-inputs"><input type="time" name="start_${day}" value="09:00" /><span>to</span><input type="time" name="end_${day}" value="17:00" /></div>
-      </div>`).join('');
-
-    document.getElementById('addClinicForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      try {
-        const res = await fetch('/admin/addClinic', { method: 'POST', body: fd, credentials: 'include' });
-        const data = await res.json();
-        if (data.success) {
-          showModal({ emoji: '🏥', title: 'Clinic Added!', msg: 'Your Clinic ID:', highlight: data.clinic_id, note: 'Save this ID for future reference.' });
-          e.target.reset();
-          loadClinics();
-          loadClinicDropdown();
-        } else { alert(data.message || 'Failed'); }
-      } catch { alert('Error'); }
-    };
-
-    // Removed duplicate/conflicting addDoctorForm submit handler. Only adminDashboard.js should handle doctor form submit.
-
-    document.getElementById('addAvailabilityForm').onsubmit = async (e) => {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      const doctor_id = fd.get('doctor_id'), clinic_id = fd.get('clinic_id'), interval_minutes = parseInt(fd.get('interval_minutes')) || 15;
-      const entries = [];
-      daysOfWeek.forEach(day => {
-        if (document.querySelector(`[name="day_${day}"]`).checked) {
-          entries.push({ day, start: document.querySelector(`[name="start_${day}"]`).value, end: document.querySelector(`[name="end_${day}"]`).value });
-        }
-      });
-      if (!entries.length) { alert('Select at least one day'); return; }
-      let success = true;
-      for (const entry of entries) {
-        const res = await fetch('/availability/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ doctor_id, clinic_id, interval_minutes, days: entry.day, timings: `${entry.start}-${entry.end}` }) });
-        if (!(await res.json()).success) success = false;
-      }
-      showModal({ emoji: success ? '📅' : '⚠️', title: success ? 'Availability Added!' : 'Error', msg: success ? 'Schedule updated.' : 'Some entries failed.' });
-      e.target.reset();
-    };
-
-    loadClinicDropdown();
-    loadClinics();
-    loadDoctors();
-  </script>
+  <script src="/js/adminDashboard.js"></script>
 </body>
 </html>

@@ -60,12 +60,12 @@
     .nav-title {
       font-weight: 700;
       font-size: 1.25rem;
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .nav-subtitle { font-size: 0.7rem; color: #7c3aed; font-weight: 500; letter-spacing: 0.02em; }
+    .nav-subtitle { font-size: 0.7rem; color: #2563eb; font-weight: 500; letter-spacing: 0.02em; }
 
     .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
 
@@ -131,9 +131,9 @@
     }
 
     .card-header {
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
       padding: 1.25rem;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #93c5fd;
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -142,8 +142,6 @@
     .card-header-icon {
       width: 44px;
       height: 44px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -153,12 +151,12 @@
     .card-header-title {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #1e293b;
+      color: #1e40af;
     }
 
     .card-header-subtitle {
       font-size: 0.8125rem;
-      color: #64748b;
+      color: #1e3a8a;
     }
 
     .card-body {
@@ -324,7 +322,7 @@
     }
 
     .modal-header {
-      padding: 1.25rem;
+      padding: 0.875rem 1.25rem;
       text-align: center;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
@@ -351,18 +349,13 @@
 
     .modal-close:hover { background: rgba(255,255,255,0.3); }
 
-    .modal-icon {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-
     .modal-title {
       font-size: 1.125rem;
       font-weight: 700;
     }
 
     .modal-body {
-      padding: 1.5rem;
+      padding: 1rem;
     }
 
     /* Booking Result Card */
@@ -372,31 +365,31 @@
 
     .booking-patient {
       text-align: center;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
 
     .booking-patient-name {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 700;
       color: var(--text);
       margin-bottom: 0.25rem;
     }
 
     .booking-patient-info {
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       color: var(--text-muted);
     }
 
     .booking-details {
       background: #f8fafc;
       border-radius: 10px;
-      padding: 1rem;
+      padding: 0.75rem;
     }
 
     .booking-detail {
       display: flex;
       justify-content: space-between;
-      padding: 0.625rem 0;
+      padding: 0.5rem 0;
       border-bottom: 1px solid var(--border);
     }
 
@@ -445,9 +438,9 @@
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
       text-align: center;
-      padding: 1rem;
+      padding: 0.875rem;
       border-radius: 10px;
-      margin-top: 1rem;
+      margin-top: 0.875rem;
     }
 
     .queue-highlight-label {
@@ -513,27 +506,32 @@
       </div>
     </a>
     <div class="nav-actions">
-      <a href="/" class="nav-link">← Home</a>
+      <a href="/" class="nav-link" id="homeLink">← Home</a>
     </div>
   </nav>
 
+  <script>
+    // Check if user came from clinic home
+    const urlParams = new URLSearchParams(window.location.search);
+    const isClinicMode = urlParams.get('from') === 'clinic';
+    if (isClinicMode) {
+      document.getElementById('homeLink').href = '/clinic/home';
+    }
+  </script>
+
   <!-- Main Content -->
   <main class="main">
-    <!-- Hero Section -->
-    <div class="hero">
-      <div class="hero-icon">🔍</div>
-      <div class="hero-text">
-        <h1 class="hero-title">Check Your Booking</h1>
-        <p class="hero-subtitle">Track your appointment status</p>
-      </div>
+    <!-- Clinic Mode Indicator (hidden by default) -->
+    <div id="clinicModeIndicator" style="display:none;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:white;padding:0.75rem 1rem;border-radius:10px;margin-bottom:1rem;text-align:center;font-size:0.875rem;font-weight:600;">
+      🏥 Clinic Mode: Viewing clinic appointments
     </div>
 
     <!-- Search Form Card -->
     <div class="card">
       <div class="card-header">
-        <div class="card-header-icon">📋</div>
+        <div class="card-header-icon">🔍</div>
         <div>
-          <div class="card-header-title">Find Your Appointment</div>
+          <div class="card-header-title">Check Booking</div>
           <div class="card-header-subtitle">Search by mobile or booking ID</div>
         </div>
       </div>
@@ -576,16 +574,12 @@
     <div class="modal-content">
       <div class="modal-header">
         <button class="modal-close" id="closeBookingModalBtn">&times;</button>
-        <div class="modal-icon">📋</div>
         <div class="modal-title">Booking Details</div>
       </div>
       <div class="modal-body">
         <div id="bookingModalBody" class="booking-result">
           <!-- Content will be inserted here -->
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-modal" id="closeModalBtn">Close</button>
       </div>
     </div>
   </div>
@@ -600,12 +594,24 @@
       const bookingModal = document.getElementById('bookingModal');
       const bookingModalBody = document.getElementById('bookingModalBody');
       const closeBookingModalBtn = document.getElementById('closeBookingModalBtn');
-      const closeModalBtn = document.getElementById('closeModalBtn');
 
       // Mobile validation
       function mobileValid(v) {
         return /^[1-9][0-9]{9}$/.test(v || '');
       }
+
+      // Auto-clear other field when typing
+      mobileEl.addEventListener('input', function() {
+        if (this.value.trim()) {
+          bookingEl.value = '';
+        }
+      });
+
+      bookingEl.addEventListener('input', function() {
+        if (this.value.trim()) {
+          mobileEl.value = '';
+        }
+      });
 
       // Show feedback
       function showFeedback(message, type = 'info') {
@@ -665,18 +671,17 @@
               <span class="booking-detail-value">${b.appointment_date || '-'}</span>
             </div>
             <div class="booking-detail">
-              <span class="booking-detail-label">Time</span>
-              <span class="booking-detail-value">${b.appointment_time || '-'}</span>
-            </div>
-            <div class="booking-detail">
               <span class="booking-detail-label">Booking ID</span>
-              <span class="booking-detail-value">${b.booking_id || '-'}</span>
+              <span class="booking-detail-value">${b.appointment_id || '-'}</span>
             </div>
           </div>
           
           <div class="queue-highlight">
             <div class="queue-highlight-label">Your Queue Number</div>
-            <div class="queue-highlight-value">#${b.queue_number !== undefined && b.queue_number !== null ? b.queue_number : '-'}</div>
+            <div class="queue-highlight-value">
+              <div style="font-size: 2.5rem; font-weight: 800;">#${b.queue_number !== undefined && b.queue_number !== null ? b.queue_number : '-'}</div>
+              ${b.tentative_time ? `<div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">Expected Visit Time: ${b.tentative_time}</div>` : `<div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">Appointment Time: ${b.appointment_time || '-'}</div>`}
+            </div>
           </div>
         `;
       }
@@ -693,7 +698,6 @@
       }
 
       closeBookingModalBtn.addEventListener('click', closeModal);
-      closeModalBtn.addEventListener('click', closeModal);
       bookingModal.addEventListener('click', function(e) {
         if (e.target === bookingModal) closeModal();
       });
@@ -741,7 +745,7 @@
 
           // Show first booking in modal
           showModal(renderBooking(bookings[0]));
-          showFeedback(`Found ${bookings.length} booking(s).`, 'success');
+          hideFeedback();
 
         } catch (err) {
           showFeedback('Network error. Please check your connection.', 'error');
@@ -765,6 +769,24 @@
           doSearch();
         }
       });
+
+      // Show clinic mode indicator if in clinic mode
+      const urlParams = new URLSearchParams(window.location.search);
+      const isClinicMode = urlParams.get('from') === 'clinic';
+      if (isClinicMode) {
+        // Fetch clinic session to show clinic name
+        fetch('/clinic/session', { credentials: 'include' })
+          .then(r => r.json())
+          .then(j => {
+            if (j.success && j.clinic) {
+              document.getElementById('clinicModeIndicator').innerHTML = `🏥 Clinic Mode: Viewing appointments for <strong>${j.clinic.name}</strong>`;
+              document.getElementById('clinicModeIndicator').style.display = 'block';
+            }
+          })
+          .catch(() => {
+            console.warn('Could not fetch clinic session');
+          });
+      }
 
       // Mobile input normalization
       mobileEl.addEventListener('input', function(e) {
