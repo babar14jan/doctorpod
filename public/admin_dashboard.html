@@ -784,7 +784,6 @@
         </div>
       </a>
       <div class="header-right">
-        <button class="btn btn-outline" onclick="window.location.href='/'">Home</button>
         <button class="btn btn-danger" onclick="fetch('/admin/logout', {method: 'POST'}).then(() => window.location.href = '/admin_login.html').catch(() => window.location.href = '/admin_login.html')">Sign Out</button>
       </div>
     </div>
@@ -824,7 +823,7 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">Clinic Name *</label>
-              <input type="text" name="name" class="form-input" required pattern="[a-zA-Z\s]{3,}" title="Clinic name should contain only letters (minimum 3 characters)" />
+              <input type="text" name="name" class="form-input" required minlength="3" title="Clinic name must be at least 3 characters" />
             </div>
             <div class="form-group">
               <label class="form-label">Phone *</label>
@@ -845,6 +844,11 @@
             <div class="form-group">
               <label class="form-label">UPI ID</label>
               <input type="text" name="upi_id" class="form-input" placeholder="Optional" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Clinic Logo</label>
+              <input type="file" name="logo" class="form-input" accept="image/png,image/jpeg,image/jpg" />
+              <small class="form-helper">Optional - Logo will appear on prescriptions</small>
             </div>
             <div class="form-group">
               <label class="form-label">QR Code Image *</label>
@@ -1141,7 +1145,12 @@
               <label class="form-label">UPI ID</label>
               <input type="text" name="upi_id" id="editClinicUpi" class="form-input" />
             </div>
-            <div class="form-group" style="grid-column: 1 / -1;">
+            <div class="form-group">
+              <label class="form-label">Clinic Logo</label>
+              <input type="file" name="logo" id="editClinicLogo" class="form-input" accept="image/png,image/jpeg,image/jpg" />
+              <small style="color: #64748b; font-size: 0.875rem;">Upload new logo (leave empty to keep current)</small>
+            </div>
+            <div class="form-group">
               <label class="form-label">QR Code Image</label>
               <input type="file" name="image" id="editClinicImage" class="form-input" accept="image/png,image/jpeg" />
               <small style="color: #64748b; font-size: 0.875rem;">Upload new QR code (leave empty to keep current)</small>

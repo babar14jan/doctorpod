@@ -379,8 +379,11 @@ async function getDoctorProfile(req, res){
     
     if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
     
-    // Get clinic info
-    const clinic = await db.prepare('SELECT clinic_id, name, address FROM clinics WHERE clinic_id = ?').get(doctor.clinic_id);
+    // Get clinic info including logo
+    const clinic = await db.prepare('SELECT clinic_id, name, address, logo_path FROM clinics WHERE clinic_id = ?').get(doctor.clinic_id);
+    
+    console.log('📋 getDoctorProfile - Clinic data:', clinic);
+    console.log('📋 Logo path from DB:', clinic ? clinic.logo_path : 'NO CLINIC');
     
     // Return flattened structure for dashboard
     const profile = {
@@ -393,8 +396,11 @@ async function getDoctorProfile(req, res){
       registration_no: doctor.registration_no,
       clinic_id: clinic ? clinic.clinic_id : null,
       clinic_name: clinic ? clinic.name : null,
-      clinic_location: clinic ? clinic.address : null
+      clinic_location: clinic ? clinic.address : null,
+      clinic_logo_path: clinic ? clinic.logo_path : null
     };
+    
+    console.log('📤 Sending profile response with clinic_logo_path:', profile.clinic_logo_path);
     
     res.json({ success: true, doctor: profile });
   } catch (e) {
@@ -503,7 +509,7 @@ async function sendOTPEmail(email, otp, doctorName) {
             <p>Password Reset Request</p>
           </div>
           <div class="content">
-            <p>Hello <strong>Dr. ${doctorName}</strong>,</p>
+            <p>Hello <strong>${doctorName}</strong>,</p>
             <p>We received a request to reset your password. Use the OTP below to proceed:</p>
             
             <div class="otp-box">
@@ -577,13 +583,13 @@ async function sendPasswordResetOTP(req, res) {
     });
     
     // Send OTP via email
-    const emailSent = await sendOTPEmail(doctor.email, otp, doctor.name);
+    const emailSent = await sendOTPEmail(doctor.email, otp, formatDoctorName(doctor.name));
     
     // Log to console for testing/debugging
     console.log('\\n===========================================');
     console.log('📧 PASSWORD RESET OTP FOR DOCTOR');
     console.log('===========================================');
-    console.log(`Doctor: Dr. ${doctor.name}`);
+    console.log(`Doctor: ${formatDoctorName(doctor.name)}`);
     console.log(`Doctor ID: ${doctor.doctor_id}`);
     console.log(`Email: ${doctor.email}`);
     console.log(`OTP: ${otp}`);

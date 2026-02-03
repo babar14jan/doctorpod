@@ -57,12 +57,8 @@
     .logo-icon {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
       border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
+      object-fit: cover;
     }
 
     .logo-text {
@@ -71,6 +67,9 @@
       background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .logo-subtitle {
@@ -79,6 +78,9 @@
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .header-right {
@@ -644,11 +646,11 @@
 <body>
   <header class="header">
     <div class="header-content">
-      <a href="/" class="logo">
-        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" />
+      <a href="/doctor/home" class="logo" id="headerBrand">
+        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" id="headerLogo" style="width: 40px; height: 40px; border-radius: 10px; object-fit: cover;" />
         <div>
-          <div class="logo-text">DoctorPod</div>
-          <div class="logo-subtitle">Quick. Smart. Trusted.</div>
+          <div class="logo-text" id="headerTitle">DoctorPod</div>
+          <div class="logo-subtitle" id="headerSubtitle">Quick. Smart. Trusted.</div>
         </div>
       </a>
       
@@ -662,13 +664,9 @@
   <!-- Welcome Card -->
   <div class="welcome-card">
     <div class="welcome-text">
-      <span>👋</span>
-      <span id="welcomeName">Doctor</span>
-    </div>
-    <span class="divider">|</span>
-    <div class="clinic-text">
-      <span>📍</span>
-      <span id="welcomeClinic">Loading...</span>
+      <span style="font-size: 2em;">👋</span>
+      <span style="margin-left: 8px;">Welcome,</span>
+      <span id="welcomeName" style="font-weight: 700; color: #10b981; margin-left: 8px;">Doctor</span>
     </div>
   </div>
 
@@ -820,12 +818,6 @@
 
     // Load doctor info
     async function loadDoctorInfo() {
-      // Set clinic name immediately from sessionStorage
-      const clinicName = sessionStorage.getItem('clinic_name');
-      if (clinicName) {
-        document.getElementById('welcomeClinic').textContent = clinicName;
-      }
-      
       try {
         const res = await fetch('/doctors/profile');
         
@@ -835,13 +827,58 @@
         
         const data = await res.json();
         
+        console.log('Doctor profile response:', data);
+        
         if (data.success && data.doctor) {
           const doc = data.doctor;
           document.getElementById('welcomeName').textContent = doc.name || 'Doctor';
           
-          // Update clinic name if available from profile
-          if (doc.clinic_name) {
-            document.getElementById('welcomeClinic').textContent = doc.clinic_name;
+          // Update header with clinic branding
+          const headerLogo = document.getElementById('headerLogo');
+          const headerTitle = document.getElementById('headerTitle');
+          const headerSubtitle = document.getElementById('headerSubtitle');
+          
+          console.log('Clinic data from profile:', {
+            name: doc.clinic_name,
+            location: doc.clinic_location,
+            logo: doc.clinic_logo_path,
+            has_logo: !!doc.clinic_logo_path
+          });
+          
+          console.log('Header elements:', {
+            headerLogo: !!headerLogo,
+            headerTitle: !!headerTitle,
+            headerSubtitle: !!headerSubtitle
+          });
+          
+          if (headerTitle) {
+            if (doc.clinic_name) {
+              headerTitle.textContent = doc.clinic_name;
+              console.log('✓ Header title updated:', doc.clinic_name);
+            }
+          }
+          
+          if (headerSubtitle) {
+            if (doc.clinic_location) {
+              headerSubtitle.textContent = doc.clinic_location;
+              console.log('✓ Header subtitle updated:', doc.clinic_location);
+            }
+          }
+          
+          if (headerLogo) {
+            console.log('Current logo src:', headerLogo.src);
+            if (doc.clinic_logo_path && doc.clinic_logo_path.trim() !== '') {
+              headerLogo.src = doc.clinic_logo_path;
+              headerLogo.alt = doc.clinic_name || 'Clinic Logo';
+              headerLogo.style.background = 'transparent';
+              headerLogo.style.display = 'block';
+              console.log('✓ Clinic logo updated to:', doc.clinic_logo_path);
+              console.log('New logo src:', headerLogo.src);
+            } else {
+              console.warn('⚠ No valid clinic logo path found in profile data. Logo path value:', doc.clinic_logo_path);
+            }
+          } else {
+            console.error('❌ headerLogo element not found!');
           }
           
           // Populate edit form fields
@@ -852,16 +889,11 @@
           document.getElementById('editEmail').value = doc.email || '';
           document.getElementById('editRegNo').value = doc.registration_no || '';
         } else {
-          console.error('Invalid response format');
+          console.error('Invalid response format:', data);
           document.getElementById('welcomeName').textContent = 'Doctor';
         }
       } catch (err) {
-        console.error('Failed to load profile:', err.message);
-        // Use sessionStorage as fallback
-        const clinicName = sessionStorage.getItem('clinic_name');
-        if (clinicName) {
-          document.getElementById('welcomeClinic').textContent = clinicName;
-        }
+        console.error('Failed to load profile:', err);
       }
     }
 

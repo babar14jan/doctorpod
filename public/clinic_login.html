@@ -419,11 +419,11 @@
         <form id="signupForm">
           <div class="form-group">
             <label class="form-label">Clinic Name *</label>
-            <input type="text" name="name" class="form-input" placeholder="Your clinic name" required pattern="[a-zA-Z\s]{3,}" title="Clinic name should contain only letters (minimum 3 characters)" />
+            <input type="text" name="name" class="form-input" placeholder="Your clinic name" required minlength="3" title="Clinic name must be at least 3 characters" />
           </div>
           <div class="form-group">
             <label class="form-label">Contact Person *</label>
-            <input type="text" name="owner_name" class="form-input" placeholder="Dr. / Owner name" required pattern="[a-zA-Z\s]{3,}" title="Owner name should contain only letters (minimum 3 characters)" />
+            <input type="text" name="owner_name" class="form-input" placeholder="Dr. / Owner name" required minlength="3" title="Contact person name must be at least 3 characters" />
           </div>
           <div class="form-group">
             <label class="form-label">Phone Number *</label>
@@ -436,6 +436,11 @@
           <div class="form-group">
             <label class="form-label">City/Location *</label>
             <input type="text" name="address" class="form-input" placeholder="City, State" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Clinic Logo</label>
+            <input type="file" name="logo" id="signupLogo" class="form-input" accept="image/png,image/jpeg,image/jpg" />
+            <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.25rem;">Optional - Logo will appear on prescriptions</div>
           </div>
           <div class="form-group">
             <label class="form-label">Password *</label>
@@ -774,7 +779,8 @@
       e.preventDefault();
       hideAlert();
       
-      const formData = new FormData(e.target);
+      const formElement = e.target;
+      const formData = new FormData(formElement);
       const password = formData.get('password');
       const confirmPassword = formData.get('confirm_password');
       
@@ -789,28 +795,118 @@
         return;
       }
       
-      const data = {
-        name: formData.get('name'),
-        owner_name: formData.get('owner_name'),
-        phone: formData.get('phone'),
-        email: formData.get('email'),
-        address: formData.get('address'),
-        password: password
-      };
+      // Remove confirm_password before sending
+      formData.delete('confirm_password');
       
       try {
         const res = await fetch('/clinic/signup', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
+          body: formData  // Send as FormData to include logo file
         });
         const result = await res.json();
         
         if (result.success) {
-          showAlert(`🎉 Account Created! Your Clinic ID: ${result.clinic_id}. Redirecting to dashboard...`, 'success');
-          setTimeout(() => {
-            window.location.href = '/clinic_home.html';
-          }, 3000);
+          // Create modal overlay with profile completion
+          const modalHTML = `
+            <div id="successModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;">
+              <div style="background: white; border-radius: 16px; max-width: 550px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);">
+                
+                <!-- Success Header -->
+                <div style="padding: 2rem 2rem 1rem 2rem; text-align: center; border-bottom: 1px solid #e2e8f0;">
+                  <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+                  <h2 style="color: #059669; margin-bottom: 0.5rem; font-size: 1.375rem; font-weight: 700;">Account Created!</h2>
+                  
+                  <!-- Clinic ID Box -->
+                  <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-radius: 10px; padding: 1rem; margin-top: 1rem;">
+                    <div style="font-size: 0.75rem; color: #065f46; margin-bottom: 0.5rem; font-weight: 600;">Your Clinic ID</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #059669; font-family: monospace; letter-spacing: 2px; word-break: break-all;">${result.clinic_id}</div>
+                    <div style="font-size: 0.6875rem; color: #059669; margin-top: 0.5rem;">💾 Save this ID - you'll need it to login</div>
+                  </div>
+                </div>
+                
+                <!-- Profile Completion Form -->
+                <div style="padding: 1.5rem 2rem 2rem 2rem;">
+                  <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 0.875rem; margin-bottom: 1.25rem; font-size: 0.8125rem; color: #92400e;">
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">� Setup Payment Details</div>
+                    <div>Add UPI ID & QR code to receive payments from patients</div>
+                  </div>
+                  
+                  <form id="completeProfileForm">
+                    <div style="margin-bottom: 1rem;">
+                      <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #334155; margin-bottom: 0.375rem;">Full Address (Optional)</label>
+                      <textarea id="fullAddress" style="width: 100%; padding: 0.625rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.875rem; font-family: inherit; resize: vertical; min-height: 70px;" placeholder="Complete clinic address with landmark">${result.address || ''}</textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                      <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #334155; margin-bottom: 0.375rem;">💳 UPI ID (Recommended)</label>
+                      <input type="text" id="upiId" style="width: 100%; padding: 0.625rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.875rem;" placeholder="yourname@paytm or 9876543210@phonepe" />
+                      <small style="color: #64748b; font-size: 0.75rem;">💡 Patients can pay consultation fees directly to you</small>
+                    </div>
+                    
+                    <div style="margin-bottom: 1.25rem;">
+                      <label style="display: block; font-size: 0.875rem; font-weight: 500; color: #334155; margin-bottom: 0.375rem;">📱 Payment QR Code (Recommended)</label>
+                      <input type="file" id="qrCode" accept="image/png,image/jpeg,image/jpg" style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.875rem;" />
+                      <small style="color: #64748b; font-size: 0.75rem;">💡 Upload your UPI QR code - patients can scan & pay (PNG/JPG)</small>
+                    </div>
+                    
+                    <div style="font-size: 0.8125rem; color: #059669; margin-bottom: 1rem; line-height: 1.6; padding: 0.75rem; background: #f0fdf4; border-radius: 6px;">
+                      ✅ 30-day free trial activated<br>
+                      🎯 Full access to all features
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.75rem;">
+                      <button type="button" onclick="window.location.href='/clinic_home.html'" style="flex: 1; background: white; color: #64748b; border: 1px solid #cbd5e1; padding: 0.75rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                        Skip for Now
+                      </button>
+                      <button type="submit" style="flex: 1; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: none; padding: 0.75rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                        Save Payment Info →
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          // Add modal to page
+          document.body.insertAdjacentHTML('beforeend', modalHTML);
+          
+          // Handle profile completion form
+          document.getElementById('completeProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullAddress = document.getElementById('fullAddress').value.trim();
+            const upiId = document.getElementById('upiId').value.trim();
+            const qrCodeFile = document.getElementById('qrCode').files[0];
+            
+            try {
+              const formData = new FormData();
+              if (fullAddress) formData.append('address', fullAddress);
+              if (upiId) formData.append('upi_id', upiId);
+              if (qrCodeFile) formData.append('qr_image', qrCodeFile);
+              
+              // Only update if there's something to update
+              if (fullAddress || upiId || qrCodeFile) {
+                const res = await fetch('/clinic/update-profile', {
+                  method: 'POST',
+                  body: formData,
+                  credentials: 'include'
+                });
+                
+                const data = await res.json();
+                if (!data.success) {
+                  console.warn('Profile update failed:', data.message);
+                }
+              }
+              
+              // Redirect to dashboard
+              window.location.href = '/clinic_home.html';
+            } catch (error) {
+              console.error('Profile completion error:', error);
+              // Still redirect even if profile update fails
+              window.location.href = '/clinic_home.html';
+            }
+          });
         } else {
           showAlert(result.message || 'Failed to create account');
         }

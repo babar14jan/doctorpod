@@ -241,12 +241,26 @@ doctorpod/
    
    Create `.env` file:
    ```env
+   # Base URL - REQUIRED for production QR codes
+   BASE_URL=http://localhost:3000
+   
+   # Email configuration (for email OTP, optional)
    EMAIL_USER=your-email@gmail.com
    EMAIL_PASS=your-gmail-app-password
+   
+   # Session configuration
    SESSION_SECRET=your-secret-key-2026
+   
+   # Database path
    DB_PATH=./database/doctorpod.db
+   
+   # Server port
    PORT=3000
    ```
+   
+   **Important for Deployment**: 
+   - Set `BASE_URL` to your production URL (e.g., `https://your-app.onrender.com`)
+   - This ensures QR codes point to your live site, not localhost
    
    **Gmail Setup** (for email OTP):
    - Enable 2-Step Verification on Gmail

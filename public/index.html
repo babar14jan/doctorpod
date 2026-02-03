@@ -1420,7 +1420,7 @@
       <form id="demoForm" onsubmit="handleDemoSubmit(event)">
         <div class="demo-form-group">
           <label for="demoName">Full Name *</label>
-          <input type="text" id="demoName" name="name" required placeholder="Dr. Rajesh Kumar" pattern="[a-zA-Z\s]{3,}" title="Name should contain only letters (minimum 3 characters)">
+          <input type="text" id="demoName" name="name" required placeholder="Dr. Rajesh Kumar" minlength="3" title="Name must be at least 3 characters">
         </div>
         
         <div class="demo-form-group">
@@ -1435,7 +1435,7 @@
         
         <div class="demo-form-group">
           <label for="demoClinic">Clinic/Hospital Name *</label>
-          <input type="text" id="demoClinic" name="clinic" required placeholder="City Care Clinic" pattern="[a-zA-Z\s]{3,}" title="Clinic name should contain only letters (minimum 3 characters)">
+          <input type="text" id="demoClinic" name="clinic" required placeholder="City Care Clinic" minlength="3" title="Clinic name must be at least 3 characters">
         </div>
         
         <div class="demo-form-group">

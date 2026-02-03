@@ -51,12 +51,20 @@
       align-items: center;
       gap: 0.75rem;
       text-decoration: none;
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+
+    .nav-brand > div {
+      min-width: 0;
+      overflow: hidden;
     }
 
     .nav-logo {
       height: 36px;
       width: auto;
       border-radius: 8px;
+      flex-shrink: 0;
     }
 
     .nav-title {
@@ -66,10 +74,26 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .nav-subtitle { font-size: 0.7rem; color: #2563eb; font-weight: 500; letter-spacing: 0.02em; }
+    .nav-subtitle { 
+      font-size: 0.7rem; 
+      color: #2563eb; 
+      font-weight: 500; 
+      letter-spacing: 0.02em; 
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-    .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .nav-actions { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem; 
+      flex: 0 0 auto;
+    }
 
     .nav-link {
       font-size: 0.8125rem;
@@ -500,17 +524,51 @@
       .hero-icon { font-size: 3rem; }
       .form-row { grid-template-columns: 1fr; }
       .card-body { padding: 1.25rem; }
+      
+      /* Mobile nav adjustments */
+      .nav {
+        padding: 0.5rem 0.5rem;
+      }
+      
+      .nav-brand {
+        gap: 0.25rem;
+        flex: 0 1 auto;
+        max-width: 65%;
+      }
+      
+      .nav-logo {
+        height: 28px;
+      }
+      
+      .nav-title {
+        font-size: 0.75rem;
+        line-height: 1.2;
+      }
+      
+      .nav-subtitle {
+        font-size: 0.5rem;
+        line-height: 1.2;
+      }
+      
+      .nav-actions {
+        gap: 0.25rem;
+      }
+      
+      .nav-link {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.6875rem;
+      }
     }
   </style>
 </head>
 <body>
   <!-- Navigation -->
   <nav class="nav">
-    <a href="/" class="nav-brand">
-      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" />
+    <a href="/" class="nav-brand" id="navBrand">
+      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" id="navLogo" />
       <div>
-        <div class="nav-title">DoctorPod</div>
-        <div class="nav-subtitle">Quick. Smart. Trusted.</div>
+        <div class="nav-title" id="navTitle">DoctorPod</div>
+        <div class="nav-subtitle" id="navSubtitle">Quick. Smart. Trusted.</div>
       </div>
     </a>
     <div class="nav-actions">
@@ -524,8 +582,76 @@
     const isClinicMode = urlParams.get('from') === 'clinic';
     const qrClinicId = urlParams.get('clinic_id');
     
+    // Fetch and populate clinic branding if in clinic mode
     if (isClinicMode) {
       document.getElementById('homeLink').href = '/clinic/home';
+      
+      // Fetch clinic data from profile endpoint (same as clinic_home.html)
+      fetch('/clinic/profile', { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          console.log('Patient booking - clinic profile response:', data);
+          
+          if (data.success && data.clinic) {
+            const clinic = data.clinic;
+            console.log('Clinic data received:', {
+              name: clinic.name,
+              logo_path: clinic.logo_path,
+              address: clinic.address,
+              clinic_id: clinic.clinic_id
+            });
+            
+            // Update navigation branding
+            const navBrand = document.getElementById('navBrand');
+            const navLogo = document.getElementById('navLogo');
+            const navTitle = document.getElementById('navTitle');
+            const navSubtitle = document.getElementById('navSubtitle');
+            
+            console.log('Elements found:', {
+              navBrand: !!navBrand,
+              navLogo: !!navLogo,
+              navTitle: !!navTitle,
+              navSubtitle: !!navSubtitle
+            });
+            
+            // Update clinic name
+            if (navTitle) {
+              navTitle.textContent = clinic.name || 'Clinic';
+              console.log('✓ Title updated to:', clinic.name);
+            }
+            
+            // Update address
+            if (navSubtitle) {
+              if (clinic.address) {
+                navSubtitle.textContent = clinic.address;
+                console.log('✓ Address updated to:', clinic.address);
+              } else {
+                navSubtitle.textContent = '';
+                console.warn('⚠ No address in clinic data');
+              }
+            }
+            
+            // Update logo if available
+            if (navLogo && clinic.logo_path) {
+              navLogo.src = clinic.logo_path;
+              navLogo.alt = clinic.name || 'Clinic Logo';
+              navLogo.style.display = 'block';
+              console.log('✓ Logo updated to:', clinic.logo_path);
+            } else if (navLogo) {
+              console.warn('⚠ No logo_path in clinic data');
+            }
+            
+            // Update navigation brand link to clinic home
+            if (navBrand) {
+              navBrand.href = '/clinic/home';
+            }
+          } else {
+            console.warn('❌ No clinic profile found. Data:', data);
+          }
+        })
+        .catch(err => {
+          console.error('❌ Error fetching clinic data:', err);
+        });
     } else if (qrClinicId) {
       // QR code mode - replace Home with Close button (red background)
       const homeLink = document.getElementById('homeLink');
@@ -588,7 +714,7 @@
           <!-- Patient Info -->
           <div class="form-group">
             <label class="form-label">Full Name <span class="required">*</span></label>
-            <input type="text" name="patient_name" class="form-input" placeholder="Enter your full name" required pattern="[a-zA-Z\s]{3,}" title="Name should contain only letters (minimum 3 characters)" />
+            <input type="text" name="patient_name" class="form-input" placeholder="Enter your full name" required minlength="3" title="Name must be at least 3 characters" />
           </div>
 
           <div class="form-row">
@@ -709,7 +835,8 @@
       const urlParams = new URLSearchParams(window.location.search);
       const qrClinicId = urlParams.get('clinic_id');
       const urlMode = urlParams.get('mode');
-      const isClinicMode = urlMode === 'clinic';
+      const urlFrom = urlParams.get('from');
+      const isClinicMode = urlMode === 'clinic' || urlFrom === 'clinic';
 
       // Check if in clinic mode
       let clinicModeData = null;

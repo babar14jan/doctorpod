@@ -559,3 +559,34 @@ JOIN patients p ON f.patient_id = p.patient_id
 JOIN doctors d ON f.doctor_id = d.doctor_id
 WHERE f.status = 'pending'
 ORDER BY f.follow_up_date ASC;
+
+-- ===========================
+-- Invoices Table
+-- ===========================
+CREATE TABLE IF NOT EXISTS invoices (
+    invoice_id TEXT PRIMARY KEY,           -- e.g., INV20260203001
+    visit_id TEXT NOT NULL,                -- Link to visits table
+    clinic_id TEXT NOT NULL,               -- Link to clinics table
+    patient_name TEXT NOT NULL,
+    patient_mobile TEXT,
+    doctor_name TEXT,
+    consultation_fee REAL DEFAULT 0,       -- Consultation charge
+    medicine_charges REAL DEFAULT 0,       -- Medicine sold at clinic
+    lab_charges REAL DEFAULT 0,            -- Lab tests charges
+    other_charges REAL DEFAULT 0,          -- Miscellaneous
+    other_charges_desc TEXT,               -- Description of other charges
+    subtotal REAL DEFAULT 0,               -- Sum of all charges
+    discount REAL DEFAULT 0,               -- Discount amount
+    tax_percentage REAL DEFAULT 0,         -- GST/Tax percentage
+    tax_amount REAL DEFAULT 0,             -- Calculated tax
+    total_amount REAL NOT NULL,            -- Final amount
+    payment_status TEXT DEFAULT 'unpaid',  -- 'paid', 'unpaid', 'partial'
+    payment_method TEXT,                   -- 'cash', 'upi', 'card', 'online'
+    payment_date DATETIME,                 -- When payment was received
+    invoice_path TEXT,                     -- Path to PDF invoice
+    notes TEXT,                            -- Additional notes
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_by TEXT,                       -- Who created (doctor_id/clinic_id)
+    FOREIGN KEY (visit_id) REFERENCES visits(visit_id),
+    FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id)
+);

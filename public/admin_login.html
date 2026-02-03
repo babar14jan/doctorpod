@@ -221,7 +221,18 @@
     }
 
     .error-msg.show {
-      display: block;
+    .info-msg {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #16a34a;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .info-msg.show { display: block; }      display: block;
     }
 
     /* Footer */
@@ -376,7 +387,74 @@
           <button type="submit" class="btn-primary" id="submitBtn">
             Sign In
           </button>
+          
+          <p class="link-text" style="margin-top: 1rem; text-align: center; font-size: 0.875rem; color: var(--text-muted);">
+            <a href="#" class="link" onclick="showForgotPassword(); return false;" style="color: var(--primary); text-decoration: none; font-weight: 500;">Forgot password?</a>
+          </p>
         </form>
+        </div>
+      </div>
+
+      <!-- Forgot Password Modal -->
+      <div id="forgotPasswordModal" class="card" style="display: none; margin-top: 1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title">Reset Password</h2>
+        </div>
+        
+        <div class="card-body">
+        <!-- Alert Box -->
+        <div id="forgotAlertBox" class="error-msg" style="display: none;"></div>
+
+        <!-- Step 1: Enter Mobile/Email -->
+        <div id="forgotStep1">
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">
+            Enter your mobile number or email. We'll send an OTP to your registered email.
+          </p>
+          <form id="forgotForm1" onsubmit="handleForgotStep1(event)">
+            <div class="form-group">
+              <label class="form-label">Mobile / Email</label>
+              <input type="text" id="forgotIdentifier" class="form-input" placeholder="Enter mobile number or email" required />
+            </div>
+            <button type="submit" class="btn-primary">Send OTP</button>
+            <button type="button" class="btn-primary" onclick="hideForgotPassword()" style="margin-top: 0.75rem; background: var(--border); color: var(--text);">Back to Login</button>
+          </form>
+        </div>
+
+        <!-- Step 2: Enter OTP -->
+        <div id="forgotStep2" style="display: none;">
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+            OTP sent to <strong id="maskedEmail"></strong>
+          </p>
+          <form id="forgotForm2" onsubmit="handleForgotStep2(event)">
+            <div class="form-group">
+              <label class="form-label">Enter OTP</label>
+              <input type="text" id="otpInput" class="form-input" placeholder="6-digit OTP" maxlength="6" pattern="[0-9]{6}" required />
+            </div>
+            <button type="submit" class="btn-primary">Verify OTP</button>
+            <button type="button" class="btn-primary" onclick="resetForgotPassword()" style="margin-top: 0.75rem; background: var(--border); color: var(--text);">Back</button>
+          </form>
+          <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 1rem;">
+            Didn't receive OTP? <a href="#" class="link" onclick="resendOTP(); return false;" style="color: var(--primary);">Resend</a>
+          </p>
+        </div>
+
+        <!-- Step 3: Set New Password -->
+        <div id="forgotStep3" style="display: none;">
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem;">
+            OTP verified! Now set your new password.
+          </p>
+          <form id="forgotForm3" onsubmit="handleForgotStep3(event)">
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" id="newPassword" class="form-input" placeholder="Enter new password" required minlength="6" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <input type="password" id="confirmPassword" class="form-input" placeholder="Re-enter new password" required minlength="6" />
+            </div>
+            <button type="submit" class="btn-primary">Reset Password</button>
+          </form>
+        </div>
         </div>
       </div>
 

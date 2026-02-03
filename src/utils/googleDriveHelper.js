@@ -7,33 +7,48 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const path = require('path');
 
-// Path to service account credentials JSON file
-const CREDENTIALS_PATH = path.join(__dirname, '../../config/google-drive-credentials.json');
-
-// Google Drive folder ID where PDFs will be uploaded (set after creating folder)
-let FOLDER_ID = null;
-
-// Load folder ID from config
-const configPath = path.join(__dirname, '../../config/google-drive-config.json');
-try {
-  if (fs.existsSync(configPath)) {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    FOLDER_ID = config.folderId || null;
+// Load credentials from environment variable or file
+let credentials = null;
+if (process.env.GOOGLE_DRIVE_CREDENTIALS) {
+  try {
+    credentials = JSON.parse(process.env.GOOGLE_DRIVE_CREDENTIALS);
+  } catch (e) {
+    console.error('Failed to parse GOOGLE_DRIVE_CREDENTIALS:', e.message);
   }
-} catch (e) {
-  console.error('Failed to load Google Drive config:', e.message);
+} else {
+  // Fallback to file for local development
+  const CREDENTIALS_PATH = path.join(__dirname, '../../config/google-drive-credentials.json');
+  if (fs.existsSync(CREDENTIALS_PATH)) {
+    try {
+      credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf8'));
+    } catch (e) {
+      console.error('Failed to load Google Drive credentials file:', e.message);
+    }
+  }
+}
+
+// Load folder ID from environment variable or config file
+let FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || null;
+if (!FOLDER_ID) {
+  const configPath = path.join(__dirname, '../../config/google-drive-config.json');
+  try {
+    if (fs.existsSync(configPath)) {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      FOLDER_ID = config.folderId || null;
+    }
+  } catch (e) {
+    console.error('Failed to load Google Drive config:', e.message);
+  }
 }
 
 /**
  * Get authenticated Google Drive client
  */
 function getDriveClient() {
-  if (!fs.existsSync(CREDENTIALS_PATH)) {
-    console.error('Google Drive credentials not found at:', CREDENTIALS_PATH);
+  if (!credentials) {
+    console.error('Google Drive credentials not configured');
     return null;
   }
-  
-  const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf8'));
   
   const auth = new google.auth.GoogleAuth({
     credentials,
@@ -128,7 +143,7 @@ function setFolderId(folderId) {
  * Check if Google Drive is configured
  */
 function isConfigured() {
-  return fs.existsSync(CREDENTIALS_PATH) && FOLDER_ID !== null;
+  return credentials !== null && FOLDER_ID !== null;
 }
 
 module.exports = {

@@ -5,5 +5,15 @@ package-lock.json
 .pdf
 public/pdfs
 docs
+
+# macOS system files
+.DS_Store
+**/.DS_Store
+
+# SQLite database files (don't commit databases)
+# *.db
+# *.sqlite
+# *.sqlite3
+
 # Keep SQL schema files for deployment
 # .sql

@@ -4,11 +4,16 @@ const multer = require('multer');
 const path = require('path');
 const ctrl = require('../controllers/clinicController');
 
-// Configure multer for QR code uploads
+// Configure multer for QR code and logo uploads
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, '../../public/asset/QR'));
+      // Save to different directories based on field name
+      if (file.fieldname === 'logo') {
+        cb(null, path.join(__dirname, '../../public/asset/logo'));
+      } else {
+        cb(null, path.join(__dirname, '../../public/asset/QR'));
+      }
     },
     filename: (req, file, cb) => {
       const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
@@ -16,10 +21,10 @@ const upload = multer({
     }
   }),
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg') {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg') {
       cb(null, true);
     } else {
-      cb(new Error('Only .png and .jpeg files are allowed'));
+      cb(new Error('Only .png, .jpg and .jpeg files are allowed'));
     }
   }
 });
@@ -44,8 +49,8 @@ router.get('/session', ctrl.clinicSession);
 // Clinic login endpoint
 router.post('/login', ctrl.loginClinic);
 
-// Clinic signup endpoint (optional self-registration)
-router.post('/signup', express.json(), ctrl.signupClinic);
+// Clinic signup endpoint (optional self-registration) - accepts logo upload
+router.post('/signup', upload.single('logo'), ctrl.signupClinic);
 
 // Delete clinic (admin only)
 router.post('/delete', ctrl.deleteClinic);
@@ -53,8 +58,8 @@ router.post('/delete', ctrl.deleteClinic);
 // Update clinic (admin or clinic itself)
 router.post('/update', express.json(), ctrl.updateClinic);
 
-// Update clinic profile (clinic only)
-router.post('/update-profile', upload.single('qr_image'), ctrl.updateClinicProfile);
+// Update clinic profile (clinic only) - accepts both QR and logo
+router.post('/update-profile', upload.any(), ctrl.updateClinicProfile);
 
 // Change password (clinic only)
 router.post('/change-password', express.json(), ctrl.changePassword);

@@ -64,6 +64,19 @@
       background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .logo-subtitle {
+      font-size: 0.7rem;
+      color: #2563eb;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .header-actions {
@@ -607,11 +620,11 @@
   <!-- Header -->
   <header class="header">
     <div class="header-content">
-      <a href="/" class="logo">
-        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" />
+      <a href="/clinic/home" class="logo" id="headerBrand">
+        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" id="headerLogo" />
         <div>
-          <div class="logo-text">DoctorPod</div>
-          <div class="logo-subtitle">Quick. Smart. Trusted.</div>
+          <div class="logo-text" id="headerTitle">DoctorPod</div>
+          <div class="logo-subtitle" id="headerSubtitle">Quick. Smart. Trusted.</div>
         </div>
       </a>
       <div class="header-actions">
@@ -870,6 +883,109 @@
           <div class="form-actions">
             <button type="button" onclick="closeEditDoctorModal()" class="btn btn-outline">Cancel</button>
             <button type="submit" class="btn btn-success">Update Doctor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Generation Modal -->
+  <div id="invoiceModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">🧾 Generate Invoice</h3>
+        <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="invoiceForm">
+          <input type="hidden" id="invoice_visit_id" />
+          
+          <!-- Patient Info Display -->
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.25rem;">Patient Details</div>
+            <div style="font-weight: 600; font-size: 1.125rem;" id="invoice_patient_name">-</div>
+            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">📱 <span id="invoice_patient_mobile">-</span></div>
+            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">👨‍⚕️ Dr. <span id="invoice_doctor_name">-</span></div>
+          </div>
+
+          <!-- Charges Section -->
+          <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #334155; margin-bottom: 0.75rem;">💰 Charges</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Consultation Fee</label>
+                <input type="number" id="invoice_consultation_fee" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Medicine Charges</label>
+                <input type="number" id="invoice_medicine_charges" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Lab Charges</label>
+                <input type="number" id="invoice_lab_charges" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Other Charges</label>
+                <input type="number" id="invoice_other_charges" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Other Charges Description</label>
+              <input type="text" id="invoice_other_charges_desc" class="form-input" placeholder="e.g., X-Ray, Bandages..." />
+            </div>
+          </div>
+
+          <!-- Adjustments Section -->
+          <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #92400e; margin-bottom: 0.75rem;">📊 Adjustments</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Discount (₹)</label>
+                <input type="number" id="invoice_discount" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tax Percentage (%)</label>
+                <input type="number" id="invoice_tax_percentage" class="form-input" step="0.01" min="0" max="100" value="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Section -->
+          <div style="background: #eff6ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.75rem;">💳 Payment</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Payment Status *</label>
+                <select id="invoice_payment_status" class="form-input" required>
+                  <option value="unpaid">Unpaid</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
+              <div class="form-group" id="payment_method_group" style="display: none;">
+                <label class="form-label">Payment Method</label>
+                <select id="invoice_payment_method" class="form-input">
+                  <option value="">Select Method</option>
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="online">Online Transfer</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-group">
+            <label class="form-label">Notes (Optional)</label>
+            <textarea id="invoice_notes" class="form-input" rows="3" placeholder="Any additional notes..."></textarea>
+          </div>
+
+          <!-- Error Display -->
+          <div id="invoiceError" style="display: none; background: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 6px; margin-top: 1rem; font-size: 0.875rem;"></div>
+
+          <div class="form-actions" style="margin-top: 1.5rem;">
+            <button type="button" onclick="closeInvoiceModal()" class="btn btn-outline">Cancel</button>
+            <button type="submit" class="btn btn-success">Generate Invoice</button>
           </div>
         </form>
       </div>
