@@ -70,8 +70,19 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .nav-subtitle { font-size: 0.7rem; color: #2563eb; font-weight: 500; letter-spacing: 0.02em; }
+    .nav-subtitle { 
+      font-size: 0.7rem; 
+      color: #2563eb; 
+      font-weight: 500; 
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
     .nav-center {
       position: absolute;
@@ -497,25 +508,6 @@
       flex-direction: column;
       gap: 0.75rem;
     }
-
-    /* QR Checkbox */
-    .qr-checkbox-wrapper, .qr-label {
-      display: flex;
-      align-items: center;
-      gap: 0.625rem;
-      padding: 0.75rem 1rem;
-      background: #f8fafc;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .qr-checkbox-wrapper input[type="checkbox"], .qr-label input[type="checkbox"] {
-      width: 1.25rem;
-      height: 1.25rem;
-      accent-color: var(--primary);
-    }
-
-    .qr-checkbox-wrapper label, .qr-label { font-size: 0.9375rem; font-weight: 500; cursor: pointer; }
 
     /* Form Actions */
     .form-actions, .actions-row {
@@ -1618,24 +1610,15 @@
 <body>
   <!-- Navigation -->
   <nav class="nav">
-    <a href="/" class="nav-brand">
-      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" />
+    <a href="/doctor/home" class="nav-brand" id="navBrand">
+      <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="nav-logo" id="navLogo" style="object-fit: cover;" />
       <div>
-        <div class="nav-title">DoctorPod</div>
-        <div class="nav-subtitle">Quick. Smart. Trusted.</div>
+        <div class="nav-title" id="navTitle">DoctorPod</div>
+        <div class="nav-subtitle" id="navSubtitle">Quick. Smart. Trusted.</div>
       </div>
     </a>
     <!-- Hidden fields for PDF generation -->
     <span id="doctorHeaderMobile" style="display:none;"></span>
-    
-    <!-- Clinic & Doctor Info - Center on desktop, Left stack on mobile -->
-    <div class="nav-center">
-      <div class="nav-clinic-name" id="clinicHeaderName">-</div>
-      <div class="nav-mobile-doctor">
-        <span id="doctorHeaderNameMobile">-</span>
-        <span class="mobile-qual"><span id="doctorHeaderQualMobile">-</span> | <span id="doctorHeaderSpecMobile">-</span></span>
-      </div>
-    </div>
     
     <!-- Doctor Info - Right (desktop only) -->
     <div class="nav-info">
@@ -1777,12 +1760,8 @@
           <div class="form-section">
             <div class="form-section-title">Billing</div>
             <div class="form-row">
-              <span class="form-label">Consultation</span>
+              <span class="form-label">Consultation Fee</span>
               <input name="consultation_fee" class="compact pres-field form-input" placeholder="Fee (₹)" />
-              <label class="qr-label" style="margin-left:1rem;">
-                <input type="checkbox" id="includeQrCheckbox" />
-                Add QR
-              </label>
             </div>
           </div>
 
@@ -1798,6 +1777,104 @@
       </div>
     </section>
   </main>
+
+  <!-- Invoice Generation Modal -->
+  <div id="invoiceModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 style="margin: 0; font-size: 1.25rem;">🧾 Generate Invoice</h3>
+        <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="invoiceForm">
+          <input type="hidden" id="invoice_visit_id" />
+          
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+            <div style="font-size: 0.875rem; color: #059669; margin-bottom: 0.5rem;"><strong>Patient:</strong> <span id="invoice_patient_name"></span></div>
+            <div style="font-size: 0.875rem; color: #059669;"><strong>Mobile:</strong> <span id="invoice_patient_mobile"></span></div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Charges</div>
+            
+            <div class="form-group">
+              <label class="form-label">Consultation Fee (₹)</label>
+              <input type="number" id="invoice_consultation_fee" class="form-input" min="0" step="0.01" value="0" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Medicine Charges (₹)</label>
+              <input type="number" id="invoice_medicine_charges" class="form-input" min="0" step="0.01" value="0" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Lab Tests Charges (₹)</label>
+              <input type="number" id="invoice_lab_charges" class="form-input" min="0" step="0.01" value="0" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Other Charges (₹)</label>
+              <input type="number" id="invoice_other_charges" class="form-input" min="0" step="0.01" value="0" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Other Charges Description</label>
+              <input type="text" id="invoice_other_charges_desc" class="form-input" placeholder="e.g., Dressing, Procedure" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Adjustments</div>
+            
+            <div class="form-group">
+              <label class="form-label">Discount (₹)</label>
+              <input type="number" id="invoice_discount" class="form-input" min="0" step="0.01" value="0" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tax / GST (%)</label>
+              <input type="number" id="invoice_tax_percentage" class="form-input" min="0" max="100" step="0.01" value="0" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">Payment</div>
+            
+            <div class="form-group">
+              <label class="form-label">Payment Status</label>
+              <select id="invoice_payment_status" class="form-input">
+                <option value="unpaid">Unpaid</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="payment_method_group" style="display: none;">
+              <label class="form-label">Payment Method</label>
+              <select id="invoice_payment_method" class="form-input">
+                <option value="">Select Method</option>
+                <option value="cash">Cash</option>
+                <option value="upi">UPI</option>
+                <option value="card">Card</option>
+                <option value="online">Online</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes (Optional)</label>
+            <textarea id="invoice_notes" class="form-input" rows="3" placeholder="Additional notes for invoice"></textarea>
+          </div>
+
+          <div id="invoiceError" style="display: none; background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+
+          <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeInvoiceModal()" style="flex: 1;">Cancel</button>
+            <button type="submit" class="btn btn-primary" style="flex: 2;">Generate Invoice</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <script src="/js/app.js"></script>
   <script src="/js/doctorDashboard.js"></script>

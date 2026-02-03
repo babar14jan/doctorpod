@@ -44,21 +44,29 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
+      flex-wrap: nowrap;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
       text-decoration: none;
       color: var(--text);
-      flex-shrink: 0;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .logo > div {
+      min-width: 0;
+      overflow: hidden;
     }
 
     .logo-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
     }
 
     .logo-text {
@@ -67,6 +75,9 @@
       background: linear-gradient(135deg, #2563eb 0%, #0891b2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .logo-subtitle {
@@ -75,6 +86,9 @@
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .header-right {
@@ -85,16 +99,16 @@
     }
 
     .btn {
-      padding: 0.5rem 0.875rem;
+      padding: 0.5rem 1rem;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.8125rem;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
       text-decoration: none;
       display: inline-block;
-      white-space: nowrap;
+    }
     }
 
     .btn-primary {
@@ -129,35 +143,298 @@
 
     /* Mobile optimization for header buttons */
     @media (max-width: 768px) {
+      .header {
+        padding: 0.5rem 0.5rem;
+      }
+
       .header-content {
-        gap: 0.5rem;
+        gap: 0.25rem;
       }
 
       .logo {
-        gap: 0.5rem;
+        gap: 0.25rem;
+        flex: 0 1 auto;
+        min-width: 0;
+        max-width: 50%;
+      }
+
+      .logo > div {
+        min-width: 0;
+        overflow: hidden;
       }
 
       .logo-icon {
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
       }
 
       .logo-text {
-        font-size: 0.9375rem;
+        font-size: 0.75rem;
+        line-height: 1.2;
       }
 
       .logo-subtitle {
-        font-size: 0.5625rem;
+        font-size: 0.5rem;
+        line-height: 1.2;
       }
 
       .header-right {
-        gap: 0.375rem;
+        gap: 0.25rem;
+        flex: 0 0 auto;
       }
 
       .btn {
-        padding: 0.375rem 0.625rem;
+        padding: 0.375rem 0.5rem;
         font-size: 0.6875rem;
         white-space: nowrap;
+      }
+
+      .top-stats {
+        gap: 0.4rem !important;
+      }
+
+      .top-stats > div {
+        padding: 0.5rem 0.4rem !important;
+        gap: 0.3rem !important;
+      }
+
+      .top-stats .stat-label {
+        font-size: 0.65rem !important;
+      }
+
+      .top-stats .stat-value {
+        font-size: 1.125rem !important;
+      }
+
+      .revenue-stats {
+        gap: 0.35rem !important;
+      }
+
+      .revenue-card {
+        padding: 0.5rem 0.35rem !important;
+      }
+
+      .revenue-label {
+        font-size: 0.6rem !important;
+        margin-bottom: 0.25rem !important;
+      }
+
+      .revenue-value {
+        font-size: 0.95rem !important;
+      }
+
+      .revenue-subtext {
+        font-size: 0.55rem !important;
+        margin-top: 0.15rem !important;
+      }
+
+      .quick-links-buttons {
+        gap: 0.35rem !important;
+      }
+
+      .quick-link-btn {
+        font-size: 0.7rem !important;
+        padding: 0.5rem 0.4rem !important;
+      }
+
+      .appointments-header {
+        padding: 0.875rem 1rem !important;
+      }
+
+      .appointments-title {
+        font-size: 1rem !important;
+      }
+
+      .refresh-btn {
+        padding: 0.375rem 0.5rem !important;
+        font-size: 0.875rem !important;
+      }
+
+      .appointment-filters {
+        padding: 0.75rem !important;
+      }
+
+      .appointment-filters > div {
+        flex-wrap: nowrap !important;
+        gap: 0.5rem !important;
+      }
+
+      .appointment-filters input,
+      .appointment-filters select,
+      .appointment-filters button {
+        font-size: 0.7rem !important;
+        padding: 0.35rem 0.4rem !important;
+        min-width: auto !important;
+      }
+
+      .appointment-filters input[type="date"] {
+        width: 110px !important;
+        min-width: 110px !important;
+      }
+
+      .appointment-filters .filter-btn {
+        white-space: nowrap !important;
+        padding: 0.35rem 0.5rem !important;
+      }
+
+      .appointment-filters select {
+        flex: 1 !important;
+        min-width: 100px !important;
+      }
+
+      .qr-section {
+        padding: 0 !important;
+      }
+
+      .qr-header {
+        padding: 0.875rem 1rem !important;
+      }
+
+      .qr-title {
+        font-size: 1rem !important;
+      }
+
+      .qr-header .collapse-icon {
+        font-size: 1rem !important;
+      }
+
+      .qr-body {
+        padding: 0.75rem !important;
+      }
+
+      .qr-content {
+        gap: 0.75rem !important;
+      }
+
+      .qr-container {
+        padding: 0.5rem !important;
+      }
+
+      .qr-image {
+        min-height: 120px !important;
+        min-width: 120px !important;
+      }
+
+      .qr-info {
+        text-align: center;
+        min-width: auto !important;
+      }
+
+      .qr-description {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+      }
+
+      .qr-actions {
+        justify-content: center !important;
+      }
+
+      .qr-actions button {
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.5rem !important;
+      }
+
+      .billing-body {
+        padding: 0.75rem !important;
+      }
+
+      .checkouts-container,
+      .invoices-container {
+        padding: 0.75rem !important;
+        margin-bottom: 1rem !important;
+      }
+
+      .checkouts-header,
+      .invoices-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+      }
+
+      .checkouts-title,
+      .invoices-title {
+        font-size: 1rem !important;
+      }
+
+      .checkout-refresh-btn,
+      .invoice-refresh-btn {
+        font-size: 0.75rem !important;
+        padding: 0.375rem 0.5rem !important;
+        width: 100%;
+      }
+
+      .invoice-filters {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
+        padding: 0.5rem !important;
+      }
+
+      .invoice-filters > div {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .invoice-filters label {
+        font-size: 0.65rem !important;
+        margin-bottom: 0.15rem !important;
+        white-space: nowrap;
+      }
+
+      .invoice-filters input,
+      .invoice-filters select {
+        font-size: 0.7rem !important;
+        padding: 0.35rem 0.4rem !important;
+      }
+
+      .checkout-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 0.75rem !important;
+      }
+
+      .checkout-patient {
+        font-size: 0.875rem !important;
+      }
+
+      .checkout-details {
+        font-size: 0.75rem !important;
+      }
+
+      .checkout-fee {
+        font-size: 0.75rem !important;
+      }
+
+      .checkout-btn {
+        width: 100% !important;
+        margin-top: 0.5rem !important;
+        font-size: 0.875rem !important;
+      }
+
+      .invoice-table th,
+      .invoice-table td {
+        padding: 0.5rem 0.35rem !important;
+        font-size: 0.7rem !important;
+      }
+
+      .inv-col-doctor,
+      .inv-col-date {
+        display: none;
+      }
+
+      .invoice-table .btn {
+        font-size: 0.7rem !important;
+        padding: 0.25rem 0.35rem !important;
+      }
+
+      .appointments-table th,
+      .appointments-table td {
+        padding: 0.5rem 0.375rem !important;
+        font-size: 0.75rem !important;
+      }
+
+      .apt-col-date {
+        display: none;
       }
     }
 
@@ -514,6 +791,30 @@
       max-width: 90vw;
       max-height: 85vh;
       overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #f3f4f6;
+      color: var(--text);
     }
 
     .modal-content h3 {
@@ -521,6 +822,7 @@
       margin-bottom: 1.5rem;
       font-size: 1.5rem;
       color: var(--text);
+      padding-right: 2rem;
     }
 
     .tabs {
@@ -808,13 +1110,13 @@
 <body>
   <header class="header">
     <div class="header-content">
-      <a href="/" class="logo">
-        <img src="/asset/logo/doctor_logo.png" alt="DoctorPod" class="logo-icon" />
+      <div class="logo">
+        <img id="headerClinicLogo" src="" alt="Clinic Logo" class="logo-icon" style="display: none;" />
         <div>
-          <div class="logo-text">DoctorPod</div>
-          <div class="logo-subtitle">Quick. Smart. Trusted.</div>
+          <div class="logo-text" id="headerClinicName">Clinic</div>
+          <div class="logo-subtitle" id="headerClinicAddress">Loading...</div>
         </div>
-      </a>
+      </div>
       
       <div class="header-right">
         <button class="btn btn-outline" id="manageProfileBtn">Manage Profile</button>
@@ -823,102 +1125,79 @@
     </div>
   </header>
 
-  <!-- Welcome Card -->
-  <div class="welcome-card">
-    <div class="clinic-name" id="welcomeName">Clinic</div>
-    <div class="clinic-address">
-      <span>📍</span>
-      <span id="welcomeLocation">Loading...</span>
+  <!-- Quick Actions Card -->
+  <div class="quick-links-card" style="background: white; padding: 0.75rem 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+    <div class="quick-links-title" style="text-align: center; font-size: 0.875rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem;">Quick links</div>
+    <div class="quick-links-buttons" style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: nowrap;">
+      <button class="btn quick-link-btn" onclick="window.location.href='/clinic/manage-doctors'" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 0.75rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap; flex: 1; min-width: 0; max-width: 180px;">
+        Manage Doctors
+      </button>
+      <button class="btn quick-link-btn" onclick="window.location.href='/patient_booking.html?from=clinic'" style="background: #10b981; color: white; border: none; padding: 0.5rem 0.75rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap; flex: 1; min-width: 0; max-width: 180px;">
+        Book Appointment
+      </button>
+      <button class="btn quick-link-btn" onclick="window.location.href='/check_booking.html?from=clinic'" style="background: #f59e0b; color: white; border: none; padding: 0.5rem 0.75rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap; flex: 1; min-width: 0; max-width: 180px;">
+        Check Booking
+      </button>
     </div>
   </div>
 
   <main class="container">
 
-    <div class="dashboard-section">
-      <h2>🏥 One Platform to Manage Your Clinic Effortlessly </h2>
-      <p>Manage doctors, appointments, and handle clinic operations</p>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat-card primary">
-        <div class="stat-label">Total Doctors</div>
-        <div class="stat-value" id="totalDoctors">0</div>
-      </div>
-      <div class="stat-card success">
-        <div class="stat-label">Active Today</div>
-        <div class="stat-value" id="activeToday">0</div>
-      </div>
-      <div class="stat-card warning">
-        <div class="stat-label">Appointments</div>
-        <div class="stat-value" id="totalAppointments">0</div>
-      </div>
-    </div>
-
-    <div class="quick-links">
-      <div class="quick-link">
-        <h3>👨‍⚕️ Manage Doctors</h3>
-        <p>Add, edit, or remove doctors</p>
-        <button class="btn btn-outline" onclick="window.location.href='/clinic/manage-doctors'">Manage</button>
-      </div>
-
-      <div class="quick-link">
-        <h3>➕ Book Appointment</h3>
-        <p>Schedule new patient appointments</p>
-        <button class="btn btn-outline" onclick="window.location.href='/patient_booking.html?from=clinic'">Book Now</button>
-      </div>
-
-      <div class="quick-link">
-        <h3>🔍 Check Booking</h3>
-        <p>View existing appointments</p>
-        <button class="btn btn-outline" onclick="window.location.href='/check_booking.html?from=clinic'">Check Status</button>
-      </div>
-    </div>
-
-    <!-- Today's Appointments Section -->
-    <div class="section">
-      <div class="section-header" style="cursor: pointer;" onclick="toggleAppointments()">
-        <h2 class="section-title" id="appointmentsHeading">📅 Today's Appointments</h2>
-        <div style="margin-left: auto; display: flex; gap: 0.5rem; align-items: center;">
-          <button class="btn btn-sm" onclick="event.stopPropagation(); refreshAppointments();" title="Refresh appointments" style="padding: 0.5rem 0.75rem; font-size: 1rem; min-width: auto;">
+    <!-- ========== TODAY'S APPOINTMENTS SECTION (HIGHEST PRIORITY) ========== -->
+    <div class="section appointments-section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div class="section-header clickable appointments-header" onclick="toggleAppointmentsSection()" style="background: #d1fae5; color: #065f46; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #a7f3d0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="appointments-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;" id="appointmentsHeading">📅 Today's Appointments</h2>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <button class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); refreshAppointments();" title="Refresh appointments" style="background: #a7f3d0; color: #065f46; border: none; padding: 0.5rem 0.75rem; font-size: 1rem; min-width: auto; border-radius: 6px;">
             <span id="refreshIcon">🔄</span>
           </button>
-          <button class="btn btn-sm btn-outline" style="padding: 0.5rem 0.75rem; font-size: 1rem; min-width: auto;">
-            <span id="toggleIcon">▼</span>
-          </button>
+          <span class="collapse-icon" id="appointmentsIcon" style="font-size: 1.25rem; transition: transform 0.3s ease;">▼</span>
         </div>
       </div>
       <div class="section-body" id="appointmentsBody" style="padding: 0;">
+        
+        <!-- Stats Inside Appointments -->
+        <div class="top-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; padding: 1rem; border-bottom: 1px solid #e5e7eb;">
+          <div style="background: white; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap;">
+            <span class="stat-label" style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Total Doctors:</span>
+            <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #6366f1;" id="totalDoctors">0</span>
+          </div>
+          <div style="background: white; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap;">
+            <span class="stat-label" style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Active Today:</span>
+            <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #10b981;" id="activeToday">0</span>
+          </div>
+          <div style="background: white; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap;">
+            <span class="stat-label" style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Appointments:</span>
+            <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;" id="totalAppointments">0</span>
+          </div>
+        </div>
+
         <div style="padding: 1rem; text-align: center; color: var(--text-muted);">
           <span id="loadingAppointments">⏳ Loading appointments...</span>
         </div>
         
         <!-- Filter Tabs -->
-        <div style="display: none; padding: 1rem; border-bottom: 1px solid var(--border); background: var(--bg);" id="appointmentFilters">
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-              <input type="date" id="dateFilter" class="form-input" style="padding: 0.5rem; font-size: 0.875rem; width: auto; min-width: 150px;" onchange="selectDate()" />
-              <button class="filter-btn" onclick="selectAllDates()">📋 All Dates</button>
-            </div>
-            <div style="flex: 1; min-width: 200px;">
-              <select id="doctorFilter" class="form-select" onchange="applyFilters()" style="padding: 0.5rem; font-size: 0.875rem;">
-                <option value="">All Doctors</option>
-              </select>
-            </div>
+        <div class="appointment-filters" style="display: none; padding: 1rem; border-bottom: 1px solid var(--border); background: var(--bg);" id="appointmentFilters">
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <input type="date" id="dateFilter" class="form-input" style="padding: 0.5rem; font-size: 0.875rem; width: auto; min-width: 150px;" onchange="selectDate()" />
+            <button class="filter-btn" onclick="selectAllDates()" style="white-space: nowrap;">📋 All Dates</button>
+            <select id="doctorFilter" class="form-select" onchange="applyFilters()" style="padding: 0.5rem; font-size: 0.875rem; flex: 1; min-width: 100px;">
+              <option value="">All Doctors</option>
+            </select>
           </div>
         </div>
         
         <!-- Appointments Table -->
         <div style="display: none; overflow-x: auto;" id="appointmentsTable">
-          <table style="width: 100%; border-collapse: collapse;">
+          <table class="appointments-table" style="width: 100%; border-collapse: collapse;">
             <thead style="background: var(--bg); border-bottom: 2px solid var(--border);">
               <tr>
-                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Patient</th>
-                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Doctor</th>
-                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Date</th>
-                <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Time</th>
-                <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Queue</th>
-                <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Status</th>
+                <th class="apt-col-patient" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Patient</th>
+                <th class="apt-col-doctor" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Doctor</th>
+                <th class="apt-col-date" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Date</th>
+                <th class="apt-col-time" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Time</th>
+                <th class="apt-col-queue" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Queue</th>
+                <th class="apt-col-status" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Status</th>
               </tr>
             </thead>
             <tbody id="appointmentsTableBody">
@@ -929,40 +1208,141 @@
       </div>
     </div>
 
-    <!-- Booking QR Code Section -->
-    <div class="section" style="background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%); border: 2px solid #7dd3fc; margin-bottom: 2rem;">
-      <div class="section-header" style="background: transparent; border: none; padding: 0.75rem 1rem;">
-        <h2 class="section-title" style="color: var(--primary); font-size: 1rem;">📱 Your Clinic Booking QR Code</h2>
+    <!-- ========== REVENUE ANALYTICS SECTION ========== -->
+    <div class="section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div class="section-header clickable" onclick="toggleRevenueSection()" style="background: #e9d5ff; color: #6b21a8; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #d8b4fe; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">📊 Revenue Dashboard</h2>
+        <span class="collapse-icon" id="revenueIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
       </div>
-      <div class="section-body" style="padding: 0.75rem 1rem;">
-        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+      <div class="section-body" id="revenueBody" style="padding: 1.5rem; display: none;">
+        
+        <!-- Revenue Stats Cards -->
+        <div class="revenue-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
+          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
+            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">Today's Revenue</div>
+            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #10b981;" id="statTodayRevenue">₹0</div>
+            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;" id="statTodayInvoices">0 invoices</div>
+          </div>
+          
+          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
+            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">Pending Payments</div>
+            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #f59e0b;" id="statPendingPayments">₹0</div>
+            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;" id="statPendingCount">0 unpaid</div>
+          </div>
+          
+          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
+            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">This Month Payments</div>
+            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #0ea5e9;" id="statMonthRevenue">₹0</div>
+            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;">Total revenue</div>
+          </div>
+          
+          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
+            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">Pending Checkouts</div>
+            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #8b5cf6;" id="statTodayCheckouts">0</div>
+            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;">Today's visits</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== BILLING & INVOICES SECTION ========== -->
+    <div class="section billing-section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div class="section-header clickable billing-header" onclick="toggleBillingSection()" style="background: #dbeafe; color: #1e40af; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #bfdbfe; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="billing-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;">💰 Billing & Invoices</h2>
+        <span class="collapse-icon" id="billingIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
+      </div>
+      <div class="section-body billing-body" id="billingBody" style="padding: 1.5rem; display: none;">
+
+        <!-- Today's Checkouts -->
+        <div class="checkouts-container" style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border: 2px solid #e2e8f0;">
+          <div class="checkouts-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 class="checkouts-title" style="font-size: 1.125rem; font-weight: 600; color: #1e293b;">🛒 Today's Checkouts</h3>
+            <button onclick="loadTodaysCheckouts()" class="btn btn-sm btn-outline checkout-refresh-btn">🔄 Refresh</button>
+          </div>
+          <div id="todaysCheckoutsList" class="loading" style="min-height: 100px;">
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+              <div>Loading checkouts...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoice Management -->
+        <div class="invoices-container" style="background: white; border-radius: 12px; padding: 1.5rem; border: 2px solid #e2e8f0;">
+          <div class="invoices-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 class="invoices-title" style="font-size: 1.125rem; font-weight: 600; color: #1e293b;">📋 Invoice Management</h3>
+            <button onclick="loadAllInvoices()" class="btn btn-sm btn-outline invoice-refresh-btn">🔄 Refresh</button>
+          </div>
+          
+          <!-- Filters -->
+          <div class="invoice-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Status</label>
+              <select id="invoiceStatusFilter" class="form-input" onchange="loadAllInvoices()">
+                <option value="all">All Invoices</option>
+                <option value="unpaid">Unpaid</option>
+                <option value="paid">Paid</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">From Date</label>
+              <input type="date" id="invoiceStartDate" class="form-input" onchange="loadAllInvoices()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">To Date</label>
+              <input type="date" id="invoiceEndDate" class="form-input" onchange="loadAllInvoices()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Search Patient</label>
+              <input type="text" id="invoicePatientSearch" class="form-input" placeholder="Name or mobile..." oninput="loadAllInvoices()" />
+            </div>
+          </div>
+          
+          <div id="allInvoicesList" class="loading" style="min-height: 200px;">
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+              <div>Loading invoices...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking QR Code Section -->
+    <div class="section qr-section" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div class="section-header clickable qr-header" onclick="toggleQRSection()" style="background: #fde68a; color: #92400e; padding: 1rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #fcd34d; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="section-title qr-title" style="font-size: 1.125rem; margin: 0;">📱 Clinic Booking QR Code</h2>
+        <span class="collapse-icon" id="qrIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
+      </div>
+      <div class="section-body qr-body" id="qrBody" style="padding: 1rem; display: none;">
+        <div class="qr-content" style="display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center;">
+          <!-- Description -->
+          <p class="qr-description" style="color: var(--text-muted); margin: 0; font-size: 0.875rem; line-height: 1.5;">
+            📋 Patients scan this to book appointments<br>
+            🖨️ Print and display at reception
+          </p>
+          
           <!-- QR Code Display -->
-          <div id="qrCodeContainer" style="flex-shrink: 0; padding: 0.75rem; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <div id="qrCodeImage" style="min-height: 150px; min-width: 150px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+          <div id="qrCodeContainer" class="qr-container" style="padding: 0.75rem; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div id="qrCodeImage" class="qr-image" style="min-height: 150px; min-width: 150px; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
               <span style="font-size: 0.75rem;">⏳ Loading...</span>
             </div>
           </div>
           
-          <!-- QR Info and Actions -->
-          <div style="flex: 1; min-width: 250px;">
-            <p style="color: var(--text-muted); margin-bottom: 0.75rem; font-size: 0.875rem; line-height: 1.5;">
-              📋 Patients scan this to book appointments instantly<br>
-              🖨️ Print and display at your clinic reception
-            </p>
-            
-            <div style="margin-bottom: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button onclick="downloadQRCode()" class="btn btn-primary btn-sm" id="downloadQRBtn" style="display: none;">
-                📥 Download
-              </button>
-              <button onclick="copyBookingLink()" class="btn btn-outline btn-sm" id="copyLinkBtn" style="display: none;">
-                🔗 Copy Link
-              </button>
-            </div>
-            
-            <div id="bookingLinkDisplay" style="display: none; padding: 0.5rem; background: white; border-radius: 6px; border: 1px dashed var(--border); font-size: 0.75rem;">
-              <div style="color: var(--text-muted); margin-bottom: 0.25rem;">Booking Link:</div>
-              <div id="bookingLinkText" style="color: var(--primary); word-break: break-all; font-family: monospace;"></div>
-            </div>
+          <!-- Booking Link Display -->
+          <div id="bookingLinkDisplay" style="display: none; padding: 0.75rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb; width: 100%; max-width: 400px;">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; font-weight: 600;">Booking URL:</div>
+            <div id="bookingLinkText" style="font-size: 0.8125rem; color: #1e293b; word-break: break-all; font-family: monospace;"></div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="qr-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+            <button onclick="downloadQRCode()" class="btn btn-primary btn-sm" id="downloadQRBtn" style="display: none;">
+              📥 Download
+            </button>
+            <button onclick="copyBookingLink()" class="btn btn-outline btn-sm" id="copyLinkBtn" style="display: none;">
+              🔗 Copy Link
+            </button>
           </div>
         </div>
       </div>
@@ -972,6 +1352,7 @@
   <!-- Manage Profile Modal -->
   <div id="manageProfileModal" class="modal">
     <div class="modal-content">
+      <button class="modal-close" id="closeManageProfileModal" aria-label="Close">✕</button>
       <h3>Manage Profile</h3>
       
       <div class="tabs">
@@ -1009,6 +1390,12 @@
           </div>
 
           <div class="form-group">
+            <label>Clinic Logo</label>
+            <input type="file" id="editLogo" accept="image/png,image/jpeg,image/jpg" />
+            <small style="color: var(--text-muted); font-size: 0.8125rem;">Upload clinic logo (appears on prescriptions)</small>
+          </div>
+
+          <div class="form-group">
             <label>QR Code (Payment)</label>
             <input type="file" id="editQrCode" accept="image/png,image/jpeg" />
             <small style="color: var(--text-muted); font-size: 0.8125rem;">Upload a new QR code for payments (optional)</small>
@@ -1041,10 +1428,6 @@
             <button type="submit" class="btn btn-success" style="flex:1;">Update Password</button>
           </div>
         </form>
-      </div>
-
-      <div class="btn-group" style="margin-top: 1.5rem;">
-        <button class="btn btn-outline" id="closeManageProfileModal" style="flex:1;">Close</button>
       </div>
     </div>
   </div>
@@ -1115,10 +1498,19 @@
         
         if (data.success && data.clinic) {
           const clinic = data.clinic;
-          document.getElementById('welcomeName').textContent = clinic.name || 'Clinic';
+          document.getElementById('headerClinicName').textContent = clinic.name || 'Clinic';
           
           if (clinic.address) {
-            document.getElementById('welcomeLocation').textContent = clinic.address;
+            document.getElementById('headerClinicAddress').textContent = clinic.address;
+          }
+          
+          // Handle clinic logo in header
+          const headerLogo = document.getElementById('headerClinicLogo');
+          if (clinic.logo_path) {
+            headerLogo.src = clinic.logo_path;
+            headerLogo.style.display = 'block';
+          } else {
+            headerLogo.style.display = 'none';
           }
           
           document.getElementById('editName').value = clinic.name || '';
@@ -1126,9 +1518,13 @@
           document.getElementById('editAddress').value = clinic.address || '';
           document.getElementById('editEmail').value = clinic.email || '';
           document.getElementById('editUpi').value = clinic.upi_id || '';
+          
+          // Check if profile is incomplete (missing payment info)
+          checkProfileCompletion(clinic);
         } else {
           console.error('Invalid response format');
-          document.getElementById('welcomeName').textContent = 'Clinic';
+          document.getElementById('headerClinicName').textContent = 'Clinic';
+          document.getElementById('headerClinicLogo').style.display = 'none';
         }
       } catch (err) {
         console.error('Failed to load profile:', err.message);
@@ -1137,6 +1533,75 @@
           document.getElementById('welcomeLocation').textContent = address;
         }
       }
+    }
+
+    // Check if profile is complete and show reminder
+    function checkProfileCompletion(clinic) {
+      const isProfileIncomplete = !clinic.upi_id && !clinic.qr_code_path;
+      
+      // Check if we've already shown the reminder in this session
+      const reminderShown = sessionStorage.getItem('profile_reminder_shown');
+      
+      if (isProfileIncomplete && !reminderShown) {
+        // Show reminder modal after a short delay
+        setTimeout(() => {
+          showProfileCompletionReminder();
+          sessionStorage.setItem('profile_reminder_shown', 'true');
+        }, 1000);
+      }
+    }
+
+    // Show profile completion reminder modal
+    function showProfileCompletionReminder() {
+      const modalHTML = `
+        <div id="profileReminderModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;">
+          <div style="background: white; border-radius: 12px; max-width: 450px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); animation: slideIn 0.3s ease-out;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid #e2e8f0;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="font-size: 2rem;">💡</div>
+                <div>
+                  <h3 style="font-size: 1.125rem; font-weight: 700; color: #1e293b; margin: 0;">Complete Your Payment Setup</h3>
+                  <p style="font-size: 0.875rem; color: #64748b; margin: 0.25rem 0 0 0;">Receive payments from patients easily</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style="padding: 1.5rem;">
+              <div style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+                <p style="font-size: 0.875rem; color: #92400e; margin: 0; line-height: 1.5;">
+                  <strong>⚠️ Missing Payment Details</strong><br>
+                  Add your UPI ID & QR code to enable online payments from patients.
+                </p>
+              </div>
+              
+              <div style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.6;">
+                <p style="margin: 0 0 0.5rem 0;">To start receiving payments, please add:</p>
+                <ul style="margin: 0; padding-left: 1.25rem;">
+                  <li>💳 UPI ID (e.g., yourname@paytm)</li>
+                  <li>📱 Payment QR Code image</li>
+                </ul>
+              </div>
+              
+              <div style="display: flex; gap: 0.75rem;">
+                <button onclick="document.getElementById('profileReminderModal').remove()" style="flex: 1; background: white; color: #64748b; border: 1px solid #cbd5e1; padding: 0.75rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                  Later
+                </button>
+                <button onclick="document.getElementById('profileReminderModal').remove(); document.getElementById('manageProfileBtn').click()" style="flex: 1; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; border: none; padding: 0.75rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;">
+                  Complete Now →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <style>
+          @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        </style>
+      `;
+      
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
 
     // Modal handlers
@@ -1181,6 +1646,7 @@
       const email = document.getElementById('editEmail').value.trim();
       const upi_id = document.getElementById('editUpi').value.trim();
       const qrCodeFile = document.getElementById('editQrCode').files[0];
+      const logoFile = document.getElementById('editLogo').files[0];
 
       if (!name || !phone || !email || !address) {
         showToast('Missing Fields', 'Please fill all required fields (Name, Phone, Email, Address)', 'warning');
@@ -1197,10 +1663,14 @@
         if (qrCodeFile) {
           formData.append('qr_image', qrCodeFile);
         }
+        if (logoFile) {
+          formData.append('logo', logoFile);
+        }
 
-        const res = await fetch('/clinics/update-profile', {
+        const res = await fetch('/clinic/update-profile', {
           method: 'POST',
-          body: formData
+          body: formData,
+          credentials: 'include'
         });
         const data = await res.json();
 
@@ -1212,7 +1682,8 @@
           showToast('Update Failed', data.message || 'Failed to update profile', 'error');
         }
       } catch (err) {
-        showToast('Error', 'Error updating profile. Please try again.', 'error');
+        console.error('Profile update error:', err);
+        showToast('Error', err.message || 'Error updating profile. Please try again.', 'error');
       }
     });
 
@@ -1354,18 +1825,6 @@
     }
 
     // Toggle appointments section
-    function toggleAppointments() {
-      const body = document.getElementById('appointmentsBody');
-      const icon = document.getElementById('toggleIcon');
-      if (body.style.display === 'none') {
-        body.style.display = 'block';
-        icon.textContent = '▼';
-      } else {
-        body.style.display = 'none';
-        icon.textContent = '▶';
-      }
-    }
-
     // Refresh appointments
     async function refreshAppointments() {
       const refreshIcon = document.getElementById('refreshIcon');
@@ -1648,6 +2107,811 @@
         document.body.removeChild(textArea);
       });
     }
+
+    // ============= BILLING & INVOICE FUNCTIONS =============
+    let currentClinicId = null;
+
+    // Initialize billing section
+    function initializeBillingSection() {
+      // Try to get clinic ID from session
+      fetch('/clinic/session')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.clinic && data.clinic.clinic_id) {
+            currentClinicId = data.clinic.clinic_id;
+            loadInvoiceStats();
+            loadTodaysCheckouts();
+            loadAllInvoices();
+          }
+        })
+        .catch(err => console.error('Session check error:', err));
+    }
+
+    // Load invoice statistics
+    async function loadInvoiceStats() {
+      if (!currentClinicId) return;
+      
+      try {
+        const res = await fetch(`/api/invoices/clinic/${currentClinicId}/stats`);
+        const data = await res.json();
+        
+        if (data.success && data.stats) {
+          const stats = data.stats;
+          
+          document.getElementById('statTodayRevenue').textContent = `₹${stats.today_revenue.toFixed(2)}`;
+          document.getElementById('statPendingPayments').textContent = `₹${stats.pending_payments.toFixed(2)}`;
+          document.getElementById('statMonthRevenue').textContent = `₹${stats.month_revenue.toFixed(2)}`;
+          document.getElementById('statTodayCheckouts').textContent = stats.today_checkouts;
+          
+          const todayInvoices = await getTodayInvoiceCount();
+          const unpaidCount = await getUnpaidInvoiceCount();
+          
+          document.getElementById('statTodayInvoices').textContent = `${todayInvoices} invoice${todayInvoices !== 1 ? 's' : ''}`;
+          document.getElementById('statPendingCount').textContent = `${unpaidCount} unpaid`;
+        }
+      } catch (error) {
+        console.error('Load stats error:', error);
+      }
+    }
+
+    async function getTodayInvoiceCount() {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const res = await fetch(`/api/invoices/clinic/${currentClinicId}/all?start_date=${today}&end_date=${today}`);
+        const data = await res.json();
+        return data.success ? data.invoices.length : 0;
+      } catch { return 0; }
+    }
+
+    async function getUnpaidInvoiceCount() {
+      try {
+        const res = await fetch(`/api/invoices/clinic/${currentClinicId}/all?status=unpaid`);
+        const data = await res.json();
+        return data.success ? data.invoices.length : 0;
+      } catch { return 0; }
+    }
+
+    // Load today's checkouts
+    async function loadTodaysCheckouts() {
+      if (!currentClinicId) return;
+      
+      const container = document.getElementById('todaysCheckoutsList');
+      
+      try {
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);"><div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div><div>Loading...</div></div>';
+        
+        const res = await fetch(`/api/invoices/clinic/${currentClinicId}/checkouts`);
+        const data = await res.json();
+        
+        if (data.success && data.checkouts) {
+          if (data.checkouts.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #10b981;"><div style="font-size: 2rem; margin-bottom: 0.5rem;">🎉</div><div>All checkouts completed for today!</div></div>';
+            return;
+          }
+          
+          let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+          
+          data.checkouts.forEach(visit => {
+            // Safely parse visit time - check multiple possible field names
+            let visitTime = 'N/A';
+            try {
+              const dateField = visit.visit_time || visit.visit_date || visit.created_at;
+              if (dateField) {
+                const dateObj = new Date(dateField);
+                if (!isNaN(dateObj.getTime())) {
+                  visitTime = dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                }
+              }
+            } catch (e) {
+              console.error('Date parsing error:', e);
+            }
+            
+            html += `
+              <div class="checkout-card" style="background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <div class="checkout-info" style="flex: 1;">
+                  <div class="checkout-patient" style="font-weight: 600; color: #1e293b; font-size: 1rem;">${visit.patient_name || 'Unknown Patient'}</div>
+                  <div class="checkout-details" style="color: #64748b; font-size: 0.875rem; margin-top: 0.25rem;">
+                    📱 ${visit.patient_mobile || 'N/A'} • 👨‍⚕️ Dr. ${visit.doctor_name || 'Unknown'} • 🕐 ${visitTime}
+                  </div>
+                  <div class="checkout-fee" style="color: #10b981; font-weight: 600; font-size: 0.875rem; margin-top: 0.5rem;">₹${visit.consultation_fee || 0} consultation</div>
+                </div>
+                <button class="btn btn-success checkout-btn" onclick="openInvoiceModal('${visit.visit_id}', '${visit.patient_name || ''}', '${visit.patient_mobile || ''}', '${visit.doctor_name || ''}', ${visit.consultation_fee || 0}, '${visit.pres_path || ''}')" style="white-space: nowrap;">
+                  🧾 Checkout
+                </button>
+              </div>
+            `;
+          });
+          
+          html += '</div>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No checkouts pending</div>';
+        }
+      } catch (error) {
+        console.error('Load checkouts error:', error);
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Error loading checkouts</div>';
+      }
+    }
+
+    // Load all invoices
+    async function loadAllInvoices() {
+      if (!currentClinicId) return;
+      
+      const container = document.getElementById('allInvoicesList');
+      const status = document.getElementById('invoiceStatusFilter').value;
+      const startDate = document.getElementById('invoiceStartDate').value;
+      const endDate = document.getElementById('invoiceEndDate').value;
+      const patientSearch = document.getElementById('invoicePatientSearch').value;
+      
+      try {
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);"><div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div><div>Loading invoices...</div></div>';
+        
+        const params = new URLSearchParams();
+        if (status !== 'all') params.append('status', status);
+        if (startDate) params.append('start_date', startDate);
+        if (endDate) params.append('end_date', endDate);
+        if (patientSearch) params.append('patient_search', patientSearch);
+        
+        const res = await fetch(`/api/invoices/clinic/${currentClinicId}/all?${params.toString()}`);
+        const data = await res.json();
+        
+        if (data.success && data.invoices) {
+          if (data.invoices.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No invoices found</div>';
+            return;
+          }
+          
+          let html = '<div class="invoice-table-wrapper" style="overflow-x: auto;"><table class="invoice-table" style="width: 100%; border-collapse: collapse;">';
+          html += `
+            <thead>
+              <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                <th class="inv-col-id" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Invoice ID</th>
+                <th class="inv-col-patient" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Patient</th>
+                <th class="inv-col-doctor" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Doctor</th>
+                <th class="inv-col-amount" style="padding: 0.75rem; text-align: right; font-size: 0.875rem; color: #64748b; font-weight: 600;">Amount</th>
+                <th class="inv-col-status" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Status</th>
+                <th class="inv-col-date" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Date</th>
+                <th class="inv-col-actions" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+          `;
+          
+          data.invoices.forEach((inv, index) => {
+            const statusBadge = inv.payment_status === 'paid' 
+              ? '<span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">✓ PAID</span>'
+              : '<span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">⏳ UNPAID</span>';
+            
+            const invoiceDate = new Date(inv.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            const bgColor = index % 2 === 0 ? 'white' : '#f8fafc';
+            
+            html += `
+              <tr style="background: ${bgColor}; border-bottom: 1px solid #e2e8f0;">
+                <td style="padding: 0.75rem; font-size: 0.875rem; font-family: monospace; color: #3b82f6;">${inv.invoice_id}</td>
+                <td style="padding: 0.75rem;">
+                  <div style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">${inv.patient_name || 'Unknown'}</div>
+                  <div style="color: #64748b; font-size: 0.75rem;">${inv.patient_mobile || 'N/A'}</div>
+                </td>
+                <td style="padding: 0.75rem; font-size: 0.875rem; color: #64748b;">Dr. ${inv.doctor_name || 'Unknown'}</td>
+                <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #10b981; font-size: 0.875rem;">₹${parseFloat(inv.total_amount).toFixed(2)}</td>
+                <td style="padding: 0.75rem; text-align: center;">${statusBadge}</td>
+                <td style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b;">${invoiceDate}</td>
+                <td style="padding: 0.75rem; text-align: center;">
+                  <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                    <button class="btn btn-sm btn-outline" onclick="window.open('${inv.invoice_path}', '_blank')" title="View PDF">📄</button>
+                    <button class="btn btn-sm btn-outline" onclick="sendInvoiceWhatsApp('${inv.invoice_id}')" title="Send via WhatsApp">💬</button>
+                    ${inv.payment_status === 'unpaid' ? `
+                      <button class="btn btn-sm btn-success" onclick="markAsPaid('${inv.invoice_id}')" title="Mark as Paid">✓</button>
+                    ` : `
+                      <button class="btn btn-sm" style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" disabled title="Already Paid">✓</button>
+                    `}
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+          
+          html += '</tbody></table></div>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No invoices found</div>';
+        }
+      } catch (error) {
+        console.error('Load invoices error:', error);
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Error loading invoices</div>';
+      }
+    }
+
+    // Mark invoice as paid
+    async function markAsPaid(invoiceId) {
+      // Custom confirmation using showToast-style approach
+      const confirmed = await new Promise((resolve) => {
+        const confirmMsg = document.createElement('div');
+        confirmMsg.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          padding: 2rem;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+          z-index: 10000;
+          text-align: center;
+          min-width: 320px;
+        `;
+        
+        confirmMsg.innerHTML = `
+          <div style="font-size: 3rem; margin-bottom: 1rem;">💰</div>
+          <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem; color: #0c4a6e;">Mark Invoice as Paid?</h3>
+          <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.9rem;">This will mark the invoice as paid.</p>
+          <div style="display: flex; gap: 0.75rem; justify-content: center;">
+            <button id="confirmNo" style="padding: 0.625rem 1.5rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 8px; cursor: pointer; font-weight: 500;">Cancel</button>
+            <button id="confirmYes" style="padding: 0.625rem 1.5rem; border: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 8px; cursor: pointer; font-weight: 500;">Confirm</button>
+          </div>
+        `;
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 9999;
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(confirmMsg);
+        
+        confirmMsg.querySelector('#confirmYes').onclick = () => {
+          document.body.removeChild(confirmMsg);
+          document.body.removeChild(overlay);
+          resolve(true);
+        };
+        
+        confirmMsg.querySelector('#confirmNo').onclick = () => {
+          document.body.removeChild(confirmMsg);
+          document.body.removeChild(overlay);
+          resolve(false);
+        };
+        
+        overlay.onclick = () => {
+          document.body.removeChild(confirmMsg);
+          document.body.removeChild(overlay);
+          resolve(false);
+        };
+      });
+      
+      if (!confirmed) return;
+      
+      // Custom payment method selector
+      const paymentMethod = await new Promise((resolve) => {
+        const methodMsg = document.createElement('div');
+        methodMsg.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          padding: 2rem;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+          z-index: 10000;
+          text-align: center;
+          min-width: 360px;
+        `;
+        
+        methodMsg.innerHTML = `
+          <div style="font-size: 3rem; margin-bottom: 1rem;">💳</div>
+          <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem; color: #0c4a6e;">Select Payment Method</h3>
+          <p style="color: #64748b; margin-bottom: 1.5rem; font-size: 0.9rem;">Choose how the payment was received</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <button class="payment-option" data-method="cash" style="padding: 1rem; border: 2px solid #e2e8f0; background: white; color: #0c4a6e; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">💵</div>
+              Cash
+            </button>
+            <button class="payment-option" data-method="upi" style="padding: 1rem; border: 2px solid #e2e8f0; background: white; color: #0c4a6e; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">📱</div>
+              UPI
+            </button>
+            <button class="payment-option" data-method="card" style="padding: 1rem; border: 2px solid #e2e8f0; background: white; color: #0c4a6e; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">💳</div>
+              Card
+            </button>
+            <button class="payment-option" data-method="online" style="padding: 1rem; border: 2px solid #e2e8f0; background: white; color: #0c4a6e; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🌐</div>
+              Online
+            </button>
+          </div>
+          <button id="methodCancel" style="padding: 0.625rem 1.5rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 8px; cursor: pointer; font-weight: 500; width: 100%;">Cancel</button>
+        `;
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.5);
+          z-index: 9999;
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(methodMsg);
+        
+        methodMsg.querySelectorAll('.payment-option').forEach(btn => {
+          btn.onmouseover = () => {
+            btn.style.borderColor = '#10b981';
+            btn.style.background = '#f0fdf4';
+          };
+          btn.onmouseout = () => {
+            btn.style.borderColor = '#e2e8f0';
+            btn.style.background = 'white';
+          };
+          btn.onclick = () => {
+            const method = btn.getAttribute('data-method');
+            document.body.removeChild(methodMsg);
+            document.body.removeChild(overlay);
+            resolve(method);
+          };
+        });
+        
+        methodMsg.querySelector('#methodCancel').onclick = () => {
+          document.body.removeChild(methodMsg);
+          document.body.removeChild(overlay);
+          resolve(null);
+        };
+        
+        overlay.onclick = () => {
+          document.body.removeChild(methodMsg);
+          document.body.removeChild(overlay);
+          resolve(null);
+        };
+      });
+      
+      if (!paymentMethod) return;
+      
+      try {
+        const res = await fetch(`/api/invoices/${invoiceId}/payment`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            payment_status: 'paid',
+            payment_method: paymentMethod.toLowerCase()
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          showToast('Success', `Invoice marked as paid (${paymentMethod.toUpperCase()})`, 'success');
+          loadInvoiceStats();
+          loadAllInvoices();
+          loadTodaysCheckouts();
+        } else {
+          showToast('Error', data.message || 'Failed to update payment', 'error');
+        }
+      } catch (error) {
+        console.error('Mark paid error:', error);
+        showToast('Error', 'Network error updating payment', 'error');
+      }
+    }
+    
+    // Send Invoice via WhatsApp
+    async function sendInvoiceWhatsApp(invoiceId) {
+      console.log('📱 Sending invoice via WhatsApp:', invoiceId);
+      
+      try {
+        const res = await fetch('/whatsapp/send-invoice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invoice_id: invoiceId })
+        });
+        
+        console.log('Response status:', res.status);
+        
+        const data = await res.json();
+        console.log('Response data:', data);
+        
+        if (data.success && data.whatsapp_url) {
+          window.open(data.whatsapp_url, '_blank');
+          showToast('Success', 'WhatsApp opened with invoice details', 'success');
+        } else {
+          showToast('Error', data.message || 'Failed to generate WhatsApp message', 'error');
+        }
+      } catch (error) {
+        console.error('WhatsApp invoice error:', error);
+        showToast('Error', 'Network error sending invoice: ' + error.message, 'error');
+      }
+    }
+
+    // Open invoice modal
+    function openInvoiceModal(visitId, patientName, patientMobile, doctorName, consultationFee, presPath) {
+      const modal = document.getElementById('invoiceModal');
+      
+      document.getElementById('invoice_visit_id').value = visitId;
+      document.getElementById('invoice_patient_name').textContent = patientName || 'Unknown';
+      document.getElementById('invoice_patient_mobile').textContent = patientMobile || 'N/A';
+      document.getElementById('invoice_doctor_name').textContent = doctorName || 'Unknown';
+      document.getElementById('invoice_consultation_fee').value = consultationFee || 0;
+      
+      // Check prescription availability
+      const prescriptionStatus = document.getElementById('prescription_status');
+      const prescriptionCheckbox = document.getElementById('invoice_include_prescription');
+      
+      if (presPath && presPath !== '' && presPath !== 'null') {
+        prescriptionStatus.textContent = 'Prescription available for this visit';
+        prescriptionStatus.style.color = '#15803d';
+        prescriptionCheckbox.disabled = false;
+        prescriptionCheckbox.checked = true;
+      } else {
+        prescriptionStatus.textContent = 'No prescription for this visit';
+        prescriptionStatus.style.color = '#94a3b8';
+        prescriptionCheckbox.disabled = true;
+        prescriptionCheckbox.checked = false;
+      }
+      
+      document.getElementById('invoice_medicine_charges').value = 0;
+      document.getElementById('invoice_lab_charges').value = 0;
+      document.getElementById('invoice_other_charges').value = 0;
+      document.getElementById('invoice_other_charges_desc').value = '';
+      document.getElementById('invoice_discount').value = 0;
+      document.getElementById('invoice_tax_percentage').value = 0;
+      document.getElementById('invoice_payment_status').value = 'unpaid';
+      document.getElementById('invoice_payment_method').value = '';
+      document.getElementById('invoice_notes').value = '';
+      document.getElementById('invoiceError').style.display = 'none';
+      
+      const paymentStatusSelect = document.getElementById('invoice_payment_status');
+      const paymentMethodGroup = document.getElementById('payment_method_group');
+      
+      paymentStatusSelect.onchange = function() {
+        paymentMethodGroup.style.display = this.value === 'paid' ? 'block' : 'none';
+      };
+      
+      modal.style.display = 'flex';
+      modal.classList.add('show');
+    }
+
+    function closeInvoiceModal() {
+      const modal = document.getElementById('invoiceModal');
+      modal.style.display = 'none';
+      modal.classList.remove('show');
+    }
+    
+    // Toggle billing section collapse
+    function toggleBillingSection() {
+      const body = document.getElementById('billingBody');
+      const icon = document.getElementById('billingIcon');
+      
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        body.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    function toggleQRSection() {
+      const body = document.getElementById('qrBody');
+      const icon = document.getElementById('qrIcon');
+      
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        body.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    function toggleAppointmentsSection() {
+      const body = document.getElementById('appointmentsBody');
+      const icon = document.getElementById('appointmentsIcon');
+      
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        body.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    function toggleRevenueSection() {
+      const body = document.getElementById('revenueBody');
+      const icon = document.getElementById('revenueIcon');
+      
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        body.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    // Handle invoice form submission
+    // Invoice form submission handler
+    function setupInvoiceFormHandler() {
+      const invoiceForm = document.getElementById('invoiceForm');
+      if (!invoiceForm) {
+        console.error('❌ Invoice form not found! DOM may not be ready yet.');
+        return false;
+      }
+      
+      // Remove any existing listeners to prevent duplicates
+      const newForm = invoiceForm.cloneNode(true);
+      invoiceForm.parentNode.replaceChild(newForm, invoiceForm);
+      
+      console.log('✅ Invoice form handler attached');
+      
+      document.getElementById('invoiceForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('📝 Invoice form submitted!');
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const errorDiv = document.getElementById('invoiceError');
+        errorDiv.style.display = 'none';
+        
+        const visitId = document.getElementById('invoice_visit_id').value;
+        const consultationFee = parseFloat(document.getElementById('invoice_consultation_fee').value) || 0;
+        const medicineCharges = parseFloat(document.getElementById('invoice_medicine_charges').value) || 0;
+        const labCharges = parseFloat(document.getElementById('invoice_lab_charges').value) || 0;
+        const otherCharges = parseFloat(document.getElementById('invoice_other_charges').value) || 0;
+        const otherChargesDesc = document.getElementById('invoice_other_charges_desc').value.trim();
+        const discount = parseFloat(document.getElementById('invoice_discount').value) || 0;
+        const taxPercentage = parseFloat(document.getElementById('invoice_tax_percentage').value) || 0;
+        const paymentStatus = document.getElementById('invoice_payment_status').value;
+        const paymentMethod = document.getElementById('invoice_payment_method').value || null;
+        const notes = document.getElementById('invoice_notes').value.trim();
+        const sendWhatsApp = document.getElementById('invoice_send_whatsapp')?.checked || false;
+        const includePrescription = document.getElementById('invoice_include_prescription')?.checked || false;
+        
+        console.log('📋 Form data:', { visitId, consultationFee, medicineCharges, labCharges, otherCharges });
+        
+        if (!visitId) {
+          console.error('❌ Visit ID missing');
+          errorDiv.textContent = 'Visit ID is missing';
+          errorDiv.style.display = 'block';
+          return;
+        }
+        
+        const total = consultationFee + medicineCharges + labCharges + otherCharges;
+        console.log('💰 Total before adjustments:', total);
+        
+        if (total <= 0) {
+          console.error('❌ Total is zero or negative');
+          errorDiv.textContent = 'Total amount must be greater than zero';
+          errorDiv.style.display = 'block';
+          return;
+        }
+        
+        if (paymentStatus === 'paid' && !paymentMethod) {
+          console.error('❌ Payment method missing for paid invoice');
+          errorDiv.textContent = 'Please select payment method for paid invoice';
+          errorDiv.style.display = 'block';
+          return;
+        }
+        
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Generating...';
+        
+        console.log('🚀 Sending invoice generation request...');
+        
+        try {
+          const response = await fetch('/api/invoices/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              visit_id: visitId,
+              consultation_fee: consultationFee,
+              medicine_charges: medicineCharges,
+              lab_charges: labCharges,
+              other_charges: otherCharges,
+              other_charges_desc: otherChargesDesc,
+              discount: discount,
+              tax_percentage: taxPercentage,
+              payment_status: paymentStatus,
+              payment_method: paymentMethod,
+              notes: notes,
+              send_whatsapp: sendWhatsApp,
+              include_prescription: includePrescription
+            })
+          });
+          
+          console.log('📡 Response status:', response.status);
+          
+          const data = await response.json();
+          console.log('📦 Response data:', data);
+          
+          if (data.success) {
+            console.log('✅ Invoice generated successfully!');
+            window.open(data.invoice_path, '_blank');
+            
+            // Open WhatsApp if URL was generated
+            if (data.whatsapp_url) {
+              setTimeout(() => {
+                window.open(data.whatsapp_url, '_blank');
+              }, 500);
+            }
+            
+            closeInvoiceModal();
+            
+            showToast('Success', `Invoice ${data.invoice_id} generated - ₹${data.total_amount.toFixed(2)}`, 'success');
+            
+            setTimeout(() => {
+              loadInvoiceStats();
+              loadTodaysCheckouts();
+              loadAllInvoices();
+            }, 1000);
+          } else {
+            console.error('❌ Invoice generation failed:', data.message);
+            errorDiv.textContent = data.message || 'Failed to generate invoice';
+            errorDiv.style.display = 'block';
+          }
+        } catch (error) {
+          console.error('❌ Invoice generation error:', error);
+          errorDiv.textContent = 'Network error. Please try again.';
+          errorDiv.style.display = 'block';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Generate Invoice';
+        }
+      });
+      
+      return true;
+    }
+    
+    // Initialize after DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('🔄 DOM loaded, setting up invoice form handler...');
+      setupInvoiceFormHandler();
+      
+      setTimeout(() => {
+        initializeBillingSection();
+      }, 1000);
+    });
+    
+    // Also try immediately in case DOM is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      console.log('🔄 DOM already loaded, setting up invoice form handler...');
+      setTimeout(() => {
+        setupInvoiceFormHandler();
+        initializeBillingSection();
+      }, 100);
+    }
   </script>
+
+  <!-- Invoice Generation Modal -->
+  <div id="invoiceModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; padding: 1rem; overflow-y: auto; align-items: center; justify-content: center;">
+    <div style="background: white; max-width: 600px; width: 100%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+      <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700;">🧾 Generate Invoice</h3>
+        <button onclick="closeInvoiceModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <form id="invoiceForm">
+          <input type="hidden" id="invoice_visit_id" />
+          
+          <!-- Patient Info -->
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.25rem;">Patient Details</div>
+            <div style="font-weight: 600; font-size: 1.125rem;" id="invoice_patient_name">-</div>
+            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">📱 <span id="invoice_patient_mobile">-</span></div>
+            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">👨‍⚕️ Dr. <span id="invoice_doctor_name">-</span></div>
+          </div>
+
+          <!-- Charges -->
+          <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #334155; margin-bottom: 0.75rem;">💰 Charges</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Consultation Fee</label>
+                <input type="number" id="invoice_consultation_fee" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Medicine Charges</label>
+                <input type="number" id="invoice_medicine_charges" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Lab Charges</label>
+                <input type="number" id="invoice_lab_charges" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Other Charges</label>
+                <input type="number" id="invoice_other_charges" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+            </div>
+            <div style="margin-top: 1rem;">
+              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Other Charges Description</label>
+              <input type="text" id="invoice_other_charges_desc" class="form-input" placeholder="e.g., X-Ray, Bandages..." />
+            </div>
+          </div>
+
+          <!-- Adjustments -->
+          <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #92400e; margin-bottom: 0.75rem;">📊 Adjustments</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.875rem; color: #78350f; margin-bottom: 0.25rem;">Discount (₹)</label>
+                <input type="number" id="invoice_discount" class="form-input" step="0.01" min="0" value="0" />
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.875rem; color: #78350f; margin-bottom: 0.25rem;">Tax Percentage (%)</label>
+                <input type="number" id="invoice_tax_percentage" class="form-input" step="0.01" min="0" max="100" value="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment -->
+          <div style="background: #eff6ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.75rem;">💳 Payment</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.875rem; color: #1e3a8a; margin-bottom: 0.25rem;">Payment Status *</label>
+                <select id="invoice_payment_status" class="form-input" required>
+                  <option value="unpaid">Unpaid</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
+              <div id="payment_method_group" style="display: none;">
+                <label style="display: block; font-size: 0.875rem; color: #1e3a8a; margin-bottom: 0.25rem;">Payment Method</label>
+                <select id="invoice_payment_method" class="form-input">
+                  <option value="">Select Method</option>
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="online">Online Transfer</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Notes (Optional)</label>
+            <textarea id="invoice_notes" class="form-input" rows="3" placeholder="Any additional notes..."></textarea>
+          </div>
+          
+          <!-- WhatsApp Notification -->
+          <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin-bottom: 0.75rem;">
+              <input type="checkbox" id="invoice_send_whatsapp" checked style="width: 20px; height: 20px; cursor: pointer; accent-color: #10b981;">
+              <div style="flex: 1;">
+                <div style="font-weight: 600; color: #166534; font-size: 0.9375rem;">💬 Send invoice via WhatsApp</div>
+                <div style="font-size: 0.75rem; color: #15803d; margin-top: 0.25rem;">Opens WhatsApp with invoice details and PDF link</div>
+              </div>
+            </label>
+            
+            <div id="prescription_checkbox_wrapper" style="padding-left: 2.25rem; border-left: 3px solid #86efac; margin-left: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" id="invoice_include_prescription" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
+                <div style="flex: 1;">
+                  <div style="font-weight: 500; color: #15803d; font-size: 0.875rem;">✅ Include prescription PDF link</div>
+                  <div id="prescription_status" style="font-size: 0.75rem; color: #64748b; margin-top: 0.125rem;">Checking...</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Error Display -->
+          <div id="invoiceError" style="display: none; background: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+
+          <div style="display: flex; gap: 1rem;">
+            <button type="button" onclick="closeInvoiceModal()" class="btn btn-outline" style="flex: 1;">Cancel</button>
+            <button type="submit" class="btn btn-success" style="flex: 1;">Generate Invoice</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

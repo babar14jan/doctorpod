@@ -20,9 +20,6 @@ const { generateVisitId } = require('../utils/idGenerator');
 // Save or update a visit (history) and its medicines using new star schema
 async function saveVisit(req, res) {
   const { visit_id, patient_id, doctor_id, clinic_id, diagnosis, investigations, advice, temperature, blood_pressure, consultation_fee, medicines, appointment_id, patient_weight, source } = req.body;
-  const path = require('path');
-  const fs = require('fs');
-  const pdfPaths = require('../utils/pdf_paths.json');
   if (!patient_id || !doctor_id || !clinic_id) return res.status(400).json({ success: false, message: 'Missing fields' });
 
   let visitId = visit_id;
@@ -33,9 +30,7 @@ async function saveVisit(req, res) {
     const sequence = (visitCount.count || 0) + 1;
     visitId = generateVisitId(doctor_id, patient_id, sequence);
   }
-  // Compose PDF key as in pdf_paths.json (e.g., `${patientName}_${visitId}`)
-  let pdfKey = `${(req.body.patient_name || '').replace(/\s+/g, '_')}_${visitId}`;
-  let pres_path = pdfPaths[pdfKey] || null;
+  
   // Prepare patient_name, patient_age, patient_gender
   let patientName = req.body.patient_name || '';
   let patientAge = req.body.patient_age || null;
@@ -106,10 +101,10 @@ async function saveVisit(req, res) {
     // Check if visit exists
     const existing = await db.prepare('SELECT * FROM visits WHERE visit_id = ?').get(visitId);
     if (existing) {
-      await db.prepare('UPDATE visits SET patient_id = ?, doctor_id = ?, clinic_id = ?, diagnosis = ?, investigations = ?, advice = ?, temperature = ?, blood_pressure = ?, consultation_fee = ?, patient_name = ?, patient_age = ?, patient_gender = ?, appointment_id = ?, patient_weight = ?, pres_path = ?, source = ?, updated_at = CURRENT_TIMESTAMP WHERE visit_id = ?')
+      await db.prepare('UPDATE visits SET patient_id = ?, doctor_id = ?, clinic_id = ?, diagnosis = ?, investigations = ?, advice = ?, temperature = ?, blood_pressure = ?, consultation_fee = ?, patient_name = ?, patient_age = ?, patient_gender = ?, appointment_id = ?, patient_weight = ?, source = ?, updated_at = CURRENT_TIMESTAMP WHERE visit_id = ?')
         .run(
           patient_id, doctor_id, clinic_id, diagnosis || null, investigations || null, advice || null, temperature || null, blood_pressure || null, consultation_fee || null,
-          patientName || null, patientAge || null, patientGender || null, appointment_id || null, patient_weight || null, pres_path, source || null, visitId
+          patientName || null, patientAge || null, patientGender || null, appointment_id || null, patient_weight || null, source || null, visitId
         );
       await db.prepare('DELETE FROM prescription_items WHERE visit_id = ?').run(visitId);
       if (Array.isArray(medicines)) {
@@ -119,10 +114,10 @@ async function saveVisit(req, res) {
       await db.prepare('COMMIT').run();
       return res.json({ success: true, visit_id: visitId, updated: true });
     } else {
-      await db.prepare('INSERT INTO visits (visit_id, patient_id, doctor_id, clinic_id, diagnosis, investigations, advice, temperature, blood_pressure, consultation_fee, patient_name, patient_age, patient_gender, appointment_id, patient_weight, pres_path, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      await db.prepare('INSERT INTO visits (visit_id, patient_id, doctor_id, clinic_id, diagnosis, investigations, advice, temperature, blood_pressure, consultation_fee, patient_name, patient_age, patient_gender, appointment_id, patient_weight, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .run(
           visitId, patient_id, doctor_id, clinic_id, diagnosis || null, investigations || null, advice || null, temperature || null, blood_pressure || null, consultation_fee || null,
-          patientName || null, patientAge || null, patientGender || null, appointment_id || null, patient_weight || null, pres_path, source || null
+          patientName || null, patientAge || null, patientGender || null, appointment_id || null, patient_weight || null, source || null
         );
       if (Array.isArray(medicines)) {
         const mstmt = db.prepare('INSERT INTO prescription_items (visit_id, doctor_id, medicine_name, frequency, timing) VALUES (?, ?, ?, ?, ?)');

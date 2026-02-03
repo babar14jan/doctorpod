@@ -25,7 +25,7 @@ try {
 async function getAllClinics(req, res) {
   try {
     // Only fetch active clinics
-    const rows = await db.prepare('SELECT clinic_id, name, phone, email, address, upi_id FROM clinics WHERE is_active = 1 ORDER BY name').all();
+    const rows = await db.prepare('SELECT clinic_id, name, phone, email, address, upi_id, qr_code_path, logo_path FROM clinics WHERE is_active = 1 ORDER BY name').all();
     res.json({ success: true, clinics: rows });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
@@ -45,14 +45,39 @@ async function loginClinic(req, res) {
   if (!clinic || clinic.password !== pass) {
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
   }
-  req.session.clinic = { clinic_id: clinic.clinic_id, name: clinic.name };
+  // Store clinic info in session including logo and address
+  req.session.clinic = { 
+    clinic_id: clinic.clinic_id, 
+    name: clinic.name,
+    logo_path: clinic.logo_path,
+    address: clinic.address
+  };
   res.json({ success: true, clinic_id: clinic.clinic_id, name: clinic.name });
 }
 
 // Clinic session check endpoint
-function clinicSession(req, res) {
-  if (req.session && req.session.clinic) {
-    res.json({ success: true, clinic: req.session.clinic });
+async function clinicSession(req, res) {
+  if (req.session && req.session.clinic && req.session.clinic.clinic_id) {
+    try {
+      // Fetch fresh clinic data from database to include logo and address
+      const clinic = await db.prepare('SELECT clinic_id, name, logo_path, address FROM clinics WHERE clinic_id = ?').get(req.session.clinic.clinic_id);
+      
+      if (clinic) {
+        // Update session with complete data
+        req.session.clinic = {
+          clinic_id: clinic.clinic_id,
+          name: clinic.name,
+          logo_path: clinic.logo_path,
+          address: clinic.address
+        };
+        res.json({ success: true, clinic: req.session.clinic });
+      } else {
+        res.json({ success: false });
+      }
+    } catch (error) {
+      console.error('Error fetching clinic session:', error);
+      res.json({ success: false });
+    }
   } else {
     res.json({ success: false });
   }
@@ -106,8 +131,15 @@ async function updateClinic(req, res){
     
     // Update session if clinic updated their own profile
     if (isClinic) {
-      const updated = await db.prepare('SELECT clinic_id, name FROM clinics WHERE clinic_id = ?').get(clinic_id);
-      if (updated) req.session.clinic = { clinic_id: updated.clinic_id, name: updated.name };
+      const updated = await db.prepare('SELECT clinic_id, name, logo_path, address FROM clinics WHERE clinic_id = ?').get(clinic_id);
+      if (updated) {
+        req.session.clinic = { 
+          clinic_id: updated.clinic_id, 
+          name: updated.name,
+          logo_path: updated.logo_path,
+          address: updated.address
+        };
+      }
     }
     
     res.json({ success: true, message: 'Clinic updated successfully' });
@@ -150,7 +182,7 @@ async function getProfile(req, res){
   const clinic_id = req.session.clinic.clinic_id;
   
   try {
-    const clinic = await db.prepare('SELECT clinic_id, name, phone, email, address, upi_id FROM clinics WHERE clinic_id = ?').get(clinic_id);
+    const clinic = await db.prepare('SELECT clinic_id, name, phone, email, address, upi_id, logo_path, qr_code_path FROM clinics WHERE clinic_id = ?').get(clinic_id);
     if (!clinic) return res.status(404).json({ success: false, message: 'Clinic not found' });
     res.json({ success: true, clinic });
   } catch (e) {
@@ -164,36 +196,43 @@ async function updateClinicProfile(req, res) {
   
   const clinic_id = req.session.clinic.clinic_id;
   const { name, phone, address, email, upi_id } = req.body;
-  const qrImageFile = req.file;
+  
+  // When using upload.any(), files is an array
+  const filesArray = req.files || [];
+  const qrImageFile = filesArray.find(f => f.fieldname === 'qr_image');
+  const logoFile = filesArray.find(f => f.fieldname === 'logo');
   
   if (!name || !phone || !email || !address) {
     return res.status(400).json({ success: false, message: 'Name, phone, email, and address are required' });
   }
   
   try {
-    // Update clinic basic info
-    await db.prepare(`
-      UPDATE clinics 
-      SET name = ?, phone = ?, address = ?, email = ?, upi_id = ?
-      WHERE clinic_id = ?
-    `).run(name, phone, address, email, upi_id || '', clinic_id);
+    const updates = [];
+    const values = [];
     
-    // If QR code image is uploaded, update qr_code_path.json
-    if (qrImageFile) {
-      const fs = require('fs');
-      const path = require('path');
-      const qrPathFile = path.join(__dirname, '../../src/utils/qr_code_path.json');
-      
-      let qrPaths = {};
-      if (fs.existsSync(qrPathFile)) {
-        const content = fs.readFileSync(qrPathFile, 'utf8');
-        qrPaths = JSON.parse(content);
-      }
-      
-      // Update the QR path for this clinic
-      qrPaths[clinic_id] = `/asset/QR/${qrImageFile.filename}`;
-      fs.writeFileSync(qrPathFile, JSON.stringify(qrPaths, null, 2));
+    // Basic info updates
+    updates.push('name = ?', 'phone = ?', 'address = ?', 'email = ?', 'upi_id = ?');
+    values.push(name, phone, address, email, upi_id || '');
+    
+    // Handle logo upload
+    if (logoFile) {
+      const logoPath = `/asset/logo/${logoFile.filename}`;
+      updates.push('logo_path = ?');
+      values.push(logoPath);
     }
+    
+    // Handle QR code upload
+    if (qrImageFile) {
+      const qrPath = `/asset/QR/${qrImageFile.filename}`;
+      updates.push('qr_code_path = ?');
+      values.push(qrPath);
+    }
+    
+    updates.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(clinic_id);
+    
+    const sql = `UPDATE clinics SET ${updates.join(', ')} WHERE clinic_id = ?`;
+    await db.prepare(sql).run(...values);
     
     // Update session with new name
     req.session.clinic.name = name;
@@ -208,6 +247,7 @@ async function updateClinicProfile(req, res) {
 // Signup new clinic with 30-day free trial
 async function signupClinic(req, res){
   const { name, phone, email, address, password, owner_name } = req.body;
+  const logoFile = req.file;
   
   if (!name || !phone || !email || !password) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
@@ -259,14 +299,17 @@ async function signupClinic(req, res){
     trialEndDate.setDate(trialEndDate.getDate() + 30);
     const trialEndDateISO = trialEndDate.toISOString();
     
+    // Handle logo file
+    const logoPath = logoFile ? `/asset/logo/${logoFile.filename}` : null;
+    
     // Insert new clinic with trial subscription
     await db.prepare(`
       INSERT INTO clinics (
         clinic_id, name, phone, email, address, password, 
-        owner_name, subscription_type, trial_start_date, trial_end_date, 
+        owner_name, logo_path, subscription_type, trial_start_date, trial_end_date, 
         is_trial_expired, source, created_at, updated_at, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'trial', ?, ?, 0, 'free-trial-signup', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1)
-    `).run(clinic_id, name, phone, email, address || '', password, owner_name || name, trialStartDate, trialEndDateISO);
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'trial', ?, ?, 0, 'free-trial-signup', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1)
+    `).run(clinic_id, name, phone, email, address || '', password, owner_name || name, logoPath, trialStartDate, trialEndDateISO);
     
     // Auto-login the clinic
     req.session.clinic = { clinic_id, name };
@@ -609,6 +652,12 @@ async function generateBookingQR(req, res) {
     
     // Get base URL from environment or use default
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    
+    // Log warning if BASE_URL is not set in production
+    if (!process.env.BASE_URL) {
+      console.warn('⚠️  BASE_URL environment variable not set. QR codes will use localhost. Set BASE_URL in your environment variables for production deployment.');
+    }
+    
     const bookingUrl = `${baseUrl}/patient_booking.html?clinic_id=${clinic_id}`;
     
     // Generate QR code as data URL

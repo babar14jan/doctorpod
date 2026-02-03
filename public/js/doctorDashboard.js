@@ -152,6 +152,64 @@ document.addEventListener('DOMContentLoaded', function() {
   async function loadDoctorInfoAndClinics() {
     const doctorId = getLoggedInDoctorId();
     if (!doctorId) return;
+    
+    // Fetch doctor profile (includes clinic info with logo)
+    try {
+      const profileRes = await fetch('/doctors/profile');
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        if (profileData.success && profileData.doctor) {
+          const doc = profileData.doctor;
+          
+          console.log('Doctor profile data:', doc);
+          console.log('Clinic logo path:', doc.clinic_logo_path);
+          
+          // Update header with clinic branding
+          const navLogo = document.getElementById('navLogo');
+          const navTitle = document.getElementById('navTitle');
+          const navSubtitle = document.getElementById('navSubtitle');
+          
+          console.log('Nav elements:', {
+            navLogo: !!navLogo,
+            navTitle: !!navTitle,
+            navSubtitle: !!navSubtitle
+          });
+          
+          if (navTitle) {
+            if (doc.clinic_name) {
+              navTitle.textContent = doc.clinic_name;
+              console.log('✓ Clinic name updated:', doc.clinic_name);
+            }
+          }
+          
+          if (navSubtitle) {
+            if (doc.clinic_location) {
+              navSubtitle.textContent = doc.clinic_location;
+              console.log('✓ Clinic address updated:', doc.clinic_location);
+            }
+          }
+          
+          if (navLogo) {
+            console.log('Current nav logo src:', navLogo.src);
+            if (doc.clinic_logo_path && doc.clinic_logo_path.trim() !== '') {
+              navLogo.src = doc.clinic_logo_path;
+              navLogo.alt = doc.clinic_name || 'Clinic Logo';
+              navLogo.style.background = 'transparent';
+              navLogo.style.display = 'block';
+              console.log('✓ Clinic logo updated to:', doc.clinic_logo_path);
+              console.log('New nav logo src:', navLogo.src);
+            } else {
+              console.warn('⚠ No clinic logo path in profile data. Value:', doc.clinic_logo_path);
+            }
+          } else {
+            console.error('❌ navLogo element not found!');
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load doctor profile:', err);
+    }
+    
     const res = await fetch('/doctors/' + encodeURIComponent(doctorId));
     if (!res.ok) {
       window.location.href = '/doctor_login.html';
@@ -708,6 +766,11 @@ document.addEventListener('DOMContentLoaded', function() {
           ${h.diagnosis ? `<div class="history-card-diagnosis">🩺 ${h.diagnosis}</div>` : ''}
           ${medsHtml ? `<div class="history-card-medicines"><div class="history-card-medicines-title">💊 Medicines</div>${medsHtml}</div>` : ''}
           ${h.investigations ? `<div class="history-card-tests">🧪 ${h.investigations}</div>` : ''}
+          <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e2e8f0; display: flex; gap: 0.5rem;">
+            <button class="btn btn-sm btn-primary" onclick="openInvoiceModal('${h.visit_id}', '${h.patient_name || ''}', '${h.patient_mobile || ''}', ${h.consultation_fee || 0})" style="flex: 1;">
+              🧾 Invoice
+            </button>
+          </div>
         </div>
       `;
     }
@@ -807,9 +870,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const pmob = (patientMobile||'').slice(-6).padStart(6,'0');
       patientId = pname + pmob;
     }
-    // Check if QR should be included
-    const includeQrCheckbox = document.getElementById('includeQrCheckbox');
-    const include_qr = includeQrCheckbox && includeQrCheckbox.checked ? true : false;
     // map to backend field names
     const payload = {
       visit_id: currentVisitId,
@@ -828,8 +888,7 @@ document.addEventListener('DOMContentLoaded', function() {
       diagnosis: form.get('diagnosis') || '',
       advice: form.get('advise') || '',
       investigations: investigations,
-      medicines,
-      include_qr
+      medicines
     };
     console.log('[DoctorPod] Save payload:', JSON.stringify(payload, null, 2));
     // Let backend generate visit_id using doctor+patient+sequence format
@@ -921,9 +980,6 @@ document.addEventListener('DOMContentLoaded', function() {
         meal_timing: r.querySelectorAll('select')[1] ? r.querySelectorAll('select')[1].value : ''
       });
     });
-    // Ensure include_qr is sent for PDF generation
-    const includeQrCheckbox = document.getElementById('includeQrCheckbox');
-    const include_qr = includeQrCheckbox && includeQrCheckbox.checked ? true : false;
     const pdfData = {
       visit_id: currentVisitId,
       patient_name: presForm.patient_name ? presForm.patient_name.value : '',
@@ -936,8 +992,7 @@ document.addEventListener('DOMContentLoaded', function() {
       investigations: presForm.investigations ? presForm.investigations.value : '',
       medicines,
       temperature: presForm.temperature ? presForm.temperature.value : '',
-      blood_pressure: presForm.blood_pressure ? presForm.blood_pressure.value : '',
-      include_qr
+      blood_pressure: presForm.blood_pressure ? presForm.blood_pressure.value : ''
     };
     try {
       const res = await fetch('/pdf/generate-pdf', {
@@ -1003,13 +1058,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // If no PDF, generate it now
         if (!pdfPath) {
-          const includeQr = document.getElementById('includeQrCheckbox')?.checked || false;
           const pdfRes = await fetch('/pdf/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               visit_id: visitId,
-              include_qr: includeQr,
               temperature: presForm.temperature?.value || '',
               blood_pressure: presForm.blood_pressure?.value || ''
             })
@@ -1401,3 +1454,139 @@ document.addEventListener('DOMContentLoaded', function() {
 
   loadDoctorInfoAndClinics();
 });
+
+// ============= INVOICE GENERATION =============
+
+function openInvoiceModal(visitId, patientName, patientMobile, consultationFee) {
+  const modal = document.getElementById('invoiceModal');
+  const form = document.getElementById('invoiceForm');
+  
+  // Set values
+  document.getElementById('invoice_visit_id').value = visitId;
+  document.getElementById('invoice_patient_name').textContent = patientName || 'Unknown';
+  document.getElementById('invoice_patient_mobile').textContent = patientMobile || 'N/A';
+  document.getElementById('invoice_consultation_fee').value = consultationFee || 0;
+  
+  // Reset other fields
+  document.getElementById('invoice_medicine_charges').value = 0;
+  document.getElementById('invoice_lab_charges').value = 0;
+  document.getElementById('invoice_other_charges').value = 0;
+  document.getElementById('invoice_other_charges_desc').value = '';
+  document.getElementById('invoice_discount').value = 0;
+  document.getElementById('invoice_tax_percentage').value = 0;
+  document.getElementById('invoice_payment_status').value = 'unpaid';
+  document.getElementById('invoice_payment_method').value = '';
+  document.getElementById('invoice_notes').value = '';
+  document.getElementById('invoiceError').style.display = 'none';
+  
+  // Show/hide payment method based on status
+  const paymentStatusSelect = document.getElementById('invoice_payment_status');
+  const paymentMethodGroup = document.getElementById('payment_method_group');
+  
+  paymentStatusSelect.addEventListener('change', function() {
+    paymentMethodGroup.style.display = this.value === 'paid' ? 'block' : 'none';
+  });
+  
+  // Show modal
+  modal.style.display = 'flex';
+  modal.classList.add('show');
+}
+
+function closeInvoiceModal() {
+  const modal = document.getElementById('invoiceModal');
+  modal.style.display = 'none';
+  modal.classList.remove('show');
+}
+
+// Handle invoice form submission
+document.addEventListener('DOMContentLoaded', function() {
+  const invoiceForm = document.getElementById('invoiceForm');
+  if (!invoiceForm) return;
+  
+  invoiceForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const errorDiv = document.getElementById('invoiceError');
+    errorDiv.style.display = 'none';
+    
+    // Get form values
+    const visitId = document.getElementById('invoice_visit_id').value;
+    const consultationFee = parseFloat(document.getElementById('invoice_consultation_fee').value) || 0;
+    const medicineCharges = parseFloat(document.getElementById('invoice_medicine_charges').value) || 0;
+    const labCharges = parseFloat(document.getElementById('invoice_lab_charges').value) || 0;
+    const otherCharges = parseFloat(document.getElementById('invoice_other_charges').value) || 0;
+    const otherChargesDesc = document.getElementById('invoice_other_charges_desc').value.trim();
+    const discount = parseFloat(document.getElementById('invoice_discount').value) || 0;
+    const taxPercentage = parseFloat(document.getElementById('invoice_tax_percentage').value) || 0;
+    const paymentStatus = document.getElementById('invoice_payment_status').value;
+    const paymentMethod = document.getElementById('invoice_payment_method').value || null;
+    const notes = document.getElementById('invoice_notes').value.trim();
+    
+    // Validate
+    if (!visitId) {
+      errorDiv.textContent = 'Visit ID is missing';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    const total = consultationFee + medicineCharges + labCharges + otherCharges;
+    if (total <= 0) {
+      errorDiv.textContent = 'Total amount must be greater than zero';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    if (paymentStatus === 'paid' && !paymentMethod) {
+      errorDiv.textContent = 'Please select payment method for paid invoice';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    // Show loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Generating...';
+    
+    try {
+      const response = await fetch('/api/invoices/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visit_id: visitId,
+          consultation_fee: consultationFee,
+          medicine_charges: medicineCharges,
+          lab_charges: labCharges,
+          other_charges: otherCharges,
+          other_charges_desc: otherChargesDesc,
+          discount: discount,
+          tax_percentage: taxPercentage,
+          payment_status: paymentStatus,
+          payment_method: paymentMethod,
+          notes: notes
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Success - open PDF
+        window.open(data.invoice_path, '_blank');
+        closeInvoiceModal();
+        
+        // Show success message
+        alert(`✅ Invoice ${data.invoice_id} generated successfully!`);
+      } else {
+        errorDiv.textContent = data.message || 'Failed to generate invoice';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Invoice generation error:', error);
+      errorDiv.textContent = 'Network error. Please try again.';
+      errorDiv.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Generate Invoice';
+    }
+  });
+});
+

@@ -4,7 +4,7 @@ const db = require('./db');
  * Log a notification to the database
  * @param {Object} params - Notification parameters
  * @param {string} params.patientId - Patient ID
- * @param {string} params.type - Notification type: 'booking_confirmation', 'reminder', 'follow_up', 'prescription', 'cancellation'
+ * @param {string} params.type - Notification type: 'booking_confirmation', 'reminder', 'follow_up', 'prescription', 'cancellation', 'invoice'
  * @param {string} params.channel - Channel: 'whatsapp', 'sms', 'email', 'push'
  * @param {string} params.message - Message content
  * @param {string} [params.status='sent'] - Status: 'pending', 'sent', 'delivered', 'failed'

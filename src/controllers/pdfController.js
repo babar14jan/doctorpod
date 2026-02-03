@@ -14,15 +14,6 @@ function formatDoctorName(name) {
   return `Dr. ${trimmed}`;
 }
 
-// Load QR config from JSON (qr_code_path.json)
-const qrConfigPath = path.join(__dirname, '../utils/qr_code_path.json');
-let qrPaths = {};
-try {
-  qrPaths = JSON.parse(fs.readFileSync(qrConfigPath, 'utf8'));
-} catch (e) {
-  console.error('Failed to load QR config:', e);
-}
-
 // Color palette for modern prescription
 const colors = {
   primary: '#10b981',      // Green
@@ -48,8 +39,8 @@ async function generatePdf(req, res) {
 
     // Fetch doctor details from DB
     const doctor = await db.prepare('SELECT name, qualification, specialization, mobile, registration_no FROM doctors WHERE doctor_id = ?').get(hist.doctor_id);
-    // Fetch clinic name and address from DB
-    const clinic = await db.prepare('SELECT name, address, phone FROM clinics WHERE clinic_id = ?').get(hist.clinic_id);
+    // Fetch clinic name, address, and logo from DB
+    const clinic = await db.prepare('SELECT name, address, phone, logo_path FROM clinics WHERE clinic_id = ?').get(hist.clinic_id);
 
     // Fetch medicines from DB
     let meds = await db.prepare('SELECT medicine_name, frequency, timing FROM prescription_items WHERE visit_id = ?').all(visit_id);
@@ -68,23 +59,14 @@ async function generatePdf(req, res) {
     let investigations = hist.investigations || '';
     let advice = hist.advice || '';
 
-    // Strictly require base_path from pdf_paths.json
-    const pdfPathsFile = path.join(__dirname, '../utils/pdf_paths.json');
-    let pdfPathsConfig = {};
-    try {
-      if (fs.existsSync(pdfPathsFile)) {
-        pdfPathsConfig = JSON.parse(fs.readFileSync(pdfPathsFile, 'utf8'));
-      } else {
-        return res.status(500).json({ success: false, message: 'pdf_paths.json not found' });
-      }
-    } catch (e) {
-      return res.status(500).json({ success: false, message: 'Failed to read pdf_paths.json: ' + e.message });
-    }
-    if (!pdfPathsConfig.base_path) {
-      return res.status(500).json({ success: false, message: 'base_path missing in pdf_paths.json' });
-    }
-    const basePath = pdfPathsConfig.base_path;
+    // Get PDF directory from environment variable or use default
+    const basePath = process.env.PDF_DIR || 'public/pdfs/';
     const pdfDir = path.isAbsolute(basePath) ? basePath : path.join(__dirname, '../../', basePath);
+    
+    // Ensure PDF directory exists
+    if (!fs.existsSync(pdfDir)) {
+      fs.mkdirSync(pdfDir, { recursive: true });
+    }
     
     // Patient info
     const patientName = hist.patient_name || 'Patient';
@@ -116,36 +98,67 @@ async function generatePdf(req, res) {
     const clinicName = clinic?.name || 'Clinic';
     const clinicAddress = clinic?.address || '';
     const clinicPhone = clinic?.phone || '';
+    const clinicLogoPath = clinic?.logo_path || null;
 
     // ===== HEADER SECTION =====
-    // White header bar (respecting margins)
+    // Gradient header bar (respecting margins)
     const headerHeight = 80;
-    doc.rect(pageMargin, pageMargin, contentWidth, headerHeight).fill('#ffffff');
     
-    // Black line below header
-    doc.moveTo(pageMargin, pageMargin + headerHeight).lineTo(pageWidth - pageMargin, pageMargin + headerHeight).strokeColor('#000000').lineWidth(1).stroke();
+    // Create gradient background
+    doc.rect(pageMargin, pageMargin, contentWidth, headerHeight)
+       .fillAndStroke('#10b981', '#10b981');
+    
+    // Add a lighter accent at the top
+    doc.rect(pageMargin, pageMargin, contentWidth, 4)
+       .fill('#059669');
+    
+    // White line below header for separation
+    doc.moveTo(pageMargin, pageMargin + headerHeight).lineTo(pageWidth - pageMargin, pageMargin + headerHeight).strokeColor('#10b981').lineWidth(2).stroke();
 
-    // Clinic Name (left side - left aligned)
-    doc.font('Helvetica-Bold').fontSize(18).fillColor('#000000');
-    doc.text(clinicName, pageMargin, pageMargin + 15, { width: contentWidth * 0.55, align: 'left' });
+    // Check if logo exists and is valid
+    let hasLogo = false;
+    if (clinicLogoPath) {
+      try {
+        const logoFullPath = path.join(__dirname, '../../public', clinicLogoPath);
+        if (fs.existsSync(logoFullPath)) {
+          // Add clinic logo (top-left corner of header)
+          doc.image(logoFullPath, pageMargin, pageMargin + 5, { 
+            width: 60, 
+            height: 60,
+            fit: [60, 60],
+            align: 'left'
+          });
+          hasLogo = true;
+        }
+      } catch (logoErr) {
+        console.warn('Failed to load clinic logo:', logoErr.message);
+      }
+    }
+
+    // Clinic Name (left side - left aligned, adjusted for logo presence)
+    const clinicTextX = hasLogo ? pageMargin + 70 : pageMargin;
+    const clinicTextWidth = hasLogo ? contentWidth * 0.55 - 70 : contentWidth * 0.55;
+    
+    doc.font('Helvetica-Bold').fontSize(18).fillColor('#ffffff');
+    doc.text(clinicName, clinicTextX, pageMargin + 15, { width: clinicTextWidth, align: 'left' });
     
     let clinicInfoY = pageMargin + 38;
     if (clinicAddress) {
-      doc.font('Helvetica').fontSize(10).fillColor('#000000');
-      doc.text(clinicAddress, pageMargin, clinicInfoY, { width: contentWidth * 0.45, align: 'left' });
+      doc.font('Helvetica').fontSize(10).fillColor('#ffffff');
+      doc.text(clinicAddress, clinicTextX, clinicInfoY, { width: clinicTextWidth, align: 'left' });
       clinicInfoY = doc.y + 2;
     }
     if (clinicPhone) {
-      doc.font('Helvetica').fontSize(10).fillColor('#000000');
-      doc.text(`Tel: ${clinicPhone}`, pageMargin, clinicInfoY, { width: contentWidth * 0.45, align: 'left' });
+      doc.font('Helvetica').fontSize(10).fillColor('#ffffff');
+      doc.text(`Tel: ${clinicPhone}`, clinicTextX, clinicInfoY, { width: clinicTextWidth, align: 'left' });
     }
 
     // Doctor info (right side - right aligned)
     const rightX = pageWidth - pageMargin - 180;
-    doc.font('Helvetica-Bold').fontSize(13).fillColor('#000000');
+    doc.font('Helvetica-Bold').fontSize(13).fillColor('#ffffff');
     doc.text(`${doctorName}`, rightX, pageMargin + 15, { width: 170, align: 'right' });
     
-    doc.font('Helvetica').fontSize(10).fillColor('#000000');
+    doc.font('Helvetica').fontSize(10).fillColor('#ffffff');
     let docInfoY = pageMargin + 32;
     if (doctorDegree) {
       doc.text(doctorDegree, rightX, docInfoY, { width: 170, align: 'right' });
@@ -197,45 +210,6 @@ async function generatePdf(req, res) {
     doc.text(`Visit ID: ${visit_id}`, pageWidth - pageMargin - 140, patientCardY + 26, { width: 130, align: 'right' });
 
     doc.y = patientCardY + patientCardHeight + 12;
-
-    // ===== QR CODE (Right side, parallel to vitals/diagnosis/medicines) =====
-    const includeQr = !!req.body.include_qr;
-    let qrImgPath = null;
-    // Debug logging
-    console.log('QR Debug:', {
-      includeQr,
-      clinicId: hist.clinic_id,
-      consultationFee: hist.consultation_fee,
-      qrPathsKeys: Object.keys(qrPaths),
-      qrPathForClinic: qrPaths[hist.clinic_id]
-    });
-    if (includeQr) {
-      try {
-        qrImgPath = qrPaths[hist.clinic_id];
-      } catch (e) { console.error('QR path error:', e); }
-    }
-    // Save Y position before drawing QR
-    const contentStartY = doc.y;
-    // Draw QR on right side if enabled
-    const qrFullPath = qrImgPath ? path.join(__dirname, '../../', qrImgPath) : null;
-    console.log('QR file check:', { qrImgPath, qrFullPath, exists: qrFullPath ? fs.existsSync(qrFullPath) : false });
-    if (includeQr && qrImgPath && fs.existsSync(qrFullPath)) {
-      const qrSize = 70;
-      const qrCardWidth = qrSize + 20;
-      const qrCardHeight = qrSize + 22;
-      const qrX = pageWidth - pageMargin - qrCardWidth;
-      const qrY = contentStartY;
-      // QR background card
-      doc.roundedRect(qrX, qrY, qrCardWidth, qrCardHeight, 6).fill(colors.bgLight);
-      doc.roundedRect(qrX, qrY, qrCardWidth, qrCardHeight, 6).strokeColor(colors.border).lineWidth(1).stroke();
-      doc.image(path.join(__dirname, '../../', qrImgPath), qrX + 10, qrY + 6, { width: qrSize, height: qrSize });
-      // Single line: "Scan to Pay Rs. 200"
-      const payText = hist.consultation_fee ? `Scan to Pay Rs.${hist.consultation_fee}` : 'Scan to Pay';
-      doc.font('Helvetica-Bold').fontSize(8).fillColor('#000000');
-      doc.text(payText, qrX, qrY + qrSize + 10, { width: qrCardWidth, align: 'center' });
-    }
-    // Reset Y position to start content parallel to QR
-    doc.y = contentStartY;
 
     // ===== VITALS SECTION (Plain text) =====
     let temp = (typeof req.body.temperature === 'string' && req.body.temperature.trim()) ? req.body.temperature.trim() : '';
@@ -442,12 +416,8 @@ async function generatePdf(req, res) {
 
     stream.on('finish', async () => {
       try {
-        // Always use the path from pdf_paths.json for the PDF link
-        let pdfPaths = pdfPathsConfig;
-        const key = `${safeName}_${visit_id}`;
         // Build the public path (server-relative)
-        const publicPath = pdfPaths[key] = `/${basePath.replace(/^public\//, '')}${filename}`;
-        fs.writeFileSync(pdfPathsFile, JSON.stringify(pdfPaths, null, 2));
+        const publicPath = `/${basePath.replace(/^public\//, '')}${filename}`;
 
         // Store this path in visits table
         await db.prepare('UPDATE visits SET pres_path = ? WHERE visit_id = ?').run(publicPath, visit_id);

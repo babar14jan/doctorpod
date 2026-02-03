@@ -314,10 +314,7 @@ async function loadClinics() {
     const clinics = data.clinics || [];
     
     // Update stats
-    const totalClinicsEl = document.getElementById('totalClinics');
-    if (totalClinicsEl) {
-      totalClinicsEl.textContent = clinics.length;
-    }
+    document.getElementById('totalClinics').textContent = clinics.length;
     
     if (!clinics.length) {
       container.innerHTML = '<div class="empty"><div class="empty-icon">🏥</div><p>No clinics found. Add your first clinic above.</p></div>';
@@ -331,41 +328,101 @@ async function loadClinics() {
             <th>Clinic ID</th>
             <th>Name</th>
             <th>Phone</th>
-            <th>Address</th>
-            <th>Status</th>
+             // Add Doctor Form
+              let isAddingDoctor = false;
+              document.getElementById('addDoctorForm').addEventListener('submit', async (e) => {
+            <th>Subscription</th>
+                e.stopPropagation();
+    
+                // Prevent double submission
+                if (isAddingDoctor) {
+                  console.log('⚠️ Form already submitting, ignoring duplicate submission');
+                  return false;
+                }
+    
+                isAddingDoctor = true;
+                console.log('=== ADD DOCTOR FORM SUBMITTED (ADMIN) ===');
+    
+                // Disable submit button
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                  submitBtn.disabled = true;
+                  submitBtn.textContent = 'Adding...';
+                }
+    
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           ${clinics.map(c => {
-            let statusBadge = '<span class="badge badge-success">Active</span>';
+            let subscriptionBadge = '';
             if (c.subscription_type === 'trial') {
-              if (c.trial_end_date) {
-                const trialEnd = new Date(c.trial_end_date);
-                const now = new Date();
-                const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
-                
-                if (c.is_trial_expired || daysLeft < 0) {
-                  statusBadge = '<span class="badge badge-danger">Trial Expired</span>';
-                } else if (daysLeft <= 7) {
-                  statusBadge = `<span class="badge badge-warning">Trial (${daysLeft}d left)</span>`;
-                } else {
-                  statusBadge = `<span class="badge badge-primary">Trial (${daysLeft}d left)</span>`;
-                }
+              const trialEnd = new Date(c.trial_end_date);
+              const now = new Date();
+              const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+              
+              if (c.is_trial_expired || daysLeft < 0) {
+                subscriptionBadge = '<span class="badge badge-danger">Trial Expired</span>';
+              } else if (daysLeft <= 7) {
+                      msg: 'Doctor ID:',
               } else {
-                statusBadge = '<span class="badge badge-primary">Trial</span>';
+                subscriptionBadge = `<span class="badge badge-primary">Trial (${daysLeft}d left)</span>`;
               }
             } else if (c.subscription_type === 'paid') {
-              statusBadge = '<span class="badge badge-success">Paid</span>';
+              subscriptionBadge = '<span class="badge badge-success">Paid</span>';
+            } else {
+                    showSuccessModal({
+                      emoji: '⚠️',
+                      title: 'Failed to Add Doctor',
+                      msg: data.message || 'Unknown error occurred',
+                      highlight: '',
+                      note: 'Please check the details and try again.'
+                    });
             }
             
-            return `
+                  console.error('Error adding doctor:', error);
+                  showSuccessModal({
+                    emoji: '❌',
+                    title: 'Error',
+                    msg: 'Could not connect to server',
+                    highlight: '',
+                    note: error.message
+                  });
+                } finally {
+                  // Re-enable form
+                  isAddingDoctor = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Doctor';
+                  }
             <tr>
+    
+                return false;
               <td><strong>${c.clinic_id}</strong></td>
               <td>${c.name}</td>
-              <td>${c.phone}</td>
+             // Add Availability Form
+              let isAddingAvailability = false;
+              document.getElementById('addAvailabilityForm').addEventListener('submit', async (e) => {
               <td>${c.address || '-'}</td>
-              <td>${statusBadge}</td>
+                e.stopPropagation();
+    
+                // Prevent double submission
+                if (isAddingAvailability) {
+                  console.log('⚠️ Availability form already submitting, ignoring duplicate');
+                  return false;
+                }
+    
+                isAddingAvailability = true;
+                console.log('=== ADD AVAILABILITY FORM SUBMITTED (ADMIN) ===');
+    
+                // Disable submit button
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                  submitBtn.disabled = true;
+                  submitBtn.textContent = 'Adding...';
+                }
+    
+              <td>${subscriptionBadge}</td>
               <td>
                 <div class="table-actions">
                   <button class="btn btn-sm btn-primary" onclick='editClinic(${JSON.stringify(c).replace(/'/g, "&apos;")})'>✏️ Edit</button>
@@ -374,31 +431,53 @@ async function loadClinics() {
               </td>
             </tr>
             `;
-          }).join('')}
+                  const dayCheckbox = document.querySelector(`[name="day_${day}"]`);
+                  if (dayCheckbox && dayCheckbox.checked) {
         </tbody>
       </table>
     `;
   } catch (error) {
-    console.error('Error loading clinics:', error);
     container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Error loading clinics</p></div>';
   }
 }
-
-// Load Doctors
+                  showSuccessModal({
+                    emoji: '⚠️',
+                    title: 'Validation Error',
+                    msg: 'Please enter both Doctor ID and Clinic ID',
+                    highlight: '',
+                    note: 'All fields are required.'
+                  });
+                  isAddingAvailability = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Availability';
+                  }
+                  return false;
 async function loadDoctors() {
   const container = document.getElementById('doctorsList');
   container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading doctors...</div>';
-  
-  try {
+                  showSuccessModal({
+                    emoji: '⚠️',
+                    title: 'Validation Error',
+                    msg: 'Please select at least one day',
+                    highlight: '',
+                    note: 'Check the days and set timings for when the doctor is available.'
+                  });
+                  isAddingAvailability = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Availability';
+                  }
+                  return false;
     const res = await fetch('/doctors/all');
     const data = await res.json();
     const doctors = data.doctors || [];
+                let errorMessages = [];
+    
     
     // Update stats
-    const totalDoctorsEl = document.getElementById('totalDoctors');
-    if (totalDoctorsEl) {
-      totalDoctorsEl.textContent = doctors.length;
-    }
+                    console.log(`Sending availability for ${entry.day}...`);
+    document.getElementById('totalDoctors').textContent = doctors.length;
     
     if (!doctors.length) {
       container.innerHTML = '<div class="empty"><div class="empty-icon">🩺</div><p>No doctors found. Add your first doctor above.</p></div>';
@@ -411,17 +490,23 @@ async function loadDoctors() {
           <tr>
             <th>Doctor ID</th>
             <th>Name</th>
-            <th>Qualification</th>
+                    console.log(`Availability for ${entry.day}:`, result);
+        
+                    if (!result.success) {
+                      success = false;
+                      errorMessages.push(`${entry.day}: ${result.message || 'Failed'}`);
+                    }
             <th>Specialization</th>
             <th>Mobile</th>
             <th>Email</th>
+                    errorMessages.push(`${entry.day}: Network error`);
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           ${doctors.map(d => `
-            <tr>
-              <td><strong>${d.doctor_id || d.id}</strong></td>
+                  title: success ? 'Availability Added!' : 'Some Entries Failed',
+                  msg: success ? 'Schedule updated successfully.' : errorMessages.join(', '),
               <td>${d.name}</td>
               <td>${d.qualification || '-'}</td>
               <td>${d.specialization || '-'}</td>
@@ -430,6 +515,15 @@ async function loadDoctors() {
               <td>
                 <div class="table-actions">
                   <button class="btn btn-sm btn-primary" onclick='editDoctor(${JSON.stringify(d).replace(/'/g, "&apos;")})'>✏️ Edit</button>
+    
+                // Re-enable form
+                isAddingAvailability = false;
+                if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = 'Add Availability';
+                }
+    
+                return false;
                   <button class="btn btn-sm btn-danger" onclick="deleteDoctor('${d.doctor_id || d.id}')">🗑️ Delete</button>
                 </div>
               </td>
@@ -439,11 +533,9 @@ async function loadDoctors() {
       </table>
     `;
   } catch (error) {
-    console.error('Error loading doctors:', error);
     container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Error loading doctors</p></div>';
   }
 }
-
 
 // Load Clinic Dropdown
 async function loadClinicDropdown() {
@@ -595,13 +687,13 @@ let currentDemoFilter = 'all';
 // Load Demo Requests
 async function loadDemoRequests() {
   try {
-    const res = await fetch('/admin/demo-requests', {
+    const res = await fetch('/api/demo/requests', {
       credentials: 'include'
     });
     const data = await res.json();
     
     if (data.success) {
-      allDemoRequests = data.requests || [];
+      allDemoRequests = data.data || [];
       renderDemoRequests();
     } else {
       document.getElementById('demoRequestsBody').innerHTML = `
@@ -740,14 +832,13 @@ async function updateDemoStatus(demoId, newStatus) {
   try {
     const adminId = sessionStorage.getItem('admin_id') || 'admin';
     
-    const res = await fetch('/admin/update-demo-status', {
-      method: 'POST',
+    const res = await fetch(`/api/demo/requests/${demoId}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify({
-        demo_id: demoId,
         status: newStatus,
-        admin_id: adminId
+        adminId: adminId
       })
     });
     
@@ -825,7 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          request_id: demoId,
+          demo_id: demoId,
           clinic_id: clinicId,
           password: password,
           subscription_type: subscriptionType,
@@ -869,8 +960,8 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          request_id: demoId,
-          reason: reason
+          demo_id: demoId,
+          rejection_reason: reason
         })
       });
       

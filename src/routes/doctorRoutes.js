@@ -10,10 +10,11 @@ router.get('/qr/:doctor_id', async (req, res) => {
 	const db = require('../utils/db');
 	const doctor = await db.prepare('SELECT clinic_id FROM doctors WHERE doctor_id = ?').get(req.params.doctor_id);
 	if (!doctor || !doctor.clinic_id) return res.json({ success: false, message: 'No clinic found for doctor' });
-	const qrPathFile = path.join(__dirname, '../utils/qr_code_path.json');
-	let qrPaths = {};
-	try { qrPaths = JSON.parse(fs.readFileSync(qrPathFile, 'utf8')); } catch {}
-	const qrPath = qrPaths[doctor.clinic_id] ? qrPaths[doctor.clinic_id].replace(/^public\//, '/') : null;
+	
+	// Fetch QR code path from database
+	const clinic = await db.prepare('SELECT qr_code_path FROM clinics WHERE clinic_id = ?').get(doctor.clinic_id);
+	const qrPath = clinic?.qr_code_path || null;
+	
 	if (qrPath) return res.json({ success: true, qrPath });
 	return res.json({ success: false, message: 'No QR code found for clinic' });
 });

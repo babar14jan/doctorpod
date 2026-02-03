@@ -66,22 +66,61 @@ document.addEventListener('DOMContentLoaded', async function() {
   if (passwordForm) passwordForm.addEventListener('submit', handleChangePassword);
   if (editDoctorForm) editDoctorForm.addEventListener('submit', handleUpdateDoctor);
   
+  // Initialize billing section
+  setTimeout(() => {
+    initializeBillingSection();
+  }, 500);
+  
   // Make functions globally accessible for inline event handlers
   window.handleAddDoctor = handleAddDoctor;
   window.handleAddAvailability = handleAddAvailability;
   window.loadAvailability = loadAvailability;
   window.editAvailability = editAvailability;
   window.deleteAvailability = deleteAvailability;
+  window.loadInvoiceStats = loadInvoiceStats;
+  window.loadTodaysCheckouts = loadTodaysCheckouts;
+  window.loadAllInvoices = loadAllInvoices;
+  window.markAsPaid = markAsPaid;
+  window.openInvoiceModal = openInvoiceModal;
+  window.closeInvoiceModal = closeInvoiceModal;
 });
 
 // Load clinic session
 async function loadClinicSession() {
   try {
-    const res = await fetch('/clinic/session');
+    const res = await fetch('/clinic/profile');
     const data = await res.json();
     
     if (data.success && data.clinic) {
       clinicSession = data.clinic;
+      
+      // Update header branding
+      const headerLogo = document.getElementById('headerLogo');
+      const headerTitle = document.getElementById('headerTitle');
+      const headerSubtitle = document.getElementById('headerSubtitle');
+      
+      console.log('Clinic profile data:', data.clinic);
+      
+      if (headerTitle) {
+        headerTitle.textContent = data.clinic.name || 'Clinic';
+        console.log('Updated title to:', data.clinic.name);
+      }
+      
+      if (headerSubtitle && data.clinic.address) {
+        headerSubtitle.textContent = data.clinic.address;
+        console.log('Updated address to:', data.clinic.address);
+      } else if (headerSubtitle) {
+        headerSubtitle.textContent = '';
+      }
+      
+      if (headerLogo && data.clinic.logo_path) {
+        headerLogo.src = data.clinic.logo_path;
+        headerLogo.alt = data.clinic.name || 'Clinic Logo';
+        headerLogo.style.display = 'block';
+        console.log('Updated logo to:', data.clinic.logo_path);
+      } else if (headerLogo) {
+        headerLogo.style.display = 'none';
+      }
       
       // Update elements only if they exist
       const nameEl = document.getElementById('clinicName');
@@ -781,6 +820,396 @@ async function deleteAvailability(id) {
       highlight: '',
       note: error.message
     });
+  }
+}
+
+// ============= BILLING & INVOICE MANAGEMENT =============
+
+let currentClinicId = null;
+
+// Load invoice statistics
+async function loadInvoiceStats() {
+  if (!clinicSession || !clinicSession.clinic_id) return;
+  
+  currentClinicId = clinicSession.clinic_id;
+  
+  try {
+    const res = await fetch(`/api/invoices/clinic/${currentClinicId}/stats`);
+    const data = await res.json();
+    
+    if (data.success && data.stats) {
+      const stats = data.stats;
+      
+      // Update stat cards
+      document.getElementById('statTodayRevenue').textContent = `₹${stats.today_revenue.toFixed(2)}`;
+      document.getElementById('statPendingPayments').textContent = `₹${stats.pending_payments.toFixed(2)}`;
+      document.getElementById('statMonthRevenue').textContent = `₹${stats.month_revenue.toFixed(2)}`;
+      document.getElementById('statTodayCheckouts').textContent = stats.today_checkouts;
+      
+      // Calculate invoice counts
+      const todayInvoices = await getTodayInvoiceCount();
+      const unpaidCount = await getUnpaidInvoiceCount();
+      
+      document.getElementById('statTodayInvoices').textContent = `${todayInvoices} invoice${todayInvoices !== 1 ? 's' : ''}`;
+      document.getElementById('statPendingCount').textContent = `${unpaidCount} unpaid`;
+    }
+  } catch (error) {
+    console.error('Load stats error:', error);
+  }
+}
+
+async function getTodayInvoiceCount() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const res = await fetch(`/api/invoices/clinic/${currentClinicId}/all?start_date=${today}&end_date=${today}`);
+    const data = await res.json();
+    return data.success ? data.invoices.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function getUnpaidInvoiceCount() {
+  try {
+    const res = await fetch(`/api/invoices/clinic/${currentClinicId}/all?status=unpaid`);
+    const data = await res.json();
+    return data.success ? data.invoices.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Load today's checkouts (visits without invoices)
+async function loadTodaysCheckouts() {
+  if (!currentClinicId) return;
+  
+  const container = document.getElementById('todaysCheckoutsList');
+  
+  try {
+    container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+    
+    const res = await fetch(`/api/invoices/clinic/${currentClinicId}/checkouts`);
+    const data = await res.json();
+    
+    if (data.success && data.checkouts) {
+      if (data.checkouts.length === 0) {
+        container.innerHTML = '<div class="empty-state">🎉 All checkouts completed for today!</div>';
+        return;
+      }
+      
+      let html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+      
+      data.checkouts.forEach(visit => {
+        const visitTime = new Date(visit.visit_date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        
+        html += `
+          <div style="background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 600; color: #1e293b; font-size: 1rem;">${visit.patient_name || 'Unknown Patient'}</div>
+              <div style="color: #64748b; font-size: 0.875rem; margin-top: 0.25rem;">
+                📱 ${visit.patient_mobile || 'N/A'} • 👨‍⚕️ Dr. ${visit.doctor_name || 'Unknown'} • 🕐 ${visitTime}
+              </div>
+              <div style="color: #10b981; font-weight: 600; font-size: 0.875rem; margin-top: 0.5rem;">₹${visit.consultation_fee || 0} consultation</div>
+            </div>
+            <button class="btn btn-success" onclick="openInvoiceModal('${visit.visit_id}', '${visit.patient_name || ''}', '${visit.patient_mobile || ''}', '${visit.doctor_name || ''}', ${visit.consultation_fee || 0})" style="white-space: nowrap;">
+              🧾 Checkout
+            </button>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<div class="empty-state">No checkouts pending</div>';
+    }
+  } catch (error) {
+    console.error('Load checkouts error:', error);
+    container.innerHTML = '<div class="empty-state" style="color: #ef4444;">Error loading checkouts</div>';
+  }
+}
+
+// Load all invoices with filters
+async function loadAllInvoices() {
+  if (!currentClinicId) return;
+  
+  const container = document.getElementById('allInvoicesList');
+  const status = document.getElementById('invoiceStatusFilter').value;
+  const startDate = document.getElementById('invoiceStartDate').value;
+  const endDate = document.getElementById('invoiceEndDate').value;
+  const patientSearch = document.getElementById('invoicePatientSearch').value;
+  
+  try {
+    container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading invoices...</div>';
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (status !== 'all') params.append('status', status);
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (patientSearch) params.append('patient_search', patientSearch);
+    
+    const res = await fetch(`/api/invoices/clinic/${currentClinicId}/all?${params.toString()}`);
+    const data = await res.json();
+    
+    if (data.success && data.invoices) {
+      if (data.invoices.length === 0) {
+        container.innerHTML = '<div class="empty-state">No invoices found</div>';
+        return;
+      }
+      
+      let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse;">';
+      html += `
+        <thead>
+          <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Invoice ID</th>
+            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Patient</th>
+            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Doctor</th>
+            <th style="padding: 0.75rem; text-align: right; font-size: 0.875rem; color: #64748b; font-weight: 600;">Amount</th>
+            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Status</th>
+            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Date</th>
+            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+      
+      data.invoices.forEach((inv, index) => {
+        const statusBadge = inv.payment_status === 'paid' 
+          ? '<span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">✓ PAID</span>'
+          : '<span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">⏳ UNPAID</span>';
+        
+        const invoiceDate = new Date(inv.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        const bgColor = index % 2 === 0 ? 'white' : '#f8fafc';
+        
+        html += `
+          <tr style="background: ${bgColor}; border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 0.75rem; font-size: 0.875rem; font-family: monospace; color: #3b82f6;">${inv.invoice_id}</td>
+            <td style="padding: 0.75rem;">
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">${inv.patient_name || 'Unknown'}</div>
+              <div style="color: #64748b; font-size: 0.75rem;">${inv.patient_mobile || 'N/A'}</div>
+            </td>
+            <td style="padding: 0.75rem; font-size: 0.875rem; color: #64748b;">Dr. ${inv.doctor_name || 'Unknown'}</td>
+            <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #10b981; font-size: 0.875rem;">₹${parseFloat(inv.total_amount).toFixed(2)}</td>
+            <td style="padding: 0.75rem; text-align: center;">${statusBadge}</td>
+            <td style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b;">${invoiceDate}</td>
+            <td style="padding: 0.75rem; text-align: center;">
+              <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                <button class="btn btn-sm btn-outline" onclick="window.open('${inv.invoice_path}', '_blank')" title="View PDF">📄</button>
+                ${inv.payment_status === 'unpaid' ? `
+                  <button class="btn btn-sm btn-success" onclick="markAsPaid('${inv.invoice_id}')" title="Mark as Paid">✓</button>
+                ` : `
+                  <button class="btn btn-sm" style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" disabled title="Already Paid">✓</button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+      
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<div class="empty-state">No invoices found</div>';
+    }
+  } catch (error) {
+    console.error('Load invoices error:', error);
+    container.innerHTML = '<div class="empty-state" style="color: #ef4444;">Error loading invoices</div>';
+  }
+}
+
+// Mark invoice as paid
+async function markAsPaid(invoiceId) {
+  if (!confirm('Mark this invoice as paid?')) return;
+  
+  const paymentMethod = prompt('Payment method (cash/upi/card/online):', 'cash');
+  if (!paymentMethod) return;
+  
+  try {
+    const res = await fetch(`/api/invoices/${invoiceId}/payment`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        payment_status: 'paid',
+        payment_method: paymentMethod.toLowerCase()
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      showSuccessModal({
+        emoji: '✅',
+        title: 'Payment Recorded!',
+        msg: `Invoice marked as paid`,
+        highlight: `Payment: ${paymentMethod.toUpperCase()}`,
+        note: 'Invoice list will be refreshed'
+      });
+      
+      // Refresh data
+      loadInvoiceStats();
+      loadAllInvoices();
+      loadTodaysCheckouts();
+    } else {
+      alert('Failed to update payment: ' + (data.message || 'Unknown error'));
+    }
+  } catch (error) {
+    console.error('Mark paid error:', error);
+    alert('Error updating payment status');
+  }
+}
+
+// Open invoice modal for checkout
+function openInvoiceModal(visitId, patientName, patientMobile, doctorName, consultationFee) {
+  const modal = document.getElementById('invoiceModal');
+  
+  // Set values
+  document.getElementById('invoice_visit_id').value = visitId;
+  document.getElementById('invoice_patient_name').textContent = patientName || 'Unknown';
+  document.getElementById('invoice_patient_mobile').textContent = patientMobile || 'N/A';
+  document.getElementById('invoice_doctor_name').textContent = doctorName || 'Unknown';
+  document.getElementById('invoice_consultation_fee').value = consultationFee || 0;
+  
+  // Reset other fields
+  document.getElementById('invoice_medicine_charges').value = 0;
+  document.getElementById('invoice_lab_charges').value = 0;
+  document.getElementById('invoice_other_charges').value = 0;
+  document.getElementById('invoice_other_charges_desc').value = '';
+  document.getElementById('invoice_discount').value = 0;
+  document.getElementById('invoice_tax_percentage').value = 0;
+  document.getElementById('invoice_payment_status').value = 'unpaid';
+  document.getElementById('invoice_payment_method').value = '';
+  document.getElementById('invoice_notes').value = '';
+  document.getElementById('invoiceError').style.display = 'none';
+  
+  // Show/hide payment method based on status
+  const paymentStatusSelect = document.getElementById('invoice_payment_status');
+  const paymentMethodGroup = document.getElementById('payment_method_group');
+  
+  paymentStatusSelect.onchange = function() {
+    paymentMethodGroup.style.display = this.value === 'paid' ? 'block' : 'none';
+  };
+  
+  // Show modal
+  modal.classList.add('active');
+}
+
+function closeInvoiceModal() {
+  document.getElementById('invoiceModal').classList.remove('active');
+}
+
+// Handle invoice form submission
+document.addEventListener('DOMContentLoaded', function() {
+  const invoiceForm = document.getElementById('invoiceForm');
+  if (!invoiceForm) return;
+  
+  invoiceForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const errorDiv = document.getElementById('invoiceError');
+    errorDiv.style.display = 'none';
+    
+    // Get form values
+    const visitId = document.getElementById('invoice_visit_id').value;
+    const consultationFee = parseFloat(document.getElementById('invoice_consultation_fee').value) || 0;
+    const medicineCharges = parseFloat(document.getElementById('invoice_medicine_charges').value) || 0;
+    const labCharges = parseFloat(document.getElementById('invoice_lab_charges').value) || 0;
+    const otherCharges = parseFloat(document.getElementById('invoice_other_charges').value) || 0;
+    const otherChargesDesc = document.getElementById('invoice_other_charges_desc').value.trim();
+    const discount = parseFloat(document.getElementById('invoice_discount').value) || 0;
+    const taxPercentage = parseFloat(document.getElementById('invoice_tax_percentage').value) || 0;
+    const paymentStatus = document.getElementById('invoice_payment_status').value;
+    const paymentMethod = document.getElementById('invoice_payment_method').value || null;
+    const notes = document.getElementById('invoice_notes').value.trim();
+    
+    // Validate
+    if (!visitId) {
+      errorDiv.textContent = 'Visit ID is missing';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    const total = consultationFee + medicineCharges + labCharges + otherCharges;
+    if (total <= 0) {
+      errorDiv.textContent = 'Total amount must be greater than zero';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    if (paymentStatus === 'paid' && !paymentMethod) {
+      errorDiv.textContent = 'Please select payment method for paid invoice';
+      errorDiv.style.display = 'block';
+      return;
+    }
+    
+    // Show loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Generating...';
+    
+    try {
+      const response = await fetch('/api/invoices/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visit_id: visitId,
+          consultation_fee: consultationFee,
+          medicine_charges: medicineCharges,
+          lab_charges: labCharges,
+          other_charges: otherCharges,
+          other_charges_desc: otherChargesDesc,
+          discount: discount,
+          tax_percentage: taxPercentage,
+          payment_status: paymentStatus,
+          payment_method: paymentMethod,
+          notes: notes
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Success - open PDF
+        window.open(data.invoice_path, '_blank');
+        closeInvoiceModal();
+        
+        // Show success message
+        showSuccessModal({
+          emoji: '✅',
+          title: 'Invoice Generated!',
+          msg: `Invoice ${data.invoice_id} generated successfully`,
+          highlight: `Total: ₹${data.total_amount.toFixed(2)}`,
+          note: 'Refreshing data...'
+        });
+        
+        // Refresh all invoice data
+        setTimeout(() => {
+          loadInvoiceStats();
+          loadTodaysCheckouts();
+          loadAllInvoices();
+        }, 1000);
+      } else {
+        errorDiv.textContent = data.message || 'Failed to generate invoice';
+        errorDiv.style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Invoice generation error:', error);
+      errorDiv.textContent = 'Network error. Please try again.';
+      errorDiv.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Generate Invoice';
+    }
+  });
+});
+
+// Initialize billing section
+function initializeBillingSection() {
+  if (clinicSession && clinicSession.clinic_id) {
+    currentClinicId = clinicSession.clinic_id;
+    loadInvoiceStats();
+    loadTodaysCheckouts();
+    loadAllInvoices();
   }
 }
 

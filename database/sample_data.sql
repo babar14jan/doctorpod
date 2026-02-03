@@ -212,6 +212,48 @@ INSERT INTO diagnoses (name, icd_code, category, is_active) VALUES
 ('Migraine', 'G43.9', 'Neurological', 1);
 
 -- ===========================
+-- Invoices (Sample data for visits)
+-- ===========================
+INSERT INTO invoices (
+    invoice_id,
+    visit_id,
+    clinic_id,
+    patient_name,
+    patient_mobile,
+    doctor_name,
+    consultation_fee,
+    medicine_charges,
+    lab_charges,
+    other_charges,
+    other_charges_desc,
+    subtotal,
+    discount,
+    tax_percentage,
+    tax_amount,
+    total_amount,
+    payment_status,
+    payment_method,
+    payment_date,
+    invoice_path,
+    notes,
+    created_by
+) VALUES
+-- Invoice for Visit 1: Raju - Viral Fever (Paid)
+('INV20260126001','VIS0202601260001','CLN_A7F3B2E9C1D5','Raju Mondal','9877788990','Jasim Alam',500,150,200,0,NULL,850,50,5,40,840,'paid','cash','2026-01-26 11:30:00','/pdfs/INV20260126001.pdf','Paid in cash','DR_792874827F61'),
+
+-- Invoice for Visit 2: Sumi - Cold & Cough (Paid via UPI)
+('INV20260126002','VIS0202601260002','CLN_B8E4C3F0D2E6','Sumi Das','9888899001','Anil Das',300,80,0,0,NULL,380,0,0,0,380,'paid','upi','2026-01-26 12:00:00','/pdfs/INV20260126002.pdf','Paid via UPI','DR_8A3985938G72'),
+
+-- Invoice for Visit 3: Anik - Lower Back Pain (Unpaid)
+('INV20260126003','VIS0202601260003','CLN_C9F5D4G1E3F7','Anik Paul','9866677882','Soma Roy',400,120,0,50,'X-ray consultation',570,0,5,27.14,597.14,'unpaid',NULL,NULL,'/pdfs/INV20260126003.pdf','Follow-up payment pending','DR_9B40A69A9H83'),
+
+-- Invoice for Visit 4: Tina - Routine Checkup (Paid via Card)
+('INV20260126004','VIS0202601260004','CLN_D0G6E5H2F4G8','Tina Roy','9855566773','Amit Paul',250,0,0,0,NULL,250,0,0,0,250,'paid','card','2026-01-26 14:15:00','/pdfs/INV20260126004.pdf','Card payment successful','DR_0C51B7AB0I94'),
+
+-- Invoice for Visit 5: Rohan - Ear Infection (Unpaid)
+('INV20260126005','VIS0202601260005','CLN_E1H7F6I3G5H9','Rohan Singh','9844455664','Nina Bose',350,100,0,0,NULL,450,0,0,0,450,'unpaid',NULL,NULL,'/pdfs/INV20260126005.pdf','Payment pending','DR_1D62C8BC1J05');
+
+-- ===========================
 -- System Settings
 -- ===========================
 INSERT INTO system_settings (setting_key, setting_value, setting_type, description) VALUES

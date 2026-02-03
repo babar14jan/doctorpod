@@ -67,6 +67,7 @@ const analyticsRoutes = require('./src/routes/analyticsRoutes');
 const followUpRoutes = require('./src/routes/followUpRoutes');
 const payRoutes = require('./src/routes/payRoutes');
 const demoRoutes = require('./src/routes/demoRoutes');
+const invoiceRoutes = require('./src/routes/invoiceRoutes');
 
 app.use('/bookings', bookingRoutes);
 app.use('/medicines', medicineRoutes);
@@ -79,6 +80,7 @@ app.use('/availability', availabilityRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/follow-ups', followUpRoutes);
 app.use('/api/demo', demoRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 /**
  * ✅ WhatsApp-friendly UPI payment links
