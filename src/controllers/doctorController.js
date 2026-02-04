@@ -99,7 +99,7 @@ async function loginDoctor(req, res){
 // Get all clinics (for booking form dropdown)
 async function getAllClinics(req, res) {
   try {
-    const clinics = await db.prepare('SELECT clinic_id, name, address FROM clinics ORDER BY name').all();
+    const clinics = await db.prepare('SELECT clinic_id, name, address, enable_voice_prescription, enable_video_consultation FROM clinics ORDER BY name').all();
     res.json({ success: true, clinics });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
@@ -380,7 +380,7 @@ async function getDoctorProfile(req, res){
     if (!doctor) return res.status(404).json({ success: false, message: 'Doctor not found' });
     
     // Get clinic info including logo
-    const clinic = await db.prepare('SELECT clinic_id, name, address, logo_path FROM clinics WHERE clinic_id = ?').get(doctor.clinic_id);
+    const clinic = await db.prepare('SELECT clinic_id, name, address, logo_path, enable_voice_prescription, enable_video_consultation FROM clinics WHERE clinic_id = ?').get(doctor.clinic_id);
     
     console.log('📋 getDoctorProfile - Clinic data:', clinic);
     console.log('📋 Logo path from DB:', clinic ? clinic.logo_path : 'NO CLINIC');
@@ -397,7 +397,9 @@ async function getDoctorProfile(req, res){
       clinic_id: clinic ? clinic.clinic_id : null,
       clinic_name: clinic ? clinic.name : null,
       clinic_location: clinic ? clinic.address : null,
-      clinic_logo_path: clinic ? clinic.logo_path : null
+      clinic_logo_path: clinic ? clinic.logo_path : null,
+      enable_voice_prescription: clinic ? clinic.enable_voice_prescription : 0,
+      enable_video_consultation: clinic ? clinic.enable_video_consultation : 0
     };
     
     console.log('📤 Sending profile response with clinic_logo_path:', profile.clinic_logo_path);

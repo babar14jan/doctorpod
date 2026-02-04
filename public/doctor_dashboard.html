@@ -1354,6 +1354,70 @@
     /* Patient History */
     #patientHistory { display: none; }
 
+    /* Voice Input Button */
+    .voice-input-btn {
+      padding: 8px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      height: 36px;
+      width: 36px;
+    }
+
+    .voice-input-btn:hover {
+      background: #1d4ed8;
+      transform: scale(1.05);
+    }
+
+    .voice-input-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Video Call Badge and Button */
+    .video-badge {
+      display: inline-block;
+      font-size: 1.25rem;
+      margin-left: 0.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .btn-video-call {
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-video-call:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-video-call:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     /* Hidden utility */
     .hidden { display: none !important; }
 

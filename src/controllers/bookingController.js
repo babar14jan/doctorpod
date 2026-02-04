@@ -114,7 +114,8 @@ async function bookAppointment(req, res){
       doctor_id,
       clinic_id,
       appointment_date,
-      booking_source
+      booking_source,
+      is_video_consultation
     } = req.body;
 
     console.log('[BOOKING DEBUG] Request body received:', req.body);
@@ -236,8 +237,8 @@ async function bookAppointment(req, res){
   const tentative_time = `${tentativeHour.toString().padStart(2, '0')}:${tentativeMin.toString().padStart(2, '0')}`;
 
   await db.prepare(`INSERT INTO bookings (
-    appointment_id, doctor_id, clinic_id, patient_id, patient_name, patient_mobile, patient_age, patient_gender, blood_group, appointment_date, queue_number, appointment_time, consult_status, booking_source
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    appointment_id, doctor_id, clinic_id, patient_id, patient_name, patient_mobile, patient_age, patient_gender, blood_group, appointment_date, queue_number, appointment_time, consult_status, booking_source, is_video_consultation
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     booking_id,
     doctor_id,
@@ -252,17 +253,20 @@ async function bookAppointment(req, res){
     queue_number,
     availableSlot,
     'not_seen',
-    source
+    source,
+    is_video_consultation === '1' ? 1 : 0
   );
 
   res.json({
     success: true,
     booking_id,
+    booking_reference: booking_id, // Same as booking_id for compatibility
     queue_number,
     doctor_name,
     clinic_name,
     appointment_time: availableSlot,
-    tentative_time
+    tentative_time,
+    mobile
   });
   } catch (error) {
     console.error('[BOOKING ERROR]', error);
@@ -331,7 +335,12 @@ async function verifyBooking(req, res){
     }
   }
   
-  res.json({ success: true, bookings: rows });
+  // Return both formats for compatibility
+  res.json({ 
+    success: true, 
+    bookings: rows,
+    booking: rows.length > 0 ? rows[0] : null // Return first booking for video join compatibility
+  });
 }
 
 async function getDoctorBookings(req, res){

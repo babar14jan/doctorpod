@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Video Consultation - DoctorPod</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+      width: 100%;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      color: #1e293b;
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #64748b;
+      margin-bottom: 2rem;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      color: #475569;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.875rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      display: none;
+    }
+
+    .video-room {
+      display: none;
+    }
+
+    .video-room.active {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #0f172a;
+      z-index: 1000;
+    }
+
+    /* Copy styles from doctor video page */
+    .video-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      padding: 1rem;
+      height: calc(100vh - 80px);
+    }
+
+    .video-box {
+      position: relative;
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-label {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: white;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #1e293b;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      border-top: 1px solid #334155;
+    }
+
+    .control-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      transition: all 0.2s;
+      background: #475569;
+      color: white;
+    }
+
+    .control-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .control-btn.active {
+      background: #ef4444;
+    }
+
+    .btn-end {
+      background: #ef4444 !important;
+      width: 64px;
+      height: 64px;
+    }
+
+    @media (max-width: 768px) {
+      .video-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Join Form -->
+  <div class="container" id="joinForm">
+    <div class="logo">📹</div>
+    <h1>Join Video Consultation</h1>
+    <p class="subtitle">Enter your booking reference to join</p>
+
+    <form id="bookingForm">
+      <div class="input-group">
+        <label for="bookingRef">Booking Reference</label>
+        <input 
+          type="text" 
+          id="bookingRef" 
+          placeholder="e.g., JOHN1234567890"
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="input-group">
+        <label for="mobile">Mobile Number</label>
+        <input 
+          type="tel" 
+          id="mobile" 
+          placeholder="9876543210"
+          maxlength="10"
+          pattern="[0-9]{10}"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn" id="joinBtn">
+        Join Video Call
+      </button>
+
+      <div class="error" id="error"></div>
+    </form>
+  </div>
+
+  <!-- Video Room (initially hidden) -->
+  <div class="video-room" id="videoRoom">
+    <div class="video-container">
+      <div class="video-box">
+        <div class="video-label">You</div>
+        <video id="localVideo" autoplay muted playsinline></video>
+      </div>
+
+      <div class="video-box">
+        <div class="video-label">Doctor</div>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="control-btn" id="muteBtn" title="Mute/Unmute">🎤</button>
+      <button class="control-btn" id="cameraBtn" title="Camera On/Off">📹</button>
+      <button class="control-btn btn-end" id="endBtn" title="Leave Call">📞</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const joinForm = document.getElementById('joinForm');
+    const bookingForm = document.getElementById('bookingForm');
+    const bookingRefInput = document.getElementById('bookingRef');
+    const mobileInput = document.getElementById('mobile');
+    const joinBtn = document.getElementById('joinBtn');
+    const error = document.getElementById('error');
+    const videoRoom = document.getElementById('videoRoom');
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const muteBtn = document.getElementById('muteBtn');
+    const cameraBtn = document.getElementById('cameraBtn');
+    const endBtn = document.getElementById('endBtn');
+
+    let localStream = null;
+    let peerConnection = null;
+    let socket = null;
+    let appointmentId = null;
+    let isMuted = false;
+    let isCameraOff = false;
+
+    // Auto-populate form from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookingRefParam = urlParams.get('booking_ref');
+    const mobileParam = urlParams.get('mobile');
+    const appointmentIdParam = urlParams.get('appointment_id');
+
+    if (bookingRefParam) {
+      bookingRefInput.value = bookingRefParam;
+    }
+    if (mobileParam) {
+      mobileInput.value = mobileParam;
+    }
+
+    // Auto-submit if all params are present
+    if (bookingRefParam && mobileParam && appointmentIdParam) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        joinBtn.textContent = 'Auto-joining...';
+        bookingForm.dispatchEvent(new Event('submit'));
+      }, 500);
+    }
+
+    // ICE servers
+    const iceServers = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    };
+
+    // Handle form submission
+    bookingForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const bookingRef = bookingRefInput.value.trim();
+      const mobile = mobileInput.value.trim();
+
+      if (!bookingRef || !mobile) {
+        showError('Please fill all fields');
+        return;
+      }
+
+      joinBtn.disabled = true;
+      joinBtn.textContent = 'Verifying...';
+      error.style.display = 'none';
+
+      try {
+        // Verify booking
+        const response = await fetch(`/bookings/verify?appointment_id=${encodeURIComponent(bookingRef)}&mobile=${encodeURIComponent(mobile)}`);
+        const data = await response.json();
+
+        if (data.success && data.booking) {
+          if (data.booking.is_video_consultation !== 1) {
+            showError('This booking is not for video consultation');
+            return;
+          }
+
+          appointmentId = data.booking.appointment_id;
+          await joinVideoCall();
+        } else {
+          showError('Invalid booking reference or mobile number');
+        }
+      } catch (err) {
+        console.error('Verification error:', err);
+        showError('Failed to verify booking. Please try again.');
+      } finally {
+        joinBtn.disabled = false;
+        joinBtn.textContent = 'Join Video Call';
+      }
+    });
+
+    async function joinVideoCall() {
+      try {
+        // Get media
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true
+        });
+
+        localVideo.srcObject = localStream;
+
+        // Show video room
+        joinForm.style.display = 'none';
+        videoRoom.classList.add('active');
+
+        // Connect to signaling server
+        socket = io();
+
+        socket.on('connect', () => {
+          console.log('Connected to server');
+          socket.emit('join-video-room', {
+            room: appointmentId,
+            role: 'patient'
+          });
+        });
+
+        socket.on('offer', async (offer) => {
+          console.log('Received offer from doctor');
+          await createPeerConnection();
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+          const answer = await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+          socket.emit('answer', { room: appointmentId, answer });
+        });
+
+        socket.on('ice-candidate', async (candidate) => {
+          if (peerConnection) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+          }
+        });
+
+        socket.on('doctor-left', () => {
+          alert('Doctor has left the call');
+          endCall();
+        });
+
+      } catch (error) {
+        console.error('Failed to join:', error);
+        
+        // Check if it's a permissions/security issue
+        let errorMsg = '❌ Could not access camera/microphone.\n\n';
+        
+        if (error.name === 'NotAllowedError') {
+          errorMsg += 'Please allow camera and microphone permissions in your browser settings.';
+        } else if (error.name === 'NotFoundError') {
+          errorMsg += 'No camera or microphone found on your device.';
+        } else if (error.name === 'NotSupportedError' || window.location.protocol === 'http:') {
+          errorMsg += '⚠️ HTTPS Required for Mobile!\n\n';
+          errorMsg += 'Video calls require HTTPS on mobile devices.\n\n';
+          errorMsg += 'Options:\n';
+          errorMsg += '1. Deploy to Render (has HTTPS)\n';
+          errorMsg += '2. Use desktop/laptop for testing\n';
+          errorMsg += '3. Set up local HTTPS with ngrok';
+        } else {
+          errorMsg += 'Error: ' + (error.message || 'Unknown error');
+        }
+        
+        alert(errorMsg);
+        joinForm.style.display = 'block';
+        videoRoom.classList.remove('active');
+      }
+    }
+
+    async function createPeerConnection() {
+      peerConnection = new RTCPeerConnection(iceServers);
+
+      localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+      });
+
+      peerConnection.ontrack = (event) => {
+        console.log('Received remote track');
+        remoteVideo.srcObject = event.streams[0];
+      };
+
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit('ice-candidate', {
+            room: appointmentId,
+            candidate: event.candidate
+          });
+        }
+      };
+    }
+
+    // Controls
+    muteBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      localStream.getAudioTracks().forEach(track => {
+        track.enabled = !isMuted;
+      });
+      muteBtn.classList.toggle('active', isMuted);
+      muteBtn.textContent = isMuted ? '🔇' : '🎤';
+    });
+
+    cameraBtn.addEventListener('click', () => {
+      isCameraOff = !isCameraOff;
+      localStream.getVideoTracks().forEach(track => {
+        track.enabled = !isCameraOff;
+      });
+      cameraBtn.classList.toggle('active', isCameraOff);
+      cameraBtn.textContent = isCameraOff ? '📵' : '📹';
+    });
+
+    endBtn.addEventListener('click', () => {
+      endCall();
+    });
+
+    function endCall() {
+      if (socket) {
+        socket.emit('leave-room', { room: appointmentId });
+        socket.disconnect();
+      }
+      
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+      
+      if (peerConnection) {
+        peerConnection.close();
+      }
+      
+      window.location.href = '/check_booking.html';
+    }
+
+    function showError(message) {
+      error.textContent = message;
+      error.style.display = 'block';
+    }
+
+    // Cleanup
+    window.addEventListener('beforeunload', () => {
+      if (socket) endCall();
+    });
+  </script>
+</body>
+</html>

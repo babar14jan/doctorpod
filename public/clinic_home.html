@@ -2211,7 +2211,7 @@
                 <div class="checkout-info" style="flex: 1;">
                   <div class="checkout-patient" style="font-weight: 600; color: #1e293b; font-size: 1rem;">${visit.patient_name || 'Unknown Patient'}</div>
                   <div class="checkout-details" style="color: #64748b; font-size: 0.875rem; margin-top: 0.25rem;">
-                    📱 ${visit.patient_mobile || 'N/A'} • 👨‍⚕️ Dr. ${visit.doctor_name || 'Unknown'} • 🕐 ${visitTime}
+                    📱 ${visit.patient_mobile || 'N/A'} • 👨‍⚕️ ${visit.doctor_name || 'Unknown'} • 🕐 ${visitTime}
                   </div>
                   <div class="checkout-fee" style="color: #10b981; font-weight: 600; font-size: 0.875rem; margin-top: 0.5rem;">₹${visit.consultation_fee || 0} consultation</div>
                 </div>
@@ -2292,7 +2292,7 @@
                   <div style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">${inv.patient_name || 'Unknown'}</div>
                   <div style="color: #64748b; font-size: 0.75rem;">${inv.patient_mobile || 'N/A'}</div>
                 </td>
-                <td style="padding: 0.75rem; font-size: 0.875rem; color: #64748b;">Dr. ${inv.doctor_name || 'Unknown'}</td>
+                <td style="padding: 0.75rem; font-size: 0.875rem; color: #64748b;">${inv.doctor_name || 'Unknown'}</td>
                 <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #10b981; font-size: 0.875rem;">₹${parseFloat(inv.total_amount).toFixed(2)}</td>
                 <td style="padding: 0.75rem; text-align: center;">${statusBadge}</td>
                 <td style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b;">${invoiceDate}</td>
@@ -2805,7 +2805,7 @@
             <div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.25rem;">Patient Details</div>
             <div style="font-weight: 600; font-size: 1.125rem;" id="invoice_patient_name">-</div>
             <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">📱 <span id="invoice_patient_mobile">-</span></div>
-            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">👨‍⚕️ Dr. <span id="invoice_doctor_name">-</span></div>
+            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">👨‍⚕️ <span id="invoice_doctor_name">-</span></div>
           </div>
 
           <!-- Charges -->
