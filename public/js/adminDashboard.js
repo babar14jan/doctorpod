@@ -332,12 +332,21 @@ async function loadClinics() {
             <th>Name</th>
             <th>Phone</th>
             <th>Address</th>
+            <th>Features</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           ${clinics.map(c => {
+            // Feature badges
+            const hasVoice = c.enable_voice_prescription == 1 || c.enable_voice_prescription === true || c.enable_voice_prescription === '1';
+            const hasVideo = c.enable_video_consultation == 1 || c.enable_video_consultation === true || c.enable_video_consultation === '1';
+            let featureBadges = '';
+            if (hasVideo) featureBadges += '<span class="badge badge-success" title="Video Consultation Enabled">📹</span> ';
+            if (hasVoice) featureBadges += '<span class="badge badge-primary" title="Voice Prescription Enabled">🎤</span> ';
+            if (!featureBadges) featureBadges = '<span class="badge badge-secondary">—</span>';
+            
             let statusBadge = '<span class="badge badge-success">Active</span>';
             if (c.subscription_type === 'trial') {
               if (c.trial_end_date) {
@@ -365,6 +374,7 @@ async function loadClinics() {
               <td>${c.name}</td>
               <td>${c.phone}</td>
               <td>${c.address || '-'}</td>
+              <td>${featureBadges}</td>
               <td>${statusBadge}</td>
               <td>
                 <div class="table-actions">
@@ -490,9 +500,9 @@ function editClinic(clinic) {
   document.getElementById('editClinicUpi').value = clinic.upi_id || '';
   document.getElementById('editClinicPassword').value = '';
   
-  // Set checkboxes for voice and video features
-  document.getElementById('editEnableVoice').checked = clinic.enable_voice_prescription === 1;
-  document.getElementById('editEnableVideo').checked = clinic.enable_video_consultation === 1;
+  // Set checkboxes for voice and video features (handle number, string, or boolean)
+  document.getElementById('editEnableVoice').checked = clinic.enable_voice_prescription == 1 || clinic.enable_voice_prescription === true || clinic.enable_voice_prescription === '1';
+  document.getElementById('editEnableVideo').checked = clinic.enable_video_consultation == 1 || clinic.enable_video_consultation === true || clinic.enable_video_consultation === '1';
   
   document.getElementById('editClinicModal').classList.add('active');
 }

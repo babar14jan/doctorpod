@@ -1292,6 +1292,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set up click handler for select buttons ONCE using event delegation
         const modalContentEl = document.getElementById('appointmentsModalContent');
         
+        // Video call button handler using event delegation
+        modalContentEl.addEventListener('click', function(e) {
+          const videoBtn = e.target.closest('.btn-video-call');
+          if (!videoBtn) return;
+          if (videoBtn.disabled) return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const appointmentId = videoBtn.getAttribute('data-appointment-id');
+          const patientName = videoBtn.getAttribute('data-patient-name');
+          if (appointmentId) {
+            startVideoCall(appointmentId, patientName);
+          }
+        });
+        
         modalContentEl.addEventListener('click', async function(e) {
           const btn = e.target.closest('.selectAppointmentBtn');
           if (!btn) return;
@@ -1365,6 +1381,11 @@ document.addEventListener('DOMContentLoaded', function() {
           <button type="button" class="filter-toggle-btn active" id="filterToday">Today</button>
           <button type="button" class="filter-toggle-btn" id="filterAllDates">All Dates</button>
         </div>
+        <div class="type-filter-group">
+          <button type="button" class="type-filter-btn active" id="filterTypeAll">All</button>
+          <button type="button" class="type-filter-btn inperson-filter" id="filterTypeInPerson">🏥 In-Person</button>
+          <button type="button" class="type-filter-btn video-filter" id="filterTypeVideo">📹 Video</button>
+        </div>
         <select id="appointmentsDateSelect" class="filter-select" style="display:none;"></select>
         <select id="appointmentsStatusSelect" class="filter-select">
           <option value="">All Status</option>
@@ -1383,6 +1404,12 @@ document.addEventListener('DOMContentLoaded', function() {
       const dateSelect = document.getElementById('appointmentsDateSelect');
       const summaryDiv = document.getElementById('appointmentsSummary');
       const modalContent = document.getElementById('appointmentsModalContent');
+      
+      // Type filter elements
+      const filterTypeAll = document.getElementById('filterTypeAll');
+      const filterTypeInPerson = document.getElementById('filterTypeInPerson');
+      const filterTypeVideo = document.getElementById('filterTypeVideo');
+      let currentTypeFilter = 'all'; // 'all', 'inperson', 'video'
 
       // Fetch all dates for date dropdown
       try {
@@ -1436,6 +1463,37 @@ document.addEventListener('DOMContentLoaded', function() {
       statusSelect.addEventListener('change', reloadAppointments);
       dateSelect.addEventListener('change', reloadAppointments);
 
+      // Type filter handlers
+      filterTypeAll.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        currentTypeFilter = 'all';
+        filterTypeAll.classList.add('active');
+        filterTypeInPerson.classList.remove('active');
+        filterTypeVideo.classList.remove('active');
+        reloadAppointments();
+      });
+
+      filterTypeInPerson.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        currentTypeFilter = 'inperson';
+        filterTypeInPerson.classList.add('active');
+        filterTypeAll.classList.remove('active');
+        filterTypeVideo.classList.remove('active');
+        reloadAppointments();
+      });
+
+      filterTypeVideo.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        currentTypeFilter = 'video';
+        filterTypeVideo.classList.add('active');
+        filterTypeAll.classList.remove('active');
+        filterTypeInPerson.classList.remove('active');
+        reloadAppointments();
+      });
+
       async function fetchAppointments() {
         const today = new Date().toISOString().split('T')[0];
         let date = todayFilter.classList.contains('active') ? today : dateSelect.value;
@@ -1476,10 +1534,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Store bookings for event handler access
         currentBookings = bookings;
         
-        // Update summary
-        const total = bookings.length;
-        const pending = bookings.filter(b => b.consult_status === 'not_seen' || !b.consult_status).length;
-        const completed = bookings.filter(b => b.consult_status === 'seen').length;
+        // Filter by type
+        let filteredBookings = bookings;
+        if (currentTypeFilter === 'video') {
+          filteredBookings = bookings.filter(b => b.is_video_consultation);
+        } else if (currentTypeFilter === 'inperson') {
+          filteredBookings = bookings.filter(b => !b.is_video_consultation);
+        }
+        
+        // Update summary (show filtered counts)
+        const total = filteredBookings.length;
+        const pending = filteredBookings.filter(b => b.consult_status === 'not_seen' || !b.consult_status).length;
+        const completed = filteredBookings.filter(b => b.consult_status === 'seen').length;
+        const videoCount = bookings.filter(b => b.is_video_consultation).length;
+        const inPersonCount = bookings.filter(b => !b.is_video_consultation).length;
         
         summaryDiv.innerHTML = `
           <div class="summary-stat">
@@ -1487,34 +1555,40 @@ document.addEventListener('DOMContentLoaded', function() {
             <span class="summary-stat-label">Total</span>
           </div>
           <div class="summary-stat">
+            <span class="summary-stat-value" style="color: #10b981;">${videoCount}</span>
+            <span class="summary-stat-label">📹 Video</span>
+          </div>
+          <div class="summary-stat">
+            <span class="summary-stat-value" style="color: #6366f1;">${inPersonCount}</span>
+            <span class="summary-stat-label">🏥 Clinic</span>
+          </div>
+          <div class="summary-stat">
             <span class="summary-stat-value" style="color: #f59e0b;">${pending}</span>
             <span class="summary-stat-label">Pending</span>
           </div>
-          <div class="summary-stat">
-            <span class="summary-stat-value" style="color: #10b981;">${completed}</span>
-            <span class="summary-stat-label">Done</span>
-          </div>
         `;
 
-        if (!bookings.length) {
+        if (!filteredBookings.length) {
           modalContent.innerHTML = `
             <div class="empty-state">
               <div class="empty-state-icon">📋</div>
               <div class="empty-state-title">No Appointments</div>
-              <div class="empty-state-text">${todayFilter.classList.contains('active') ? 'No appointments scheduled for today' : 'No appointments for selected date'}</div>
+              <div class="empty-state-text">${currentTypeFilter === 'video' ? 'No video consultations' : currentTypeFilter === 'inperson' ? 'No in-person appointments' : 'No appointments for selected criteria'}</div>
             </div>
           `;
           return;
         }
 
         // Sort by queue number
-        bookings.sort((a, b) => (a.queue_number || 999) - (b.queue_number || 999));
+        filteredBookings.sort((a, b) => (a.queue_number || 999) - (b.queue_number || 999));
 
-        modalContent.innerHTML = bookings.map(b => `
-          <div class="appointment-card" data-id="${b.appointment_id}">
+        modalContent.innerHTML = filteredBookings.map(b => `
+          <div class="appointment-card ${b.is_video_consultation ? 'video-consultation' : 'in-person'}" data-id="${b.appointment_id}">
             <div class="appointment-queue-badge">
               <span class="queue-number">#${b.queue_number || '-'}</span>
-              ${b.is_video_consultation ? '<span class="video-badge" title="Video Consultation">📹</span>' : ''}
+              <span class="appointment-type-badge ${b.is_video_consultation ? 'type-video' : 'type-inperson'}">
+                ${b.is_video_consultation ? '📹 Video' : '🏥 Clinic'}
+              </span>
             </div>
             <div class="appointment-card-body">
               <div class="appointment-info-row">
@@ -1541,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="appointment-card-actions">
               ${b.is_video_consultation ? `
                 <button type="button" class="btn-video-call" data-appointment-id="${b.appointment_id}" data-patient-name="${b.patient_name}" ${b.consult_status === 'seen' ? 'disabled' : ''}>
-                  📹 Video Call
+                  📹 Join Call
                 </button>
               ` : ''}
               <button type="button" class="selectAppointmentBtn btn-select-appointment" data-appointment-id="${b.appointment_id}" ${b.consult_status === 'seen' ? 'disabled' : ''}>
@@ -1551,14 +1625,7 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
         `).join('');
         
-        // Add video call button listeners
-        modalContent.querySelectorAll('.btn-video-call').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const appointmentId = e.currentTarget.getAttribute('data-appointment-id');
-            const patientName = e.currentTarget.getAttribute('data-patient-name');
-            startVideoCall(appointmentId, patientName);
-          });
-        });
+        // Video call listeners are handled via event delegation above
       }
 
       async function reloadAppointments() {
@@ -1736,9 +1803,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ============= VIDEO CONSULTATION =============
 function startVideoCall(appointmentId, patientName) {
-  const doctorId = getLoggedInDoctorId();
+  // Get doctor_id directly from sessionStorage (getLoggedInDoctorId is inside DOMContentLoaded)
+  const doctorId = sessionStorage.getItem('doctor_id');
   if (!doctorId) {
     alert('Please log in first');
+    window.location.href = '/doctor_login.html';
     return;
   }
   

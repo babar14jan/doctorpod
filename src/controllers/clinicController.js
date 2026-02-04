@@ -24,8 +24,8 @@ try {
 // Get all clinics (for admin dashboard)
 async function getAllClinics(req, res) {
   try {
-    // Only fetch active clinics
-    const rows = await db.prepare('SELECT clinic_id, name, phone, email, address, upi_id, qr_code_path, logo_path FROM clinics WHERE is_active = 1 ORDER BY name').all();
+    // Only fetch active clinics - include feature flags for admin edit modal
+    const rows = await db.prepare('SELECT clinic_id, name, phone, email, address, upi_id, qr_code_path, logo_path, enable_voice_prescription, enable_video_consultation, subscription_type, trial_start_date, trial_end_date, is_trial_expired, source FROM clinics WHERE is_active = 1 ORDER BY name').all();
     res.json({ success: true, clinics: rows });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
