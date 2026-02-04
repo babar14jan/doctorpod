@@ -14,9 +14,9 @@ docs
 **/.DS_Store
 
 # SQLite database files (don't commit databases)
-# *.db
-# *.sqlite
-# *.sqlite3
+*.db
+*.sqlite
+*.sqlite3
 
 # Keep SQL schema files for deployment
-# .sql
+# Schema files (.sql) are tracked and committed
