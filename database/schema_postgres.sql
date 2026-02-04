@@ -508,7 +508,7 @@ SELECT
 FROM doctors d
 LEFT JOIN visits v ON d.doctor_id = v.doctor_id
 LEFT JOIN feedbacks f ON d.doctor_id = f.doctor_id
-GROUP BY d.doctor_id;
+GROUP BY d.doctor_id, d.name, d.specialization;
 
 -- Top Medicines View
 CREATE OR REPLACE VIEW v_top_medicines AS
@@ -536,7 +536,7 @@ FROM clinics c
 LEFT JOIN doctors d ON c.clinic_id = d.clinic_id
 LEFT JOIN bookings b ON c.clinic_id = b.clinic_id
 LEFT JOIN visits v ON c.clinic_id = v.clinic_id
-GROUP BY c.clinic_id;
+GROUP BY c.clinic_id, c.name, c.address;
 
 -- Patient Summary View
 CREATE OR REPLACE VIEW v_patient_summary AS
@@ -551,7 +551,7 @@ SELECT
     SUM(COALESCE(v.consultation_fee, 0)) as total_spent
 FROM patients p
 LEFT JOIN visits v ON p.patient_id = v.patient_id
-GROUP BY p.patient_id;
+GROUP BY p.patient_id, p.full_name, p.mobile, p.gender;
 
 -- Pending Follow-ups View
 CREATE OR REPLACE VIEW v_pending_followups AS
