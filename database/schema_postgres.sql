@@ -519,7 +519,7 @@ SELECT
     COUNT(DISTINCT v.patient_id) as patient_count
 FROM prescription_items pi
 JOIN visits v ON pi.visit_id = v.visit_id
-GROUP BY LOWER(pi.medicine_name)
+GROUP BY pi.medicine_name
 ORDER BY prescription_count DESC;
 
 -- Clinic Summary View
