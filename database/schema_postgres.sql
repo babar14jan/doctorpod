@@ -475,7 +475,7 @@ SELECT
 FROM bookings b
 JOIN doctors d ON b.doctor_id = d.doctor_id
 JOIN clinics c ON b.clinic_id = c.clinic_id
-GROUP BY DATE(b.appointment_date::DATE), b.doctor_id, b.clinic_id;
+GROUP BY DATE(b.appointment_date::DATE), b.doctor_id, d.name, b.clinic_id, c.name;
 
 -- Revenue Summary View
 CREATE OR REPLACE VIEW v_revenue_summary AS
@@ -491,7 +491,7 @@ SELECT
 FROM visits v
 JOIN doctors d ON v.doctor_id = d.doctor_id
 JOIN clinics c ON v.clinic_id = c.clinic_id
-GROUP BY DATE(v.visit_time), v.doctor_id, v.clinic_id;
+GROUP BY DATE(v.visit_time), v.doctor_id, d.name, v.clinic_id, c.name;
 
 -- Doctor Performance View
 CREATE OR REPLACE VIEW v_doctor_performance AS
