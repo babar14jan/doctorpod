@@ -18,24 +18,33 @@ if (DATABASE_TYPE === 'postgres') {
   });
 
   // Wrapper to maintain compatibility with existing code
+  // Converts SQLite ? placeholders to PostgreSQL $1, $2, $3 placeholders
+  const convertPlaceholders = (sql) => {
+    let index = 0;
+    return sql.replace(/\?/g, () => `$${++index}`);
+  };
+
   db = {
-    prepare: (sql) => ({
-      all: async (...params) => {
-        const result = await pool.query(sql, params);
-        return result.rows;
-      },
-      get: async (...params) => {
-        const result = await pool.query(sql, params);
-        return result.rows[0];
-      },
-      run: async (...params) => {
-        const result = await pool.query(sql, params);
-        return { 
-          lastID: result.rows[0]?.id || null, 
-          changes: result.rowCount 
-        };
-      }
-    }),
+    prepare: (sql) => {
+      const pgSql = convertPlaceholders(sql);
+      return {
+        all: async (...params) => {
+          const result = await pool.query(pgSql, params);
+          return result.rows;
+        },
+        get: async (...params) => {
+          const result = await pool.query(pgSql, params);
+          return result.rows[0];
+        },
+        run: async (...params) => {
+          const result = await pool.query(pgSql, params);
+          return { 
+            lastID: result.rows[0]?.id || null, 
+            changes: result.rowCount 
+          };
+        }
+      };
+    },
     close: async () => {
       await pool.end();
     },
