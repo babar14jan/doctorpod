@@ -7,7 +7,7 @@
 -- Admins (2 records)
 -- ===========================
 INSERT INTO admins (admin_id, name, mobile, email, password) VALUES
-('ADMIN112', 'Md Babar Ali', '9330317102', 'doctorpod.info@gmail.com', 'boss321');
+('admin123', 'Md Babar Ali', '9330317102', 'doctorpod.info@gmail.com', 'boss321');
 
 -- ===========================
 -- Clinics (11 records - Mix of admin-added and trial signups)
@@ -15,10 +15,8 @@ INSERT INTO admins (admin_id, name, mobile, email, password) VALUES
 
 -- Admin-added clinics (paid subscription)
 INSERT INTO clinics (clinic_id, name, phone, email, address, password, owner_name, subscription_type, trial_start_date, trial_end_date, is_trial_expired, source, is_active) VALUES
-('CLN_A7F3B2E9C1D5', 'Rooting Reflex', '9876543211', 'rootref@clinic.com', 'Cristopher Road, Kolkata', 'clinic123', 'Dr. Rohan Das', 'paid', NULL, NULL, 0, 'admin', 1),
-('CLN_B8E4C3F0D2E6', 'Heal Plus', '9123459876', 'heal@clinic.com', 'Behala, Kolkata', 'clinic123', 'Dr. Anjali Sharma', 'paid', NULL, NULL, 0, 'admin', 1),
-('CLN_C9F5D4G1E3F7', 'MediCare', '9123411222', 'medi@clinic.com', 'Dum Dum, Kolkata', 'clinic123', 'Dr. Sunil Gupta', 'paid', NULL, NULL, 0, 'admin', 1),
-('CLN_D0G6E5H2F4G8', 'LifeCare', '9123433444', 'life@clinic.com', 'Howrah', 'clinic123', 'Dr. Priya Sen', 'paid', NULL, NULL, 0, 'admin', 1);
+('CLN_A7F3B2E9C1D5', 'Rooting Reflex', '8240482564', 'rootref@clinic.com', 'Cristopher Road, Kolkata', 'clinic123', 'Jasim Ahmed', 'paid', NULL, NULL, 0, 'admin', 1),
+('CLN_K7N3L2O9M1N5', 'Horizon Clinic', '9831553837', 'horizon@clinic.com', 'Cit Road, Kolkata', 'clinic123', 'Md Hasnain Ahmed', 'paid', NULL, NULL, 0, 'admin', 1));
 
 -- Trial signups (30-day free trial)
 INSERT INTO clinics (clinic_id, name, phone, email, address, password, owner_name, subscription_type, trial_start_date, trial_end_date, is_trial_expired, source, is_active) VALUES
@@ -27,14 +25,13 @@ INSERT INTO clinics (clinic_id, name, phone, email, address, password, owner_nam
 ('CLN_G3J9H8K5I7J1', 'Apex Health', '9123499000', 'apex@clinic.com', 'Park Street', 'clinic123', 'Dr. Vikram Singh', 'trial', '2026-01-27 09:15:00', '2026-02-10 09:15:00', 0, 'free-trial-signup', 1),
 ('CLN_H4K0I9L6J8K2', 'Nova Clinic', '9123412121', 'nova@clinic.com', 'Tollygunge', 'clinic123', 'Dr. Maya Dutta', 'trial', '2026-01-28 11:45:00', '2026-02-11 11:45:00', 0, 'free-trial-signup', 1),
 ('CLN_I5L1J0M7K9L3', 'Unity Care', '9123434343', 'unity@clinic.com', 'Barasat', 'clinic123', 'Dr. Ravi Kumar', 'trial', '2026-01-29 16:20:00', '2026-02-12 16:20:00', 0, 'free-trial-signup', 1),
-('CLN_J6M2K1N8L0M4', 'Prime Clinic', '9123456565', 'prime@clinic.com', 'Kasba', 'clinic123', 'Dr. Neha Jain', 'trial', '2026-01-30 08:00:00', '2026-02-13 08:00:00', 0, 'free-trial-signup', 1),
-('CLN_K7N3L2O9M1N5', 'Horizon Clinic', '9123658562', 'horizon@clinic.com', 'Salt Lake', 'clinic123', 'Dr. Sanjay Mehta', 'trial', '2026-01-31 12:30:00', '2026-02-14 12:30:00', 0, 'free-trial-signup', 1);
+('CLN_J6M2K1N8L0M4', 'Prime Clinic', '9123456565', 'prime@clinic.com', 'Kasba', 'clinic123', 'Dr. Neha Jain', 'trial', '2026-01-30 08:00:00', '2026-02-13 08:00:00', 0, 'free-trial-signup', 1);
 
 -- ===========================
 -- Doctors (11 records - Each linked to clinic)
 -- ===========================
 INSERT INTO doctors (doctor_id, clinic_id, name, qualification, specialization, mobile, email, password, registration_no, source) VALUES
-('DR_792874827F61', 'CLN_A7F3B2E9C1D5', 'Jasim Alam', 'MBBS & MD', 'Pediatrics', '9876543210', 'jasmimalam@gmail.com', 'doc123', '45123456', 'admin'),
+('DR_792874827F61', 'CLN_A7F3B2E9C1D5', 'Jasim Ahmed', 'MBBS & MD', 'Pediatrics', '8240482564', 'jasmimalam@gmail.com', 'doc123', '45123456', 'admin'),
 ('DR_8A3985938G72', 'CLN_B8E4C3F0D2E6', 'Anil Das', 'MD', 'Medicine', '9000010102', 'anil@doc.com', 'doc123', NULL, 'admin'),
 ('DR_9B40A69A9H83', 'CLN_C9F5D4G1E3F7', 'Soma Roy', 'MBBS', 'Gynecology', '9000010103', 'soma@doc.com', 'doc123', NULL, 'admin'),
 ('DR_0C51B7AB0I94', 'CLN_D0G6E5H2F4G8', 'Amit Paul', 'MS', 'Orthopedic', '9000010104', 'amit@doc.com', 'doc123', NULL, 'admin'),
@@ -44,7 +41,7 @@ INSERT INTO doctors (doctor_id, clinic_id, name, qualification, specialization, 
 ('DR_4G95FBEF4M38', 'CLN_H4K0I9L6J8K2', 'Neel Mukherjee', 'MBBS', 'Dermatology', '9000010108', 'neel@doc.com', 'doc123', NULL, 'admin'),
 ('DR_5H06GCF05N49', 'CLN_I5L1J0M7K9L3', 'Tina Dutta', 'MD', 'Psychiatry', '9000010109', 'tina@doc.com', 'doc123', NULL, 'admin'),
 ('DR_6I17HDG16O50', 'CLN_J6M2K1N8L0M4', 'Kunj Patel', 'MBBS', 'General Physician', '9000010110', 'kunj@doc.com', 'doc123', NULL, 'admin'),
-('DR_7J28IEH27P61', 'CLN_K7N3L2O9M1N5', 'Masoom Raza', 'MBBS & MD', 'Pediatrics', '98765432111', 'massomraza@gmail.com', 'doc123', 'Reg.4512345676', 'admin');
+('DR_7J28IEH27P61', 'CLN_K7N3L2O9M1N5', 'Masoom Raza', 'MBBS & MD', 'Pediatrics', '98765432111', 'massomraza@gmail.com', 'doc123', '4512345676', 'admin');
 
 -- ===========================
 -- Patients (10 records)
