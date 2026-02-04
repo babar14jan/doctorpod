@@ -28,16 +28,17 @@ async function initializeDatabase() {
       await pool.query(schemaSQL);
       console.log('✅ PostgreSQL schema created successfully');
       
-      // Check if we should load sample data
-      const SAMPLE_DATA_PATH = path.join(DB_DIR, 'sample_data.sql');
-      if (fs.existsSync(SAMPLE_DATA_PATH)) {
-        console.log('🌱 Loading sample data...');
-        const sampleDataSQL = fs.readFileSync(SAMPLE_DATA_PATH, 'utf8');
-        
-        // Note: Sample data might need conversion for PostgreSQL
-        // For now, we'll skip it or you can manually convert it
-        console.log('ℹ️  Sample data file found. You may need to convert it for PostgreSQL.');
-        console.log('ℹ️  Please manually insert sample data if needed.');
+      // Load sample data (only if LOAD_SAMPLE_DATA=true)
+      if (process.env.LOAD_SAMPLE_DATA === 'true') {
+        const SAMPLE_DATA_PATH = path.join(DB_DIR, 'sample_data.sql');
+        if (fs.existsSync(SAMPLE_DATA_PATH)) {
+          console.log('🌱 Loading sample data...');
+          const sampleDataSQL = fs.readFileSync(SAMPLE_DATA_PATH, 'utf8');
+          await pool.query(sampleDataSQL);
+          console.log('✅ Sample data loaded successfully');
+        }
+      } else {
+        console.log('ℹ️  Sample data skipped (set LOAD_SAMPLE_DATA=true to load)');
       }
       
       console.log('✅ Database initialization complete');
