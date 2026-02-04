@@ -854,6 +854,20 @@
               <label class="form-label">QR Code Image *</label>
               <input type="file" name="image" class="form-input" accept="image/png,image/jpeg" required />
             </div>
+            <div class="form-group">
+              <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="enable_voice_prescription" value="1" style="width: auto; margin: 0;" />
+                <span>🎤 Enable Voice Prescription</span>
+              </label>
+              <small class="form-helper">Allow doctors to use speech-to-text for medicine input</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="enable_video_consultation" value="1" style="width: auto; margin: 0;" />
+                <span>📹 Enable Video Consultation</span>
+              </label>
+              <small class="form-helper">Allow patients to book video consultations with doctors</small>
+            </div>
           </div>
           <div class="form-actions">
             <button type="reset" class="btn btn-outline">Reset</button>
@@ -1154,6 +1168,20 @@
               <label class="form-label">QR Code Image</label>
               <input type="file" name="image" id="editClinicImage" class="form-input" accept="image/png,image/jpeg" />
               <small style="color: #64748b; font-size: 0.875rem;">Upload new QR code (leave empty to keep current)</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="enable_voice_prescription" id="editEnableVoice" value="1" style="width: auto; margin: 0;" />
+                <span>🎤 Enable Voice Prescription</span>
+              </label>
+              <small class="form-helper">Allow doctors to use speech-to-text for medicine input</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="enable_video_consultation" id="editEnableVideo" value="1" style="width: auto; margin: 0;" />
+                <span>📹 Enable Video Consultation</span>
+              </label>
+              <small class="form-helper">Allow patients to book video consultations with doctors</small>
             </div>
           </div>
           <div class="form-actions">

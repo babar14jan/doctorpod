@@ -109,7 +109,7 @@ async function addClinic(req, res){
   if (!req.body) {
     return res.status(400).json({ success: false, message: 'No form data received' });
   }
-  const { name, phone, email, address, password, upi_id } = req.body;
+  const { name, phone, email, address, password, upi_id, enable_voice_prescription, enable_video_consultation } = req.body;
   
   // When using upload.any(), files is an array
   const filesArray = req.files || [];
@@ -141,9 +141,13 @@ async function addClinic(req, res){
     const qrCodePath = `/asset/QR/${qrImage.filename}`;
     const logoPath = logoImage ? `/asset/logo/${logoImage.filename}` : null;
     
+    // Convert checkbox value to 0 or 1
+    const voiceEnabled = enable_voice_prescription === '1' ? 1 : 0;
+    const videoEnabled = enable_video_consultation === '1' ? 1 : 0;
+    
     try {
-      await db.prepare('INSERT INTO clinics (clinic_id, name, phone, email, address, password, source, upi_id, logo_path, qr_code_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-        .run(clinic_id, name, phone, email, address, password, source, upi_id, logoPath, qrCodePath);
+      await db.prepare('INSERT INTO clinics (clinic_id, name, phone, email, address, password, source, upi_id, logo_path, qr_code_path, enable_voice_prescription, enable_video_consultation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .run(clinic_id, name, phone, email, address, password, source, upi_id, logoPath, qrCodePath, voiceEnabled, videoEnabled);
       res.json({ success: true, clinic_id });
     } catch (e) {
       res.status(500).json({ success: false, message: e.message });
@@ -157,7 +161,7 @@ async function addClinic(req, res){
 async function updateClinic(req, res) {
   if (!req.session.admin) return res.status(403).json({ success: false, message: 'Unauthorized' });
   
-  const { clinic_id, name, phone, email, address, password, upi_id } = req.body;
+  const { clinic_id, name, phone, email, address, password, upi_id, enable_voice_prescription, enable_video_consultation } = req.body;
   
   // When using upload.any(), files is an array
   const filesArray = req.files || [];
@@ -176,6 +180,12 @@ async function updateClinic(req, res) {
     if (address !== undefined) { updates.push('address = ?'); values.push(address); }
     if (password) { updates.push('password = ?'); values.push(password); }
     if (upi_id !== undefined) { updates.push('upi_id = ?'); values.push(upi_id); }
+    
+    // Update voice and video features
+    updates.push('enable_voice_prescription = ?');
+    values.push(enable_voice_prescription === '1' ? 1 : 0);
+    updates.push('enable_video_consultation = ?');
+    values.push(enable_video_consultation === '1' ? 1 : 0);
     
     // If new QR image is uploaded, update the path in database
     if (qrImage) {

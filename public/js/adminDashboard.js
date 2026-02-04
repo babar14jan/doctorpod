@@ -490,6 +490,10 @@ function editClinic(clinic) {
   document.getElementById('editClinicUpi').value = clinic.upi_id || '';
   document.getElementById('editClinicPassword').value = '';
   
+  // Set checkboxes for voice and video features
+  document.getElementById('editEnableVoice').checked = clinic.enable_voice_prescription === 1;
+  document.getElementById('editEnableVideo').checked = clinic.enable_video_consultation === 1;
+  
   document.getElementById('editClinicModal').classList.add('active');
 }
 

@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let loggedInDoctor = null;
   let currentVisitId = null;
   let currentBookingRef = null;
+  let isVoicePrescriptionEnabled = false; // Controlled by admin for this clinic
 
   function formatDate(d){ return d.toISOString().slice(0,10); }
   // Removed date display from dashboard
@@ -163,6 +164,10 @@ document.addEventListener('DOMContentLoaded', function() {
           
           console.log('Doctor profile data:', doc);
           console.log('Clinic logo path:', doc.clinic_logo_path);
+          console.log('Voice prescription enabled:', doc.enable_voice_prescription);
+          
+          // Store voice prescription setting
+          isVoicePrescriptionEnabled = doc.enable_voice_prescription === 1;
           
           // Update header with clinic branding
           const navLogo = document.getElementById('navLogo');
@@ -291,6 +296,119 @@ document.addEventListener('DOMContentLoaded', function() {
     nameInp.style.minWidth = '0';
     nameInp.style.flex = '1 1 0';
     nameInp.style.boxSizing = 'border-box';
+
+    // Voice Input Button
+    const voiceBtn = document.createElement('button');
+    voiceBtn.type = 'button';
+    voiceBtn.className = 'voice-input-btn';
+    voiceBtn.title = 'Voice Input';
+    voiceBtn.setAttribute('aria-label', 'Voice Input for Medicine');
+    voiceBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    `;
+    voiceBtn.style.cssText = 'padding:8px;background:#2563eb;color:white;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0;';
+    
+    // Voice recognition state
+    let recognition = null;
+    let isListening = false;
+
+    voiceBtn.addEventListener('click', () => {
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Voice input is not supported in this browser. Please use Chrome, Edge, or Safari.');
+        return;
+      }
+
+      if (isListening) {
+        // Stop listening
+        if (recognition) recognition.stop();
+        return;
+      }
+
+      // Start listening
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN'; // Indian English
+      recognition.continuous = false;
+      recognition.interimResults = true; // Show partial results
+      recognition.maxAlternatives = 3; // Get multiple alternatives
+
+      recognition.onstart = () => {
+        isListening = true;
+        voiceBtn.style.background = '#dc2626'; // Red while listening
+        voiceBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="8">
+              <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        `;
+        nameInp.placeholder = '🎤 Listening... Speak clearly';
+        nameInp.style.borderColor = '#dc2626';
+      };
+
+      recognition.onresult = (event) => {
+        // Get the latest result
+        const lastResult = event.results[event.results.length - 1];
+        const transcript = lastResult[0].transcript;
+        const isFinal = lastResult.isFinal;
+        
+        // Show interim results in gray
+        if (!isFinal) {
+          nameInp.value = transcript;
+          nameInp.style.color = '#9ca3af';
+        } else {
+          // Final result in normal color
+          nameInp.value = transcript;
+          nameInp.style.color = '';
+          nameInp.focus();
+          
+          // Trigger autocomplete if available
+          const inputEvent = new Event('input', { bubbles: true });
+          nameInp.dispatchEvent(inputEvent);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        nameInp.style.borderColor = '';
+        
+        if (event.error === 'no-speech') {
+          nameInp.placeholder = '❌ No speech detected - Click mic to try again';
+        } else if (event.error === 'not-allowed') {
+          alert('🎤 Microphone access denied. Please allow microphone access in your browser settings.');
+          nameInp.placeholder = 'Medicine name';
+        } else if (event.error === 'aborted') {
+          // User stopped it, don't show error
+          nameInp.placeholder = 'Medicine name';
+        } else {
+          nameInp.placeholder = '❌ Error - Click mic to try again';
+        }
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        voiceBtn.style.background = '#2563eb'; // Back to blue
+        voiceBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        `;
+        nameInp.style.borderColor = '';
+        if (nameInp.placeholder.includes('Listening')) {
+          nameInp.placeholder = 'Medicine name';
+        }
+      };
+
+      recognition.start();
+    });
 
     // Frequency dropdown (same flex as name)
     const freq = document.createElement('select');
@@ -447,7 +565,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     suggWrapper.appendChild(nameInp);
+    
+    // Only add voice button if enabled by admin for this clinic
+    if (isVoicePrescriptionEnabled) {
+      suggWrapper.appendChild(voiceBtn);
+    }
+    
     suggWrapper.appendChild(popup);
+
+    // Style suggWrapper to handle the voice button layout
+    suggWrapper.style.display = 'flex';
+    suggWrapper.style.gap = '4px';
+    suggWrapper.style.alignItems = 'center';
 
     // Add to grid
     row.appendChild(suggWrapper);
@@ -1385,6 +1514,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="appointment-card" data-id="${b.appointment_id}">
             <div class="appointment-queue-badge">
               <span class="queue-number">#${b.queue_number || '-'}</span>
+              ${b.is_video_consultation ? '<span class="video-badge" title="Video Consultation">📹</span>' : ''}
             </div>
             <div class="appointment-card-body">
               <div class="appointment-info-row">
@@ -1409,12 +1539,26 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
             </div>
             <div class="appointment-card-actions">
+              ${b.is_video_consultation ? `
+                <button type="button" class="btn-video-call" data-appointment-id="${b.appointment_id}" data-patient-name="${b.patient_name}" ${b.consult_status === 'seen' ? 'disabled' : ''}>
+                  📹 Video Call
+                </button>
+              ` : ''}
               <button type="button" class="selectAppointmentBtn btn-select-appointment" data-appointment-id="${b.appointment_id}" ${b.consult_status === 'seen' ? 'disabled' : ''}>
                 ${b.consult_status === 'seen' ? '✓ Done' : 'Select'}
               </button>
             </div>
           </div>
         `).join('');
+        
+        // Add video call button listeners
+        modalContent.querySelectorAll('.btn-video-call').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const appointmentId = e.currentTarget.getAttribute('data-appointment-id');
+            const patientName = e.currentTarget.getAttribute('data-patient-name');
+            startVideoCall(appointmentId, patientName);
+          });
+        });
       }
 
       async function reloadAppointments() {
@@ -1590,3 +1734,15 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// ============= VIDEO CONSULTATION =============
+function startVideoCall(appointmentId, patientName) {
+  const doctorId = getLoggedInDoctorId();
+  if (!doctorId) {
+    alert('Please log in first');
+    return;
+  }
+  
+  // Open video consultation page in new window
+  const videoUrl = `/video_consultation.html?appointment_id=${encodeURIComponent(appointmentId)}&doctor_id=${encodeURIComponent(doctorId)}&patient_name=${encodeURIComponent(patientName)}`;
+  window.open(videoUrl, '_blank', 'width=1200,height=800');
+}

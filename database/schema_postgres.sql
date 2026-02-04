@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS clinics (
     trial_start_date TIMESTAMP,
     trial_end_date TIMESTAMP,
     is_trial_expired INTEGER DEFAULT 0,
+    enable_voice_prescription INTEGER DEFAULT 0,
+    enable_video_consultation INTEGER DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     source TEXT
@@ -137,6 +139,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     payment_method TEXT,
     payment_time TIMESTAMP,
     booking_source TEXT DEFAULT 'online',
+    is_video_consultation INTEGER DEFAULT 0,
+    video_call_status TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     

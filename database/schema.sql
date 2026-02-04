@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS clinics (
     trial_start_date DATETIME,
     trial_end_date DATETIME,
     is_trial_expired INTEGER DEFAULT 0, -- 0 = active, 1 = expired
+    enable_voice_prescription INTEGER DEFAULT 0, -- 0 = disabled, 1 = enabled (admin controls)
+    enable_video_consultation INTEGER DEFAULT 0, -- 0 = disabled, 1 = enabled (admin controls)
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     source TEXT -- Who added (admin)
@@ -138,6 +140,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     payment_method TEXT,
     payment_time DATETIME,
     booking_source TEXT DEFAULT 'online',
+    is_video_consultation INTEGER DEFAULT 0, -- 0 = in-person, 1 = video call
+    video_call_status TEXT DEFAULT NULL, -- NULL, 'waiting', 'active', 'ended'
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     
