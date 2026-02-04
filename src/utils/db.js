@@ -24,9 +24,29 @@ if (DATABASE_TYPE === 'postgres') {
     return sql.replace(/\?/g, () => `$${++index}`);
   };
 
+  // Converts SQLite date/time functions to PostgreSQL equivalents
+  const convertDateFunctions = (sql) => {
+    return sql
+      // datetime('now') -> NOW()
+      .replace(/datetime\(['"]now['"]\)/gi, 'NOW()')
+      // DATE('now') -> CURRENT_DATE
+      .replace(/DATE\(['"]now['"]\)/gi, 'CURRENT_DATE')
+      // DATE('now', '-X days') -> CURRENT_DATE - INTERVAL 'X days'
+      .replace(/DATE\(['"]now['"],\s*['"]-(\d+)\s*days?['"]\)/gi, "(CURRENT_DATE - INTERVAL '$1 days')")
+      // DATE('now', '+X days') -> CURRENT_DATE + INTERVAL 'X days'
+      .replace(/DATE\(['"]now['"],\s*['"](\+?)(\d+)\s*days?['"]\)/gi, "(CURRENT_DATE + INTERVAL '$2 days')")
+      // strftime('%Y-%W', column) -> TO_CHAR(column, 'IYYY-IW')
+      .replace(/strftime\(['"]%Y-%W['"],\s*(\w+)\)/gi, "TO_CHAR($1, 'IYYY-IW')")
+      // strftime('%Y-%m', column) -> TO_CHAR(column, 'YYYY-MM')
+      .replace(/strftime\(['"]%Y-%m['"],\s*(\w+)\)/gi, "TO_CHAR($1, 'YYYY-MM')")
+      // JULIANDAY(date1) - JULIANDAY(date2) -> (date1::DATE - date2::DATE)
+      .replace(/JULIANDAY\(([^)]+)\)\s*-\s*JULIANDAY\(['"]now['"]\)/gi, "($1::DATE - CURRENT_DATE)")
+      .replace(/JULIANDAY\(([^)]+)\)\s*-\s*JULIANDAY\(([^)]+)\)/gi, "($1::DATE - $2::DATE)");
+  };
+
   db = {
     prepare: (sql) => {
-      const pgSql = convertPlaceholders(sql);
+      const pgSql = convertDateFunctions(convertPlaceholders(sql));
       return {
         all: async (...params) => {
           const result = await pool.query(pgSql, params);
@@ -50,7 +70,7 @@ if (DATABASE_TYPE === 'postgres') {
     },
     // Direct query method for PostgreSQL
     query: async (sql, params = []) => {
-      return await pool.query(sql, params);
+      return await pool.query(convertDateFunctions(sql), params);
     }
   };
 

@@ -145,8 +145,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id),
-    FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id),
-    FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
+    FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id)
 );
 
 -- ===========================
