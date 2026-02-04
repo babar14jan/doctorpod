@@ -20,6 +20,13 @@ async function initializeDatabase() {
     try {
       console.log('📦 Initializing PostgreSQL database...');
       
+      // Drop and recreate schema if RESET_DATABASE=true (fresh start)
+      if (process.env.RESET_DATABASE === 'true') {
+        console.log('🔄 Resetting database (dropping all tables)...');
+        await pool.query('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+        console.log('✅ Database schema reset complete');
+      }
+      
       // Read schema
       const SCHEMA_PATH = path.join(DB_DIR, 'schema_postgres.sql');
       const schemaSQL = fs.readFileSync(SCHEMA_PATH, 'utf8');
