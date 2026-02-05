@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', function() {
             brandDiv.innerHTML = `
               <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#667eea"/><stop offset="1" stop-color="#764ba2"/></linearGradient></defs><rect rx="12" width="64" height="64" fill="url(#g)"/><g fill="#fff"><rect x="28" y="18" width="8" height="28" rx="2"/><rect x="18" y="28" width="28" height="8" rx="2"/></g></svg>
               <div style="display:inline-block;margin-left:6px">
-                <div class="brand-text">DoctorPod</div>
-                <div class="small-muted">Quick. Smart. Trusted.</div>
+                <div class="brand-text">${window.BRANDING_CONFIG?.name || 'Cliniqo'}</div>
+                <div class="small-muted">${window.BRANDING_CONFIG?.tagline || 'One place solution'}</div>
               </div>
             `;
             headerLeft.appendChild(brandDiv);

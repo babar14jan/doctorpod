@@ -292,18 +292,14 @@
     // Auto-populate form from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const bookingRefParam = urlParams.get('booking_ref');
-    const mobileParam = urlParams.get('mobile');
     const appointmentIdParam = urlParams.get('appointment_id');
 
     if (bookingRefParam) {
       bookingRefInput.value = bookingRefParam;
     }
-    if (mobileParam) {
-      mobileInput.value = mobileParam;
-    }
 
-    // Auto-submit if all params are present
-    if (bookingRefParam && mobileParam && appointmentIdParam) {
+    // Auto-submit if booking reference is present
+    if (bookingRefParam && appointmentIdParam) {
       // Small delay to ensure DOM is ready
       setTimeout(() => {
         joinBtn.textContent = 'Auto-joining...';
@@ -326,8 +322,8 @@
       const bookingRef = bookingRefInput.value.trim();
       const mobile = mobileInput.value.trim();
 
-      if (!bookingRef || !mobile) {
-        showError('Please fill all fields');
+      if (!bookingRef) {
+        showError('Please enter booking reference');
         return;
       }
 
@@ -336,8 +332,10 @@
       error.style.display = 'none';
 
       try {
-        // Verify booking
-        const response = await fetch(`/bookings/verify?appointment_id=${encodeURIComponent(bookingRef)}&mobile=${encodeURIComponent(mobile)}`);
+        // Verify booking - mobile is optional for additional verification
+        const params = new URLSearchParams({ appointment_id: bookingRef });
+        if (mobile) params.append('mobile', mobile);
+        const response = await fetch(`/bookings/verify?${params.toString()}`);
         const data = await response.json();
 
         if (data.success && data.booking) {

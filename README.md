@@ -1,6 +1,6 @@
-# DoctorPod 🏥
+# Cliniqo 🏥
 
-**Quick. Smart. Trusted.** - A comprehensive medical appointment booking and clinic management system built with Node.js, Express, and SQLite.
+**One place solution** - A comprehensive medical appointment booking and clinic management system built with Node.js, Express, and SQLite.
 
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)

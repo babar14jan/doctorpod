@@ -59,8 +59,9 @@ async function initializeDatabase() {
     
   } else {
     // SQLite initialization (existing logic)
+    const APP_CONFIG = require('./config/branding');
     const sqlite3 = require('sqlite3').verbose();
-    const DB_PATH = path.join(DB_DIR, 'doctorpod.db');
+    const DB_PATH = path.join(DB_DIR, APP_CONFIG.database.default_name);
     const SCHEMA_PATH = path.join(DB_DIR, 'schema.sql');
     const SAMPLE_DATA_PATH = path.join(DB_DIR, 'sample_data.sql');
 

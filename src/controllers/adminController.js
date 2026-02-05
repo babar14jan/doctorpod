@@ -4,6 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
+const APP_CONFIG = require('../../config/branding');
 
 // Email configuration for OTP
 const emailConfig = {
@@ -403,9 +404,9 @@ function maskEmail(email) {
 // Send email with OTP
 async function sendOTPEmail(email, otp, adminName) {
   const mailOptions = {
-    from: `"DoctorPod" <${emailConfig.auth.user}>`,
+    from: `"${APP_CONFIG.name}" <${emailConfig.auth.user}>`,
     to: email,
-    subject: '🔐 Password Reset OTP - DoctorPod Admin',
+    subject: APP_CONFIG.email.admin_subject_prefix,
     html: `
       <!DOCTYPE html>
       <html>
@@ -423,7 +424,7 @@ async function sendOTPEmail(email, otp, adminName) {
       <body>
         <div class="container">
           <div class="header">
-            <h1>🔐 DoctorPod Admin</h1>
+            <h1>🔐 ${APP_CONFIG.name} Admin</h1>
             <p>Password Reset Request</p>
           </div>
           <div class="content">
@@ -439,12 +440,12 @@ async function sendOTPEmail(email, otp, adminName) {
             <p><strong>⚠️ Security Note:</strong></p>
             <ul style="color: #6b7280; font-size: 14px;">
               <li>Do not share this OTP with anyone</li>
-              <li>DoctorPod will never ask for your OTP</li>
+              <li>${APP_CONFIG.name} will never ask for your OTP</li>
               <li>If you didn't request this, please ignore this email</li>
             </ul>
           </div>
           <div class="footer">
-            <p>© 2026 DoctorPod. All rights reserved.</p>
+            <p>© ${APP_CONFIG.copyright.year} ${APP_CONFIG.copyright.holder}. All rights reserved.</p>
             <p>This is an automated email. Please do not reply.</p>
           </div>
         </div>

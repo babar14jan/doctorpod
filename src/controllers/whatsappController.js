@@ -2,6 +2,16 @@ const db = require('../utils/db');
 const fs = require('fs');
 const path = require('path');
 const dbHelper = require('../utils/dbHelper');
+const APP_CONFIG = require('../../config/branding');
+
+// Helper function to add "Dr." prefix for display
+function formatDoctorName(name) {
+  if (!name) return '';
+  const trimmed = name.trim();
+  // Don't add if already has Dr./DR./dr. prefix
+  if (/^dr\.?\s/i.test(trimmed)) return trimmed;
+  return `Dr. ${trimmed}`;
+}
 
 async function sendWhatsApp(req, res){
   try{
@@ -82,7 +92,7 @@ async function sendWhatsApp(req, res){
         upiId = feeRow.upi_id || '';
       }
     }
-    let text = `*Prescription from:* ${doctorName}\n*Patient:* ${patientName}`;
+    let text = `*Prescription from:* ${formatDoctorName(doctorName)}\n*Patient:* ${patientName}`;
     if (medicinesText) text += `\n\n${medicinesText}`;
     if (consultationFee) text += `\n\n*Consultation Fee:* ₹${consultationFee}`;
     if (upiId) text += `\n*UPI ID:* ${upiId}`;
@@ -94,12 +104,12 @@ async function sendWhatsApp(req, res){
     if (payLink && !text.includes(payLink)) {
       text += `\n\n*Payment link:* ${payLink}`;
     }
-    // Ensure DoctorPod signature is always the last line
-    const doctorpodSignature = '_This is generated via DoctorPod_';
+    // Ensure app signature is always the last line
+    const appSignature = APP_CONFIG.signatures.whatsapp;
     // Remove any existing signature from anywhere in the message
-    text = text.replace(new RegExp(`\\n*${doctorpodSignature}`, 'g'), '').trim();
+    text = text.replace(new RegExp(`\\n*${appSignature}`, 'g'), '').trim();
     // Append signature at the end
-    text += `\n\n${doctorpodSignature}`;
+    text += `\n\n${appSignature}`;
     const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
     res.json({ success: true, whatsappUrl: waUrl });
   }catch(e){
@@ -219,7 +229,7 @@ async function sendInvoiceWhatsApp(req, res) {
     
     message += `*PATIENT INFORMATION*\n`;
     message += `Name: ${invoice.patient_name}\n`;
-    message += `Doctor: Dr. ${doctorName}\n\n\n`;
+    message += `Doctor: ${formatDoctorName(doctorName)}\n\n\n`;
     
     message += `*TOTAL AMOUNT: Rs. ${parseFloat(invoice.total_amount).toFixed(2)}*\n\n\n`;
     
@@ -246,7 +256,7 @@ async function sendInvoiceWhatsApp(req, res) {
       if (paymentLink) message += `Pay Online:\n${paymentLink}\n\n\n`;
     }
     
-    message += `_Powered by DoctorPod_`;
+    message += APP_CONFIG.signatures.powered_by;
 
     // Build WhatsApp URL
     const whatsappUrl = `https://wa.me/${mobile}?text=${encodeURIComponent(message)}`;

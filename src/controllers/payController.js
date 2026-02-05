@@ -1,4 +1,5 @@
 const db = require('../utils/db');
+const APP_CONFIG = require('../../config/branding');
 const path = require('path');
 
 // GET /pay/:payment_id
@@ -15,7 +16,7 @@ async function payRedirect(req, res) {
   const upiId = encodeURIComponent(payment.upi_id);
   const payeeName = encodeURIComponent(payment.name);
   const amount = payment.consultation_fee;
-  const note = encodeURIComponent(`DoctorPod Consultation for ${payment.patient_name}`);
+  const note = encodeURIComponent(`${APP_CONFIG.payment.note_prefix} ${payment.patient_name}`);
   
   // Generic UPI link (works with most UPI apps)
   const genericUpiLink = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${amount}&cu=INR&tn=${note}`;
@@ -35,7 +36,7 @@ async function payRedirect(req, res) {
 <head>
   <meta charset='UTF-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-  <title>Pay ₹${amount} - DoctorPod</title>
+  <title>Pay ₹${amount} - ${APP_CONFIG.name}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {

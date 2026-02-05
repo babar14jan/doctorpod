@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Book an appointment with our trusted doctors - DoctorPod" />
-  <title>Book Appointment - DoctorPod</title>
+  <title>Book Appointment</title>
+  <script src="/js/branding_config.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -1052,7 +1053,7 @@
                 <input 
                   type="text" 
                   id="videoLinkInput" 
-                  value="${window.location.origin}/patient_video_join.html?appointment_id=${data.bookingId}&booking_ref=${encodeURIComponent(data.bookingReference || '')}&mobile=${encodeURIComponent(data.mobile || '')}" 
+                  value="${window.location.origin}/patient_video_join.html?appointment_id=${data.bookingId}&booking_ref=${encodeURIComponent(data.bookingReference || '')}" 
                   readonly 
                   style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.75rem; background: #f9fafb; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
                 />
@@ -1279,5 +1280,6 @@
       };
     });
   </script>
+  <script src="/js/brandingConfigLoader.js"></script>
 </body>
 </html>

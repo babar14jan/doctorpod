@@ -78,8 +78,9 @@ if (DATABASE_TYPE === 'postgres') {
 
 } else {
   // SQLite Connection (for local development)
+  const APP_CONFIG = require('../../config/branding');
   const sqlite3 = require('sqlite3').verbose();
-  const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'database', 'doctorpod.db');
+  const DB_PATH = process.env.DB_PATH || path.join(process.cwd(), 'database', APP_CONFIG.database.default_name);
   const rawDb = new sqlite3.Database(DB_PATH);
 
   // Expose a minimal prepare(...).all/get/run wrapper

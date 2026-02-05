@@ -369,7 +369,7 @@ async function generateInvoice(req, res) {
             if (paymentLink) message += `Link: ${paymentLink}\n`;
           }
           
-          message += `\n_Powered by DoctorPod_`;
+          message += `\n${APP_CONFIG.signatures.powered_by}`;
           
           whatsapp_url = `https://wa.me/${mobile}?text=${encodeURIComponent(message)}`;
           
