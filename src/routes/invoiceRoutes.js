@@ -11,6 +11,9 @@ router.get('/:invoice_id', ctrl.getInvoice);
 // Get today's checkouts for a clinic
 router.get('/clinic/:clinic_id/checkouts', ctrl.getTodaysCheckouts);
 
+// Get video consultations ready for invoice (paid + seen + no invoice yet)
+router.get('/clinic/:clinic_id/video-checkouts', ctrl.getVideoReadyForInvoice);
+
 // Get invoice statistics for a clinic
 router.get('/clinic/:clinic_id/stats', ctrl.getInvoiceStats);
 

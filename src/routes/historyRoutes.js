@@ -19,4 +19,7 @@ router.get('/visit/:visit_id', ctrl.getVisitById);
 // Get patient profile and visit timeline (joined)
 router.get('/patient/:patient_id/profile', ctrl.getPatientProfileAndTimeline);
 
+// Get prescriptions for a clinic with filters (for clinic dashboard)
+router.get('/clinic/:clinic_id/prescriptions', ctrl.getPrescriptionsByClinic);
+
 module.exports = router;

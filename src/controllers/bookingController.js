@@ -624,7 +624,7 @@ async function getClinicVideoConsultations(req, res) {
     const today = new Date().toISOString().split('T')[0];
     
     // Get today's and upcoming video consultations for this clinic
-    // NOTE: Patient data is stored directly in bookings table (no separate patients table for booking flow)
+    // Include visit_id and invoice info to determine checkout status
     const consultations = await db.prepare(`
       SELECT 
         b.appointment_id,
@@ -641,9 +641,16 @@ async function getClinicVideoConsultations(req, res) {
         b.patient_gender as gender,
         b.patient_age as age,
         d.name as doctor_name,
-        d.doctor_id
+        d.doctor_id,
+        v.visit_id,
+        v.consultation_fee,
+        v.pres_path,
+        i.invoice_id,
+        i.payment_status as invoice_payment_status
       FROM bookings b
       JOIN doctors d ON b.doctor_id = d.doctor_id
+      LEFT JOIN visits v ON b.appointment_id = v.appointment_id
+      LEFT JOIN invoices i ON v.visit_id = i.visit_id
       WHERE b.clinic_id = ?
         AND b.is_video_consultation = 1
         AND b.appointment_date >= ?

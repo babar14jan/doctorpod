@@ -109,7 +109,6 @@
       text-decoration: none;
       display: inline-block;
     }
-    }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
@@ -131,14 +130,55 @@
       background: var(--bg);
     }
 
+    .btn-profile {
+      background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-profile:hover {
+      background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    }
+
     .btn-danger {
-      background: #fef2f2;
-      color: #dc2626;
-      border: 1px solid #fecaca;
+      background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      color: white;
+      border: none;
     }
 
     .btn-danger:hover {
-      background: #fee2e2;
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    }
+
+    .refresh-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+      color: white;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+
+    .refresh-btn:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    }
+
+    .refresh-btn .refresh-icon {
+      display: inline-block;
+      transition: none;
+    }
+
+    .refresh-btn.loading .refresh-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     /* Mobile optimization for header buttons */
@@ -247,8 +287,7 @@
       }
 
       .refresh-btn {
-        padding: 0.375rem 0.5rem !important;
-        font-size: 0.875rem !important;
+        padding: 0.375rem 0.75rem;
       }
 
       .appointment-filters {
@@ -355,13 +394,6 @@
       .checkouts-title,
       .invoices-title {
         font-size: 1rem !important;
-      }
-
-      .checkout-refresh-btn,
-      .invoice-refresh-btn {
-        font-size: 0.75rem !important;
-        padding: 0.375rem 0.5rem !important;
-        width: 100%;
       }
 
       .invoice-filters {
@@ -576,11 +608,6 @@
       background: var(--primary);
       color: white;
       border-color: var(--primary);
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
     }
 
     /* Appointments Table */
@@ -1211,7 +1238,7 @@
       </div>
       
       <div class="header-right">
-        <button class="btn btn-outline" id="manageProfileBtn">Manage Profile</button>
+        <button class="btn btn-profile" id="manageProfileBtn">Manage Profile</button>
         <button class="btn btn-danger" id="signOutBtn">Sign Out</button>
       </div>
     </div>
@@ -1219,7 +1246,7 @@
 
   <!-- Quick Actions Card -->
   <div class="quick-links-card" style="background: white; padding: 0.75rem 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
-    <div class="quick-links-title" style="text-align: center; font-size: 0.875rem; font-weight: 700; color: #1e293b; margin-bottom: 0.75rem;">Quick links</div>
+    <div class="quick-links-title" style="text-align: center; font-size: 0.875rem; font-weight: 700; color: #2265d1; margin-bottom: 0.75rem;">Quick links</div>
     <div class="quick-links-buttons" style="display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: nowrap;">
       <button class="btn quick-link-btn" onclick="window.location.href='/clinic/manage-doctors'" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 0.75rem; font-size: 0.8rem; font-weight: 600; white-space: nowrap; flex: 1; min-width: 0; max-width: 180px;">
         Manage Doctors
@@ -1240,7 +1267,7 @@
       <div class="section-header clickable appointments-header" onclick="toggleAppointmentsSection()" style="background: #d1fae5; color: #065f46; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #a7f3d0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
         <h2 class="appointments-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;" id="appointmentsHeading">📅 Today's Appointments</h2>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <button class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); refreshAppointments();" title="Refresh appointments" style="background: #a7f3d0; color: #065f46; border: none; padding: 0.375rem 0.625rem; font-size: 0.875rem; min-width: auto; border-radius: 6px;">🔄</button>
+          <button id="appointmentsRefreshBtn" class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); refreshAppointmentsWithSpin();" title="Refresh appointments"><span class="refresh-icon">⟳</span> Refresh</button>
           <span class="collapse-icon" id="appointmentsIcon" style="font-size: 1.25rem; transition: transform 0.3s ease;">▼</span>
         </div>
       </div>
@@ -1269,9 +1296,14 @@
         
         <!-- Filter Tabs -->
         <div class="appointment-filters" style="display: none; padding: 1rem; border-bottom: 1px solid var(--border); background: var(--bg);" id="appointmentFilters">
-          <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
             <input type="date" id="dateFilter" class="form-input" style="padding: 0.5rem; font-size: 0.875rem; width: auto; min-width: 150px;" onchange="selectDate()" />
             <button class="filter-btn" onclick="selectAllDates()" style="white-space: nowrap;">📋 All Dates</button>
+            <select id="modeFilter" class="form-select" onchange="applyFilters()" style="padding: 0.5rem; font-size: 0.875rem; min-width: 110px;">
+              <option value="">All Modes</option>
+              <option value="clinic">🏥 Clinic</option>
+              <option value="video">📹 Video</option>
+            </select>
             <select id="doctorFilter" class="form-select" onchange="applyFilters()" style="padding: 0.5rem; font-size: 0.875rem; flex: 1; min-width: 100px;">
               <option value="">All Doctors</option>
             </select>
@@ -1281,15 +1313,14 @@
         <!-- Appointments Table -->
         <div style="display: none; overflow-x: auto;" id="appointmentsTable">
           <table class="appointments-table" style="width: 100%; border-collapse: collapse;">
-            <thead style="background: var(--bg); border-bottom: 2px solid var(--border);">
+            <thead style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
               <tr>
-                <th class="apt-col-patient" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Patient</th>
-                <th class="apt-col-doctor" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Doctor</th>
-                <th class="apt-col-mode" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Mode</th>
-                <th class="apt-col-date" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Date</th>
-                <th class="apt-col-time" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Time</th>
-                <th class="apt-col-queue" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Queue</th>
-                <th class="apt-col-status" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Status</th>
+                <th class="apt-col-id" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: #64748b;">🎫 Booking ID</th>
+                <th class="apt-col-queue" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: #64748b;">#️⃣ Queue</th>
+                <th class="apt-col-patient" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: #64748b;">👤 Patient</th>
+                <th class="apt-col-doctor" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: #64748b;">👨‍⚕️ Doctor</th>
+                <th class="apt-col-datetime" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: #64748b;">📅 Schedule</th>
+                <th class="apt-col-status" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: #64748b;">⚡ Status</th>
               </tr>
             </thead>
             <tbody id="appointmentsTableBody">
@@ -1305,7 +1336,7 @@
       <div class="section-header clickable billing-header" onclick="toggleBillingSection()" style="background: #dbeafe; color: #1e40af; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #bfdbfe; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
         <h2 class="billing-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;">💰 Billing & Invoices</h2>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <button class="btn btn-sm" onclick="event.stopPropagation(); loadInvoiceStats();" title="Refresh stats" style="background: #93c5fd; color: #1e40af; border: none; padding: 0.375rem 0.625rem; font-size: 0.875rem; min-width: auto; border-radius: 6px;">🔄</button>
+          <button id="billingRefreshBtn" class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); refreshBillingStats();" title="Refresh stats"><span class="refresh-icon">⟳</span> Refresh</button>
           <span class="collapse-icon" id="billingIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
         </div>
       </div>
@@ -1336,7 +1367,7 @@
         <div class="checkouts-container" style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; border: 2px solid #e2e8f0;">
           <div class="checkouts-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 class="checkouts-title" style="font-size: 1.125rem; font-weight: 600; color: #1e293b;">🛒 Today's Checkouts</h3>
-            <button onclick="loadTodaysCheckouts()" class="btn btn-sm btn-outline checkout-refresh-btn">🔄 Refresh</button>
+            <button id="checkoutsRefreshBtn" onclick="refreshCheckouts()" class="btn btn-sm refresh-btn"><span class="refresh-icon">⟳</span> Refresh</button>
           </div>
           <div id="todaysCheckoutsList" class="loading" style="min-height: 100px;">
             <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
@@ -1350,31 +1381,30 @@
         <div class="invoices-container" style="background: white; border-radius: 12px; padding: 1.5rem; border: 2px solid #e2e8f0;">
           <div class="invoices-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 class="invoices-title" style="font-size: 1.125rem; font-weight: 600; color: #1e293b;">📋 Invoice Management</h3>
-            <button onclick="loadAllInvoices()" class="btn btn-sm btn-outline invoice-refresh-btn">🔄 Refresh</button>
+            <button id="invoicesRefreshBtn" onclick="refreshInvoices()" class="btn btn-sm refresh-btn"><span class="refresh-icon">⟳</span> Refresh</button>
           </div>
           
           <!-- Filters -->
-          <div class="invoice-filters" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
-            <div>
-              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Status</label>
-              <select id="invoiceStatusFilter" class="form-input" onchange="loadAllInvoices()">
-                <option value="all">All Invoices</option>
-                <option value="unpaid">Unpaid</option>
-                <option value="paid">Paid</option>
-              </select>
+          <div class="invoice-filters" style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+            <select id="invoiceStatusFilter" class="form-input" onchange="loadAllInvoices()" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; min-width: 120px; border-radius: 6px;">
+              <option value="all">📊 All Status</option>
+              <option value="unpaid">🔴 Unpaid</option>
+              <option value="paid">🟢 Paid</option>
+            </select>
+            <select id="invoiceModeFilter" class="form-input" onchange="loadAllInvoices()" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; min-width: 110px; border-radius: 6px;">
+              <option value="all">All Modes</option>
+              <option value="clinic">🏥 Clinic</option>
+              <option value="video">📹 Video</option>
+            </select>
+            <div style="display: flex; align-items: center; gap: 0.375rem;">
+              <span style="font-size: 0.8125rem; color: #64748b; font-weight: 500;">From</span>
+              <input type="date" id="invoiceStartDate" class="form-input" style="padding: 0.5rem; font-size: 0.875rem; width: auto; min-width: 140px; border-radius: 6px;" onchange="loadAllInvoices()" />
             </div>
-            <div>
-              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">From Date</label>
-              <input type="date" id="invoiceStartDate" class="form-input" onchange="loadAllInvoices()" />
+            <div style="display: flex; align-items: center; gap: 0.375rem;">
+              <span style="font-size: 0.8125rem; color: #64748b; font-weight: 500;">To</span>
+              <input type="date" id="invoiceEndDate" class="form-input" style="padding: 0.5rem; font-size: 0.875rem; width: auto; min-width: 140px; border-radius: 6px;" onchange="loadAllInvoices()" />
             </div>
-            <div>
-              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">To Date</label>
-              <input type="date" id="invoiceEndDate" class="form-input" onchange="loadAllInvoices()" />
-            </div>
-            <div>
-              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Search Patient</label>
-              <input type="text" id="invoicePatientSearch" class="form-input" placeholder="Name or mobile..." oninput="loadAllInvoices()" />
-            </div>
+            <input type="text" id="invoicePatientSearch" class="form-input" placeholder="🔍 Search patient..." oninput="loadAllInvoices()" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; min-width: 150px; border-radius: 6px; flex: 1;" />
           </div>
           
           <div id="allInvoicesList" class="loading" style="min-height: 200px;">
@@ -1387,70 +1417,140 @@
       </div>
     </div>
 
-    <!-- ========== VIDEO CONSULTATIONS OVERVIEW SECTION ========== -->
-    <div class="section video-section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-      <div class="section-header clickable video-header" onclick="toggleVideoSection()" style="background: #dcfce7; color: #166534; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #bbf7d0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+    <!-- Prescription Search Section -->
+    <div class="section prescription-section" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div class="section-header clickable prescription-header" onclick="togglePrescriptionSection()" style="background: #fce7f3; color: #9d174d; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #fbcfe8; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="prescription-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;">📋 Patient Prescriptions</h2>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button id="prescriptionRefreshBtn" class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); searchPrescriptions();" title="Refresh"><span class="refresh-icon">⟳</span> Refresh</button>
+          <span class="collapse-icon" id="prescriptionIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
+        </div>
+      </div>
+      
+      <div class="section-body prescription-body" id="prescriptionBody" style="padding: 1.5rem; display: none;">
+        <!-- Search Filters -->
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; font-weight: 600;">📅 Visit Date</label>
+            <input type="date" id="prescriptionDateFilter" class="form-input" style="width: 100%; padding: 0.5rem; font-size: 0.875rem; border: 1px solid #e2e8f0; border-radius: 6px;" onchange="searchPrescriptions()" />
+          </div>
+          <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; font-weight: 600;">📱 Patient Mobile</label>
+            <input type="tel" id="prescriptionMobileFilter" class="form-input" placeholder="Enter 10-digit mobile" maxlength="10" pattern="[0-9]{10}" style="width: 100%; padding: 0.5rem; font-size: 0.875rem; border: 1px solid #e2e8f0; border-radius: 6px;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+          </div>
+          <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem; font-weight: 600;">👨‍⚕️ Doctor</label>
+            <select id="prescriptionDoctorFilter" class="form-input" style="width: 100%; padding: 0.5rem; font-size: 0.875rem; border: 1px solid #e2e8f0; border-radius: 6px;" onchange="searchPrescriptions()">
+              <option value="">All Doctors</option>
+            </select>
+          </div>
+          <div style="display: flex; align-items: flex-end; gap: 0.5rem;">
+            <button onclick="searchPrescriptions()" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">🔍 Search</button>
+            <button onclick="clearPrescriptionFilters()" class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Clear</button>
+          </div>
+        </div>
+
+        <!-- Results Stats -->
+        <div id="prescriptionStats" style="display: none; margin-bottom: 1rem; padding: 0.75rem 1rem; background: #ecfdf5; border-radius: 8px; border: 1px solid #a7f3d0;">
+          <span style="font-size: 0.875rem; color: #065f46; font-weight: 600;">
+            <span id="prescriptionResultCount">0</span> prescription(s) found
+          </span>
+        </div>
+
+        <!-- Results Table -->
+        <div id="prescriptionTableContainer" style="overflow-x: auto;">
+          <table id="prescriptionTable" style="width: 100%; border-collapse: collapse; font-size: 0.875rem; display: none;">
+            <thead>
+              <tr style="background: #f1f5f9; text-align: left;">
+                <th style="padding: 0.75rem; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569;">Date</th>
+                <th style="padding: 0.75rem; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569;">Patient</th>
+                <th style="padding: 0.75rem; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569;">Mobile</th>
+                <th style="padding: 0.75rem; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569;">Doctor</th>
+                <th style="padding: 0.75rem; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569;">Diagnosis</th>
+                <th style="padding: 0.75rem; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569; text-align: center;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="prescriptionTableBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="prescriptionEmptyState" style="text-align: center; padding: 2rem; color: #64748b;">
+          <div style="font-size: 3rem; margin-bottom: 0.75rem;">📋</div>
+          <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">Search for Patient Prescriptions</div>
+          <div style="font-size: 0.875rem;">Enter visit date or patient mobile number to find prescriptions</div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="prescriptionLoading" style="display: none; text-align: center; padding: 2rem; color: #64748b;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+          <div style="font-size: 0.875rem;">Searching prescriptions...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Consultations Section -->
+    <div class="section video-section" style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div class="section-header clickable video-header" onclick="toggleVideoSection()" style="background: #dbeafe; color: #1e40af; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #bfdbfe; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
         <h2 class="video-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;">📹 Video Consultations</h2>
         <div style="display: flex; gap: 0.5rem; align-items: center;">
-          <button class="btn btn-sm" onclick="event.stopPropagation(); loadVideoConsultationsOverview();" title="Refresh stats" style="background: #bbf7d0; color: #166534; border: none; padding: 0.375rem 0.625rem; font-size: 0.875rem; min-width: auto; border-radius: 6px;">🔄</button>
+          <button id="videoRefreshBtn" class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); loadVideoConsultationsDetailList();" title="Refresh"><span class="refresh-icon">⟳</span> Refresh</button>
           <span class="collapse-icon" id="videoIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
         </div>
       </div>
       
       <!-- Video Stats Bar -->
-      <div class="video-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; background: #f8fafc;">
-        <div style="background: white; border: 1px solid #dcfce7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
-          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Today:</span>
-          <span style="font-size: 1rem; font-weight: 700; color: #16a34a;" id="statTodayVideoCalls">0</span>
+      <div class="video-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; background: #f8fafc;">
+        <div style="background: white; border: 1px solid #dbeafe; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">📋</span>
+          <span style="font-size: 0.875rem; font-weight: 700; color: #2563eb;" id="videoQueueCount">0 Queue</span>
         </div>
         <div style="background: white; border: 1px solid #fef3c7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
-          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Pending:</span>
-          <span style="font-size: 1rem; font-weight: 700; color: #d97706;" id="statPendingJoins">0</span>
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">💰</span>
+          <span style="font-size: 0.875rem; font-weight: 700; color: #d97706;" id="videoAwaitingPaymentCount">0 Awaiting</span>
         </div>
-        <div style="background: white; border: 1px solid #dbeafe; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
-          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Links:</span>
-          <span style="font-size: 1rem; font-weight: 700; color: #2563eb;" id="statLinksSent">0</span>
-        </div>
-        <div style="background: white; border: 1px solid #f3e8ff; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
-          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Week:</span>
-          <span style="font-size: 1rem; font-weight: 700; color: #7c3aed;" id="statWeekVideoCalls">0</span>
+        <div style="background: white; border: 1px solid #dcfce7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">🧾</span>
+          <span style="font-size: 0.875rem; font-weight: 700; color: #16a34a;" id="videoReadyInvoiceCount">0 Ready</span>
         </div>
       </div>
       
       <div class="section-body video-body" id="videoBody" style="padding: 1.5rem; display: none;">
-        <!-- Filter and Actions -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-          <select id="videoPaymentFilter" onchange="filterVideoConsultationsList()" style="padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; background: white;">
-            <option value="all">All Consultations</option>
-            <option value="pending">Unpaid Only</option>
-            <option value="paid">Paid Only</option>
+        <!-- Filter Tabs -->
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; padding: 0.75rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <select id="videoPaymentFilter" class="form-input" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 180px;" onchange="filterVideoConsultationsList()">
+            <option value="all">📋 All Video Consultations</option>
+            <option value="queue">📋 Video Queue (Not Seen)</option>
+            <option value="awaiting">💰 Awaiting Payment</option>
+            <option value="ready">🧾 Ready for Invoice</option>
           </select>
-          <div style="display: flex; gap: 0.5rem;">
-            <span id="videoPaidCount" style="background: #dcfce7; color: #16a34a; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.8125rem; font-weight: 600;">0 Paid</span>
-            <span id="videoUnpaidCount" style="background: #fef3c7; color: #d97706; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.8125rem; font-weight: 600;">0 Unpaid</span>
+          <div style="flex: 1;"></div>
+          <div style="font-size: 0.75rem; color: #64748b; display: flex; align-items: center;">
+            <span>💡 Mark payment before or after video call. Invoice generates when both paid & seen.</span>
           </div>
         </div>
         
         <!-- Video Consultations List -->
-        <div id="videoConsultationsDetailList" style="background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; overflow: hidden;">
+        <div id="videoConsultationsDetailList" style="min-height: 100px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
           <div style="text-align: center; padding: 2rem; color: #64748b;">
-            <div style="font-size: 1.5rem; margin-bottom: 0.375rem;">⏳</div>
-            <div style="font-size: 0.875rem;">Loading consultations...</div>
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+            <div>Loading consultations...</div>
           </div>
         </div>
         
-        <!-- Doctor-wise Video Consultations -->
-        <div class="doctor-video-list" style="background: #f8fafc; border-radius: 12px; padding: 1rem; border: 2px solid #e2e8f0; margin-top: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-            <h3 style="font-size: 1rem; font-weight: 600; color: #1e293b;">👨‍⚕️ Doctor-wise Breakdown</h3>
-          </div>
-          <div id="doctorVideoList" style="min-height: 80px;">
-            <div style="text-align: center; padding: 1.5rem; color: #64748b;">
-              <div style="font-size: 1.5rem; margin-bottom: 0.375rem;">⏳</div>
-              <div style="font-size: 0.875rem;">Loading...</div>
+        <!-- Doctor Overview (Collapsed by default) -->
+        <details style="margin-top: 1.5rem;">
+          <summary style="cursor: pointer; font-weight: 600; color: #1e293b; padding: 0.75rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+            👨‍⚕️ Doctor Video Stats Overview
+          </summary>
+          <div id="doctorVideoList" style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+            <div style="text-align: center; padding: 2rem; color: #64748b;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+              <div>Loading doctor stats...</div>
             </div>
           </div>
-        </div>
+        </details>
       </div>
     </div>
 
@@ -1947,6 +2047,39 @@
       applyFilters();
     }
 
+    // Invoice date filter functions
+    function setInvoiceDateRange(range) {
+      const today = new Date();
+      const startDateEl = document.getElementById('invoiceStartDate');
+      const endDateEl = document.getElementById('invoiceEndDate');
+      
+      const formatDate = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const todayStr = formatDate(today);
+      
+      switch(range) {
+        case 'today':
+          startDateEl.value = todayStr;
+          endDateEl.value = todayStr;
+          break;
+        case 'week':
+          const weekStart = new Date(today);
+          weekStart.setDate(today.getDate() - 6);
+          startDateEl.value = formatDate(weekStart);
+          endDateEl.value = todayStr;
+          break;
+        case 'month':
+          const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+          startDateEl.value = formatDate(monthStart);
+          endDateEl.value = todayStr;
+          break;
+        case 'all':
+          startDateEl.value = '';
+          endDateEl.value = '';
+          break;
+      }
+      loadAllInvoices();
+    }
+
     // Update heading based on filter
     function updateHeading() {
       const heading = document.getElementById('appointmentsHeading');
@@ -1971,31 +2104,67 @@
     }
 
     // Toggle appointments section
-    // Refresh appointments
-    async function refreshAppointments() {
-      const refreshIcon = document.getElementById('refreshIcon');
-      if (!refreshIcon) return;
-      
-      // Start rotation animation
-      refreshIcon.style.transition = 'none';
-      refreshIcon.style.display = 'inline-block';
-      refreshIcon.style.animation = 'spin 1s linear infinite';
-      
+    // Refresh appointments with spinning animation
+    async function refreshAppointmentsWithSpin() {
+      const btn = document.getElementById('appointmentsRefreshBtn');
+      if (btn) btn.classList.add('loading');
       try {
         await loadAppointments();
       } catch (error) {
         console.error('Error refreshing appointments:', error);
       } finally {
-        // Stop animation after a delay
-        setTimeout(() => {
-          refreshIcon.style.animation = '';
-        }, 500);
+        if (btn) btn.classList.remove('loading');
       }
     }
 
-    // Apply both date and doctor filters
+    // Refresh billing stats with spinning animation
+    async function refreshBillingStats() {
+      const btn = document.getElementById('billingRefreshBtn');
+      if (btn) btn.classList.add('loading');
+      try {
+        await loadInvoiceStats();
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
+    }
+
+    // Refresh checkouts with spinning animation
+    async function refreshCheckouts() {
+      const btn = document.getElementById('checkoutsRefreshBtn');
+      if (btn) btn.classList.add('loading');
+      try {
+        await loadTodaysCheckouts();
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
+    }
+
+    // Refresh invoices with spinning animation
+    async function refreshInvoices() {
+      const btn = document.getElementById('invoicesRefreshBtn');
+      if (btn) btn.classList.add('loading');
+      try {
+        await loadAllInvoices();
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
+    }
+
+    // Refresh video stats with spinning animation
+    async function refreshVideoStats() {
+      const btn = document.getElementById('videoRefreshBtn');
+      if (btn) btn.classList.add('loading');
+      try {
+        await loadVideoConsultationsOverview();
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
+    }
+
+    // Apply date, doctor, and mode filters
     function applyFilters() {
       selectedDoctor = document.getElementById('doctorFilter')?.value || '';
+      const selectedMode = document.getElementById('modeFilter')?.value || '';
       
       let filtered = allAppointments;
       
@@ -2013,6 +2182,13 @@
         filtered = filtered.filter(a => a.doctor_name === selectedDoctor);
       }
       
+      // Filter by mode (video/clinic)
+      if (selectedMode === 'video') {
+        filtered = filtered.filter(a => a.is_video_consultation === 1 || a.is_video_consultation === true);
+      } else if (selectedMode === 'clinic') {
+        filtered = filtered.filter(a => a.is_video_consultation !== 1 && a.is_video_consultation !== true);
+      }
+      
       // Sort by appointment date and time
       filtered.sort((a, b) => {
         const dateCompare = (a.appointment_date || '').localeCompare(b.appointment_date || '');
@@ -2020,7 +2196,7 @@
         return (a.appointment_time || '').localeCompare(b.appointment_time || '');
       });
       
-      console.log(`Filtered ${filtered.length} appointments${selectedDate ? ' for date: ' + selectedDate : ' (all dates)'}${selectedDoctor ? ' - Doctor: ' + selectedDoctor : ''}`);
+      console.log(`Filtered ${filtered.length} appointments${selectedDate ? ' for date: ' + selectedDate : ' (all dates)'}${selectedDoctor ? ' - Doctor: ' + selectedDoctor : ''}${selectedMode ? ' - Mode: ' + selectedMode : ''}`);
       
       renderAppointmentsTable(filtered);
     }
@@ -2033,7 +2209,7 @@
         const dateMsg = selectedDate ? `for ${selectedDate}` : 'for selected filters';
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
               No appointments found ${dateMsg}
             </td>
           </tr>
@@ -2041,7 +2217,7 @@
         return;
       }
       
-      tbody.innerHTML = appointments.map(apt => {
+      tbody.innerHTML = appointments.map((apt, index) => {
         const statusColors = {
           'pending': '#f59e0b',
           'not_seen': '#f59e0b',
@@ -2060,23 +2236,32 @@
         const modeBg = isVideoCall ? '#dcfce7' : '#dbeafe';
         const modeColor = isVideoCall ? '#16a34a' : '#2563eb';
         
+        // Alternating row colors
+        const bgColor = index % 2 === 0 ? 'white' : '#f8fafc';
+        
+        // Format date nicely
+        const aptDate = apt.appointment_date ? new Date(apt.appointment_date + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+        const aptTime = apt.appointment_time || '-';
+        
         return `
-          <tr>
-            <td>
-              <div style="font-weight: 600;">${apt.patient_name || '-'}</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">${apt.patient_mobile || ''}</div>
+          <tr style="background: ${bgColor}; border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 0.75rem;">
+              <div style="font-size: 0.8125rem; font-family: monospace; color: #3b82f6;">${apt.appointment_id || '-'}</div>
             </td>
-            <td>${apt.doctor_name || '-'}</td>
-            <td style="text-align: center;">
-              <span style="background: ${modeBg}; color: ${modeColor}; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">${modeIcon} ${modeText}</span>
+            <td style="padding: 0.75rem; text-align: center;">
+              <span style="background: #e0e7ff; color: #4f46e5; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.875rem; font-weight: 700;">#${apt.queue_number || '-'}</span>
             </td>
-            <td>${apt.appointment_date || '-'}</td>
-            <td>${apt.appointment_time || '-'}</td>
-            <td style="text-align: center;">
-              <span style="background: var(--primary-light); color: var(--primary); padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 600;">#${apt.queue_number || '-'}</span>
+            <td style="padding: 0.75rem;">
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">${apt.patient_name || '-'}</div>
+              <div style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${apt.patient_mobile || ''}</div>
             </td>
-            <td style="text-align: center;">
-              <span style="background: ${statusColor}22; color: ${statusColor}; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize;">${statusText}</span>
+            <td style="padding: 0.75rem; font-size: 0.875rem; color: #475569; font-weight: 500;">${apt.doctor_name || '-'}</td>
+            <td style="padding: 0.75rem; text-align: center;">
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.8125rem;">${aptDate}</div>
+              <div style="color: #64748b; font-size: 0.75rem;">${aptTime}</div>
+            </td>
+            <td style="padding: 0.75rem; text-align: center;">
+              <span style="background: ${modeBg}; color: ${modeColor}; padding: 0.125rem 0.25rem; border-radius: 4px; font-size: 0.75rem; margin-right: 0.25rem;">${modeIcon}</span><span style="background: ${statusColor}22; color: ${statusColor}; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: capitalize;">${statusText}</span>
             </td>
           </tr>
         `;
@@ -2269,6 +2454,12 @@
 
     // Initialize billing section
     function initializeBillingSection() {
+      // Set today's date in invoice date filters by default
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      document.getElementById('invoiceStartDate').value = todayStr;
+      document.getElementById('invoiceEndDate').value = todayStr;
+      
       // Try to get clinic ID from session
       fetch('/clinic/session')
         .then(res => res.json())
@@ -2395,6 +2586,7 @@
       
       const container = document.getElementById('allInvoicesList');
       const status = document.getElementById('invoiceStatusFilter').value;
+      const modeFilter = document.getElementById('invoiceModeFilter').value;
       const startDate = document.getElementById('invoiceStartDate').value;
       const endDate = document.getElementById('invoiceEndDate').value;
       const patientSearch = document.getElementById('invoicePatientSearch').value;
@@ -2404,6 +2596,7 @@
         
         const params = new URLSearchParams();
         if (status !== 'all') params.append('status', status);
+        if (modeFilter !== 'all') params.append('mode', modeFilter);
         if (startDate) params.append('start_date', startDate);
         if (endDate) params.append('end_date', endDate);
         if (patientSearch) params.append('patient_search', patientSearch);
@@ -2421,45 +2614,66 @@
           html += `
             <thead>
               <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                <th class="inv-col-id" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Invoice ID</th>
-                <th class="inv-col-patient" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Patient</th>
-                <th class="inv-col-doctor" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">Doctor</th>
-                <th class="inv-col-amount" style="padding: 0.75rem; text-align: right; font-size: 0.875rem; color: #64748b; font-weight: 600;">Amount</th>
-                <th class="inv-col-status" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Status</th>
-                <th class="inv-col-date" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Date</th>
-                <th class="inv-col-actions" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">Actions</th>
+                <th class="inv-col-id" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">🧾 Invoice</th>
+                <th class="inv-col-patient" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">👤 Patient</th>
+                <th class="inv-col-doctor" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">👨‍⚕️ Doctor</th>
+                <th class="inv-col-amount" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">💰 Payment</th>
+                <th class="inv-col-date" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">📅 Date</th>
+                <th class="inv-col-actions" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">⚡ Actions</th>
               </tr>
             </thead>
             <tbody>
           `;
           
           data.invoices.forEach((inv, index) => {
-            const statusBadge = inv.payment_status === 'paid' 
-              ? '<span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">✓ PAID</span>'
-              : '<span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;">⏳ UNPAID</span>';
+            const isPaid = inv.payment_status === 'paid';
+            const statusBadge = isPaid 
+              ? '<span style="background: #dcfce7; color: #166534; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">✓ PAID</span>'
+              : '<span style="background: #fef3c7; color: #92400e; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">UNPAID</span>';
             
-            const invoiceDate = new Date(inv.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            const invoiceDateTime = new Date(inv.created_at);
+            const invoiceDate = invoiceDateTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            const invoiceTime = invoiceDateTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
             const bgColor = index % 2 === 0 ? 'white' : '#f8fafc';
+            
+            // Determine consultation mode
+            const isVideo = inv.is_video_consultation === 1 || inv.is_video_consultation === true;
+            const modeIcon = isVideo ? '📹' : '🏥';
+            const modeText = isVideo ? 'Video' : 'Clinic';
+            const modeBg = isVideo ? '#dcfce7' : '#dbeafe';
+            const modeColor = isVideo ? '#16a34a' : '#2563eb';
             
             html += `
               <tr style="background: ${bgColor}; border-bottom: 1px solid #e2e8f0;">
-                <td style="padding: 0.75rem; font-size: 0.875rem; font-family: monospace; color: #3b82f6;">${inv.invoice_id}</td>
+                <td style="padding: 0.75rem;">
+                  <div style="font-size: 0.8125rem; font-family: monospace; color: #3b82f6;">${inv.invoice_id}</div>
+                  <span style="background: ${modeBg}; color: ${modeColor}; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.625rem; font-weight: 600; margin-top: 0.25rem; display: inline-block;">${modeIcon} ${modeText}</span>
+                </td>
                 <td style="padding: 0.75rem;">
                   <div style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">${inv.patient_name || 'Unknown'}</div>
-                  <div style="color: #64748b; font-size: 0.75rem;">${inv.patient_mobile || 'N/A'}</div>
+                  <div style="color: #64748b; font-size: 0.75rem; font-family: monospace;">${inv.patient_mobile || 'N/A'}</div>
                 </td>
-                <td style="padding: 0.75rem; font-size: 0.875rem; color: #64748b;">${inv.doctor_name || 'Unknown'}</td>
-                <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: #10b981; font-size: 0.875rem;">₹${parseFloat(inv.total_amount).toFixed(2)}</td>
-                <td style="padding: 0.75rem; text-align: center;">${statusBadge}</td>
-                <td style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b;">${invoiceDate}</td>
+                <td style="padding: 0.75rem; font-size: 0.875rem; color: #475569; font-weight: 500;">${inv.doctor_name || 'Unknown'}</td>
+                <td style="padding: 0.75rem; white-space: nowrap;">
+                  <span style="font-weight: 700; color: ${isPaid ? '#16a34a' : '#0369a1'}; font-size: 0.9375rem;">₹${parseFloat(inv.total_amount).toFixed(0)}</span>
+                  <span style="margin-left: 0.5rem;">${statusBadge}</span>
+                </td>
                 <td style="padding: 0.75rem; text-align: center;">
-                  <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                    <button class="btn btn-sm btn-outline" onclick="window.open('${inv.invoice_path}', '_blank')" title="View PDF">📄</button>
-                    <button class="btn btn-sm btn-outline" onclick="sendInvoiceWhatsApp('${inv.invoice_id}')" title="Send via WhatsApp">💬</button>
+                  <div style="font-weight: 600; color: #1e293b; font-size: 0.8125rem;">${invoiceDate}</div>
+                  <div style="color: #64748b; font-size: 0.75rem;">${invoiceTime}</div>
+                </td>
+                <td style="padding: 0.75rem; text-align: center;">
+                  <div style="display: flex; gap: 0.375rem; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="printInvoice('${inv.invoice_path}')" class="btn btn-sm" style="background: #f3e8ff; color: #7c3aed; border: none; padding: 0.375rem 0.5rem; font-size: 0.75rem; border-radius: 4px;" title="Print">
+                      🖨️ Print
+                    </button>
+                    <button onclick="sendInvoiceWhatsApp('${inv.invoice_id}')" class="btn btn-sm" style="background: #dcfce7; color: #16a34a; border: none; padding: 0.375rem 0.5rem; font-size: 0.75rem; border-radius: 4px;" title="Send via WhatsApp">
+                      💬 WhatsApp
+                    </button>
                     ${inv.payment_status === 'unpaid' ? `
-                      <button class="btn btn-sm btn-success" onclick="markAsPaid('${inv.invoice_id}')" title="Mark as Paid">✓</button>
+                      <button class="btn btn-sm" onclick="markAsPaid('${inv.invoice_id}')" style="background: #dbeafe; color: #1d4ed8; border: none; padding: 0.375rem 0.5rem; font-size: 0.75rem; border-radius: 4px;" title="Mark as Paid">💵 Mark Paid</button>
                     ` : `
-                      <button class="btn btn-sm" style="background: #f1f5f9; color: #64748b; cursor: not-allowed;" disabled title="Already Paid">✓</button>
+                      <button class="btn btn-sm" style="background: #dcfce7; color: #16a34a; cursor: not-allowed; padding: 0.375rem 0.5rem; font-size: 0.75rem; border-radius: 4px;" disabled title="Already Paid">✓ Paid</button>
                     `}
                   </div>
                 </td>
@@ -2768,9 +2982,223 @@
         icon.style.transform = 'rotate(-90deg)';
       }
     }
+
+    // Toggle prescription section collapse
+    function togglePrescriptionSection() {
+      const body = document.getElementById('prescriptionBody');
+      const icon = document.getElementById('prescriptionIcon');
+      
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+        // Populate doctor dropdown when section opens
+        populatePrescriptionDoctorFilter();
+      } else {
+        body.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    // Populate prescription doctor filter dropdown
+    async function populatePrescriptionDoctorFilter() {
+      try {
+        const sessionRes = await fetch('/clinic/session');
+        const sessionData = await sessionRes.json();
+        if (!sessionData.success || !sessionData.clinic) return;
+        
+        const clinicId = sessionData.clinic.clinic_id;
+        const res = await fetch(`/doctors/clinic/${clinicId}`);
+        const data = await res.json();
+        
+        if (data.success && data.doctors) {
+          const select = document.getElementById('prescriptionDoctorFilter');
+          select.innerHTML = '<option value="">All Doctors</option>' + 
+            data.doctors.map(d => `<option value="${d.doctor_id}">${d.full_name}</option>`).join('');
+        }
+      } catch (err) {
+        console.error('Error loading doctors for prescription filter:', err);
+      }
+    }
+
+    // Search prescriptions
+    async function searchPrescriptions() {
+      const dateFilter = document.getElementById('prescriptionDateFilter').value;
+      const mobileFilter = document.getElementById('prescriptionMobileFilter').value.trim();
+      const doctorFilter = document.getElementById('prescriptionDoctorFilter').value;
+      
+      // Show loading
+      document.getElementById('prescriptionLoading').style.display = 'block';
+      document.getElementById('prescriptionEmptyState').style.display = 'none';
+      document.getElementById('prescriptionTable').style.display = 'none';
+      document.getElementById('prescriptionStats').style.display = 'none';
+      
+      // Add loading to refresh button
+      const btn = document.getElementById('prescriptionRefreshBtn');
+      if (btn) btn.classList.add('loading');
+      
+      try {
+        const sessionRes = await fetch('/clinic/session');
+        const sessionData = await sessionRes.json();
+        if (!sessionData.success || !sessionData.clinic) {
+          throw new Error('Not logged in');
+        }
+        
+        const clinicId = sessionData.clinic.clinic_id;
+        
+        // Build query params
+        let url = `/history/clinic/${clinicId}/prescriptions?`;
+        const params = [];
+        if (dateFilter) params.push(`date=${dateFilter}`);
+        if (mobileFilter) params.push(`mobile=${mobileFilter}`);
+        if (doctorFilter) params.push(`doctor_id=${doctorFilter}`);
+        url += params.join('&');
+        
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        document.getElementById('prescriptionLoading').style.display = 'none';
+        
+        if (data.success && data.visits && data.visits.length > 0) {
+          renderPrescriptionTable(data.visits);
+          document.getElementById('prescriptionResultCount').textContent = data.visits.length;
+          document.getElementById('prescriptionStats').style.display = 'block';
+          document.getElementById('prescriptionTable').style.display = 'table';
+          document.getElementById('prescriptionEmptyState').style.display = 'none';
+        } else {
+          document.getElementById('prescriptionTable').style.display = 'none';
+          document.getElementById('prescriptionStats').style.display = 'none';
+          document.getElementById('prescriptionEmptyState').innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 0.75rem;">🔍</div>
+            <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">No Prescriptions Found</div>
+            <div style="font-size: 0.875rem;">Try adjusting your search filters</div>
+          `;
+          document.getElementById('prescriptionEmptyState').style.display = 'block';
+        }
+      } catch (err) {
+        console.error('Error searching prescriptions:', err);
+        document.getElementById('prescriptionLoading').style.display = 'none';
+        document.getElementById('prescriptionEmptyState').innerHTML = `
+          <div style="font-size: 3rem; margin-bottom: 0.75rem;">❌</div>
+          <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">Error Loading Prescriptions</div>
+          <div style="font-size: 0.875rem;">${err.message || 'Please try again'}</div>
+        `;
+        document.getElementById('prescriptionEmptyState').style.display = 'block';
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
+    }
+
+    // Render prescription table
+    function renderPrescriptionTable(visits) {
+      const tbody = document.getElementById('prescriptionTableBody');
+      tbody.innerHTML = visits.map(v => {
+        const visitDate = v.visit_time ? new Date(v.visit_time).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-';
+        const visitTime = v.visit_time ? new Date(v.visit_time).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '';
+        const hasPrescription = v.pres_path ? true : false;
+        
+        return `
+          <tr style="border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 0.75rem; vertical-align: middle;">
+              <div style="font-weight: 600; color: #1e293b;">${visitDate}</div>
+              <div style="font-size: 0.75rem; color: #64748b;">${visitTime}</div>
+            </td>
+            <td style="padding: 0.75rem; vertical-align: middle;">
+              <div style="font-weight: 600; color: #1e293b;">${v.patient_name || '-'}</div>
+              ${v.patient_age ? `<div style="font-size: 0.75rem; color: #64748b;">${v.patient_age} yrs${v.patient_gender ? ', ' + v.patient_gender : ''}</div>` : ''}
+            </td>
+            <td style="padding: 0.75rem; vertical-align: middle;">
+              <span style="font-family: monospace; font-size: 0.875rem; color: #475569;">${v.patient_mobile || '-'}</span>
+            </td>
+            <td style="padding: 0.75rem; vertical-align: middle;">
+              <div style="font-weight: 500; color: #1e293b;">${v.doctor_name || '-'}</div>
+            </td>
+            <td style="padding: 0.75rem; vertical-align: middle;">
+              <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569;" title="${v.diagnosis || ''}">${v.diagnosis || '-'}</div>
+            </td>
+            <td style="padding: 0.75rem; vertical-align: middle; text-align: center;">
+              <div style="display: flex; gap: 0.375rem; justify-content: center; flex-wrap: wrap;">
+                ${hasPrescription ? `
+                  <button onclick="printPrescription('${v.pres_path}')" class="btn btn-sm" style="background: #f3e8ff; color: #7c3aed; border: none; padding: 0.375rem 0.5rem; font-size: 0.75rem; border-radius: 4px;" title="Print">
+                    🖨️ Print
+                  </button>
+                  <button onclick="sharePrescriptionWhatsApp('${v.visit_id}', '${v.patient_mobile || ''}')" class="btn btn-sm" style="background: #dcfce7; color: #16a34a; border: none; padding: 0.375rem 0.5rem; font-size: 0.75rem; border-radius: 4px;" title="Share via WhatsApp">
+                    💬 WhatsApp
+                  </button>
+                ` : `
+                  <span style="color: #94a3b8; font-size: 0.75rem; font-style: italic;">No prescription</span>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Print prescription
+    function printPrescription(presPath) {
+      if (presPath) {
+        const printWindow = window.open(presPath, '_blank');
+        printWindow.onload = function() {
+          printWindow.print();
+        };
+      }
+    }
+
+    // Print invoice
+    function printInvoice(invoicePath) {
+      if (invoicePath) {
+        const printWindow = window.open(invoicePath, '_blank');
+        printWindow.onload = function() {
+          printWindow.print();
+        };
+      }
+    }
+
+    // Share prescription via WhatsApp
+    async function sharePrescriptionWhatsApp(visitId, patientMobile) {
+      if (!patientMobile) {
+        showToast('Error', 'Patient mobile number not available', 'error');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/whatsapp/send-prescription', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ visit_id: visitId })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          showToast('Success', 'Prescription sent via WhatsApp!', 'success');
+        } else {
+          showToast('Error', data.message || 'Failed to send prescription', 'error');
+        }
+      } catch (err) {
+        console.error('Error sending prescription via WhatsApp:', err);
+        showToast('Error', 'Failed to send prescription via WhatsApp', 'error');
+      }
+    }
+
+    // Clear prescription filters
+    function clearPrescriptionFilters() {
+      document.getElementById('prescriptionDateFilter').value = '';
+      document.getElementById('prescriptionMobileFilter').value = '';
+      document.getElementById('prescriptionDoctorFilter').value = '';
+      
+      document.getElementById('prescriptionTable').style.display = 'none';
+      document.getElementById('prescriptionStats').style.display = 'none';
+      document.getElementById('prescriptionEmptyState').innerHTML = `
+        <div style="font-size: 3rem; margin-bottom: 0.75rem;">📋</div>
+        <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">Search for Patient Prescriptions</div>
+        <div style="font-size: 0.875rem;">Enter visit date or patient mobile number to find prescriptions</div>
+      `;
+      document.getElementById('prescriptionEmptyState').style.display = 'block';
+    }
     
     // Store video consultations for filtering
     let allVideoConsultations = [];
+    let videoReadyForInvoice = [];
     
     // Load detailed video consultations list
     async function loadVideoConsultationsDetailList() {
@@ -2797,15 +3225,24 @@
           return;
         }
         
-        const res = await fetch(`/bookings/clinic-video-consultations?clinic_id=${currentClinicId}`);
-        const data = await res.json();
+        // Fetch video consultations and video checkouts in parallel
+        const [consultRes, checkoutRes] = await Promise.all([
+          fetch(`/bookings/clinic-video-consultations?clinic_id=${currentClinicId}`),
+          fetch(`/api/invoices/clinic/${currentClinicId}/video-checkouts`)
+        ]);
         
-        if (data.success) {
-          allVideoConsultations = data.consultations || [];
-          filterVideoConsultationsList();
-        } else {
-          container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #ef4444;">${data.message || 'Failed to load'}</div>`;
+        const consultData = await consultRes.json();
+        const checkoutData = await checkoutRes.json();
+        
+        if (consultData.success) {
+          allVideoConsultations = consultData.consultations || [];
         }
+        
+        if (checkoutData.success) {
+          videoReadyForInvoice = checkoutData.checkouts || [];
+        }
+        
+        filterVideoConsultationsList();
       } catch (error) {
         console.error('Error loading video consultations:', error);
         container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Network error</div>';
@@ -2818,25 +3255,47 @@
       const filterSelect = document.getElementById('videoPaymentFilter');
       const filter = filterSelect ? filterSelect.value : 'all';
       
-      let consultations = allVideoConsultations;
+      // Calculate counts for each category
+      // Video Queue: Not yet seen (upcoming/in-progress)
+      const videoQueue = allVideoConsultations.filter(c => c.consult_status !== 'seen' && c.consult_status !== 'cancelled');
       
-      if (filter === 'pending') {
-        consultations = allVideoConsultations.filter(c => c.payment_status !== 'CONFIRMED');
-      } else if (filter === 'paid') {
-        consultations = allVideoConsultations.filter(c => c.payment_status === 'CONFIRMED');
-      }
+      // Awaiting Payment: Seen but not paid yet
+      const awaitingPayment = allVideoConsultations.filter(c => c.consult_status === 'seen' && c.payment_status !== 'CONFIRMED');
+      
+      // Ready for Invoice: Paid + Seen + No invoice (from videoReadyForInvoice endpoint)
+      const readyForInvoice = videoReadyForInvoice;
       
       // Update counts
-      const paidCount = allVideoConsultations.filter(c => c.payment_status === 'CONFIRMED').length;
-      const unpaidCount = allVideoConsultations.filter(c => c.payment_status !== 'CONFIRMED').length;
-      document.getElementById('videoPaidCount').textContent = `${paidCount} Paid`;
-      document.getElementById('videoUnpaidCount').textContent = `${unpaidCount} Unpaid`;
+      document.getElementById('videoQueueCount').textContent = `${videoQueue.length} Queue`;
+      document.getElementById('videoAwaitingPaymentCount').textContent = `${awaitingPayment.length} Awaiting`;
+      document.getElementById('videoReadyInvoiceCount').textContent = `${readyForInvoice.length} Ready`;
       
-      renderVideoConsultationsList(consultations, container);
+      // Filter based on selection
+      let consultations = [];
+      let showInvoiceBtn = false;
+      
+      if (filter === 'queue') {
+        consultations = videoQueue;
+      } else if (filter === 'awaiting') {
+        consultations = awaitingPayment;
+      } else if (filter === 'ready') {
+        consultations = readyForInvoice.map(r => ({
+          ...r,
+          consult_status: 'seen',
+          payment_status: 'CONFIRMED',
+          _isReadyForInvoice: true
+        }));
+        showInvoiceBtn = true;
+      } else {
+        // All: show everything
+        consultations = allVideoConsultations;
+      }
+      
+      renderVideoConsultationsList(consultations, container, showInvoiceBtn);
     }
     
     // Render video consultations list
-    function renderVideoConsultationsList(consultations, container) {
+    function renderVideoConsultationsList(consultations, container, showInvoiceBtn = false) {
       if (!consultations.length) {
         container.innerHTML = `
           <div style="text-align: center; padding: 2rem; color: #64748b;">
@@ -2847,42 +3306,91 @@
         return;
       }
       
-      let html = '<div style="max-height: 400px; overflow-y: auto;">';
+      let html = '<div class="video-table-wrapper" style="overflow-x: auto;"><table class="video-table" style="width: 100%; border-collapse: collapse;">';
+      html += `
+        <thead>
+          <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">👤 Patient</th>
+            <th style="padding: 0.75rem; text-align: left; font-size: 0.875rem; color: #64748b; font-weight: 600;">👨‍⚕️ Doctor</th>
+            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">📅 Schedule</th>
+            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">📋 Status</th>
+            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">💰 Payment</th>
+            <th style="padding: 0.75rem; text-align: center; font-size: 0.875rem; color: #64748b; font-weight: 600;">⚡ Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
       
-      consultations.forEach(c => {
+      consultations.forEach((c, index) => {
         const isPaid = c.payment_status === 'CONFIRMED';
-        const paymentBadge = isPaid 
-          ? '<span style="background: #dcfce7; color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">✓ Paid</span>'
-          : '<span style="background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">Unpaid</span>';
+        const isSeen = c.consult_status === 'seen';
+        const hasInvoice = !!c.invoice_id;
+        const invoicePaid = c.invoice_payment_status === 'paid';
+        const isReadyForInvoice = c._isReadyForInvoice || (isPaid && isSeen && c.visit_id && !hasInvoice);
+        const bgColor = index % 2 === 0 ? 'white' : '#f8fafc';
+        
+        // Payment badge - if invoice exists, show invoice payment status
+        let paymentBadge;
+        if (hasInvoice) {
+          paymentBadge = invoicePaid
+            ? '<span style="background: #dcfce7; color: #166534; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">✓ PAID</span>'
+            : '<span style="background: #fee2e2; color: #dc2626; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">INVOICE UNPAID</span>';
+        } else {
+          paymentBadge = isPaid 
+            ? '<span style="background: #dcfce7; color: #166534; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">✓ PAID</span>'
+            : '<span style="background: #fef3c7; color: #92400e; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">UNPAID</span>';
+        }
         
         const statusBadge = getVideoStatusBadge(c.consult_status);
         const dateStr = formatVideoDate(c.appointment_date);
         const timeStr = c.appointment_time || '--:--';
         
+        // Determine which action button to show
+        let actionBtn = '';
+        if (hasInvoice) {
+          // Invoice already exists
+          if (invoicePaid) {
+            actionBtn = '<span style="background: #dcfce7; color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">✓ Complete</span>';
+          } else {
+            actionBtn = `<button onclick="scrollToInvoice('${c.invoice_id}')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">📋 View Invoice</button>`;
+          }
+        } else if (isReadyForInvoice && c.visit_id) {
+          actionBtn = `<button onclick="openInvoiceModal('${c.visit_id}', '${(c.patient_name || '').replace(/'/g, "\\'")}', '${c.patient_mobile || ''}', '${(c.doctor_name || '').replace(/'/g, "\\'")}', ${c.consultation_fee || 0}, '${c.pres_path || ''}')" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">🧾 Checkout</button>`;
+        } else if (isSeen && !isPaid) {
+          actionBtn = `<button onclick="markVideoBookingPaid('${c.appointment_id}')" style="background: linear-gradient(135deg, #10b981 0%, #22c55e 100%); color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">💰 Mark Paid</button>`;
+        } else if (!isSeen && !isPaid) {
+          actionBtn = `<button onclick="markVideoBookingPaid('${c.appointment_id}')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">💳 Pre-Pay</button>`;
+        } else if (!isSeen && isPaid) {
+          actionBtn = '<span style="background: #dbeafe; color: #2563eb; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">⏳ Waiting</span>';
+        } else {
+          actionBtn = '<span style="color: #9ca3af; font-size: 0.75rem;">—</span>';
+        }
+        
         html += `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 1rem; border-bottom: 1px solid #e5e7eb; background: white;">
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
-                <span style="font-weight: 600; color: #1e293b; font-size: 0.9375rem;">${c.patient_name || 'Unknown'}</span>
-                ${paymentBadge}
-              </div>
-              <div style="font-size: 0.75rem; color: #64748b; display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                <span>📅 ${dateStr} ${timeStr}</span>
-                <span>👨‍⚕️ ${c.doctor_name || '-'}</span>
-                ${statusBadge}
-              </div>
-            </div>
-            <div style="margin-left: 0.75rem;">
-              ${isPaid 
-                ? '<span style="color: #9ca3af; font-size: 0.75rem;">—</span>'
-                : `<button onclick="markVideoBookingPaid('${c.appointment_id}')" style="background: linear-gradient(135deg, #10b981 0%, #22c55e 100%); color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">💰 Mark Paid</button>`
-              }
-            </div>
-          </div>
+          <tr style="background: ${bgColor}; border-bottom: 1px solid #e2e8f0;">
+            <td style="padding: 0.75rem;">
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.875rem;">${c.patient_name || 'Unknown'}</div>
+              <div style="color: #64748b; font-size: 0.75rem; font-family: monospace;">${c.patient_mobile || 'N/A'}</div>
+            </td>
+            <td style="padding: 0.75rem; font-size: 0.875rem; color: #475569; font-weight: 500;">${c.doctor_name || 'Unknown'}</td>
+            <td style="padding: 0.75rem; text-align: center;">
+              <div style="font-weight: 600; color: #1e293b; font-size: 0.8125rem;">${dateStr}</div>
+              <div style="color: #64748b; font-size: 0.75rem;">${timeStr}</div>
+            </td>
+            <td style="padding: 0.75rem; text-align: center;">
+              ${statusBadge}
+            </td>
+            <td style="padding: 0.75rem; text-align: center;">
+              ${paymentBadge}
+            </td>
+            <td style="padding: 0.75rem; text-align: center;">
+              ${actionBtn}
+            </td>
+          </tr>
         `;
       });
       
-      html += '</div>';
+      html += '</tbody></table></div>';
       container.innerHTML = html;
     }
     
@@ -2915,6 +3423,28 @@
         
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       } catch(e) { return dateStr; }
+    }
+    
+    // Scroll to invoice in Invoice Management section
+    function scrollToInvoice(invoiceId) {
+      // Open the billing section if collapsed
+      const billingBody = document.getElementById('billingBody');
+      if (billingBody.style.display === 'none') {
+        toggleBillingSection();
+      }
+      
+      // Scroll to billing section
+      document.querySelector('.billing-section').scrollIntoView({ behavior: 'smooth' });
+      
+      // Highlight the invoice search
+      setTimeout(() => {
+        const searchInput = document.getElementById('invoicePatientSearch');
+        if (searchInput) {
+          searchInput.value = invoiceId;
+          loadAllInvoices();
+          showToast('Info', `Showing invoice ${invoiceId}`, 'info');
+        }
+      }, 500);
     }
     
     // Mark video booking as paid

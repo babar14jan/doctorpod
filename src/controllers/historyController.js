@@ -19,7 +19,11 @@ const { generateVisitId } = require('../utils/idGenerator');
 
 // Save or update a visit (history) and its medicines using new star schema
 async function saveVisit(req, res) {
-  const { visit_id, patient_id, doctor_id, clinic_id, diagnosis, investigations, advice, temperature, blood_pressure, consultation_fee, medicines, appointment_id, patient_weight, source } = req.body;
+  const { visit_id, patient_id, doctor_id, clinic_id, diagnosis, investigations, advice, temperature, blood_pressure, consultation_fee, medicines, appointment_id, booking_ref, patient_weight, source } = req.body;
+  
+  // Support both appointment_id and booking_ref (frontend sends booking_ref)
+  const resolvedAppointmentId = appointment_id || booking_ref || null;
+  
   if (!patient_id || !doctor_id || !clinic_id) return res.status(400).json({ success: false, message: 'Missing fields' });
 
   let visitId = visit_id;
@@ -39,8 +43,8 @@ async function saveVisit(req, res) {
   let bloodGroup = req.body.blood_group || null;
   
   // If appointment_id is present, try to get from bookings
-  if (appointment_id) {
-    const booking = await db.prepare('SELECT patient_name, patient_age, patient_gender, patient_mobile, blood_group FROM bookings WHERE appointment_id = ?').get(appointment_id);
+  if (resolvedAppointmentId) {
+    const booking = await db.prepare('SELECT patient_name, patient_age, patient_gender, patient_mobile, blood_group FROM bookings WHERE appointment_id = ?').get(resolvedAppointmentId);
     if (booking) {
       if (!patientName && booking.patient_name) patientName = booking.patient_name;
       if (!patientAge && booking.patient_age) patientAge = booking.patient_age;
@@ -104,7 +108,7 @@ async function saveVisit(req, res) {
       await db.prepare('UPDATE visits SET patient_id = ?, doctor_id = ?, clinic_id = ?, diagnosis = ?, investigations = ?, advice = ?, temperature = ?, blood_pressure = ?, consultation_fee = ?, patient_name = ?, patient_age = ?, patient_gender = ?, appointment_id = ?, patient_weight = ?, source = ?, updated_at = CURRENT_TIMESTAMP WHERE visit_id = ?')
         .run(
           patient_id, doctor_id, clinic_id, diagnosis || null, investigations || null, advice || null, temperature || null, blood_pressure || null, consultation_fee || null,
-          patientName || null, patientAge || null, patientGender || null, appointment_id || null, patient_weight || null, source || null, visitId
+          patientName || null, patientAge || null, patientGender || null, resolvedAppointmentId, patient_weight || null, source || null, visitId
         );
       await db.prepare('DELETE FROM prescription_items WHERE visit_id = ?').run(visitId);
       if (Array.isArray(medicines)) {
@@ -117,7 +121,7 @@ async function saveVisit(req, res) {
       await db.prepare('INSERT INTO visits (visit_id, patient_id, doctor_id, clinic_id, diagnosis, investigations, advice, temperature, blood_pressure, consultation_fee, patient_name, patient_age, patient_gender, appointment_id, patient_weight, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
         .run(
           visitId, patient_id, doctor_id, clinic_id, diagnosis || null, investigations || null, advice || null, temperature || null, blood_pressure || null, consultation_fee || null,
-          patientName || null, patientAge || null, patientGender || null, appointment_id || null, patient_weight || null, source || null
+          patientName || null, patientAge || null, patientGender || null, resolvedAppointmentId, patient_weight || null, source || null
         );
       if (Array.isArray(medicines)) {
         const mstmt = db.prepare('INSERT INTO prescription_items (visit_id, doctor_id, medicine_name, frequency, timing) VALUES (?, ?, ?, ?, ?)');
@@ -190,4 +194,56 @@ async function getPatientProfileAndTimeline(req, res) {
   }
 }
 
-module.exports = { saveVisit, getVisitById, getVisitsByPatient, getVisitsByDoctor, getPatientProfileAndTimeline, getVisitsWithMedicinesByPatient };
+// Get prescriptions for a clinic with filters (date, mobile, doctor)
+async function getPrescriptionsByClinic(req, res) {
+  try {
+    const clinicId = req.params.clinic_id;
+    const { date, mobile, doctor_id } = req.query;
+    
+    let sql = `
+      SELECT v.*, d.name as doctor_name, p.mobile as patient_mobile_from_patients
+      FROM visits v
+      LEFT JOIN doctors d ON v.doctor_id = d.doctor_id
+      LEFT JOIN patients p ON v.patient_id = p.patient_id
+      WHERE v.clinic_id = ?
+    `;
+    const params = [clinicId];
+    
+    // Add date filter
+    if (date) {
+      sql += ` AND DATE(v.visit_time) = ?`;
+      params.push(date);
+    }
+    
+    // Add mobile filter - check both visits patient_mobile and patients table mobile
+    if (mobile) {
+      sql += ` AND (v.patient_mobile LIKE ? OR p.mobile LIKE ?)`;
+      params.push(`%${mobile}%`, `%${mobile}%`);
+    }
+    
+    // Add doctor filter
+    if (doctor_id) {
+      sql += ` AND v.doctor_id = ?`;
+      params.push(doctor_id);
+    }
+    
+    sql += ` ORDER BY v.visit_time DESC LIMIT 100`;
+    
+    const visits = await db.prepare(sql).all(...params);
+    
+    // Merge patient_mobile - prefer visits table, fallback to patients table
+    for (const v of visits) {
+      if (!v.patient_mobile && v.patient_mobile_from_patients) {
+        v.patient_mobile = v.patient_mobile_from_patients;
+      }
+      delete v.patient_mobile_from_patients;
+    }
+    
+    res.json({ success: true, visits });
+  } catch (e) {
+    console.error('Error fetching clinic prescriptions:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+}
+
+module.exports = { saveVisit, getVisitById, getVisitsByPatient, getVisitsByDoctor, getPatientProfileAndTimeline, getVisitsWithMedicinesByPatient, getPrescriptionsByClinic };

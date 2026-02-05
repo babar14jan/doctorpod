@@ -1506,4 +1506,25 @@ async function markBookingAsPaid(appointmentId) {
   }
 }
 
+// Refresh wrapper functions with spinning animation
+async function refreshDoctors() {
+  const btn = document.getElementById('doctorsRefreshBtn');
+  if (btn) btn.classList.add('loading');
+  try {
+    await loadDoctors();
+  } finally {
+    if (btn) btn.classList.remove('loading');
+  }
+}
+
+async function refreshAvailability() {
+  const btn = document.getElementById('availabilityRefreshBtn');
+  if (btn) btn.classList.add('loading');
+  try {
+    await loadAvailability();
+  } finally {
+    if (btn) btn.classList.remove('loading');
+  }
+}
+
 // End of file

@@ -39,9 +39,10 @@ async function generateInvoice(req, res) {
       return res.status(400).json({ success: false, message: 'Visit ID is required' });
     }
 
-    // Fetch visit details with patient mobile
+    // Fetch visit details with patient mobile and booking payment status
     const visit = await db.prepare(`
-      SELECT v.*, p.mobile as patient_mobile, b.patient_mobile as booking_mobile
+      SELECT v.*, p.mobile as patient_mobile, b.patient_mobile as booking_mobile,
+             b.is_video_consultation, b.payment_status as booking_payment_status, b.payment_method as booking_payment_method
       FROM visits v 
       LEFT JOIN patients p ON v.patient_id = p.patient_id 
       LEFT JOIN bookings b ON v.appointment_id = b.appointment_id
@@ -85,8 +86,17 @@ async function generateInvoice(req, res) {
     // Generate invoice ID
     const invoice_id = generateInvoiceId();
 
+    // Auto-set payment status for video consultations that were pre-paid
+    let finalPaymentStatus = payment_status;
+    let finalPaymentMethod = payment_method;
+    if (visit.is_video_consultation === 1 && visit.booking_payment_status === 'CONFIRMED') {
+      finalPaymentStatus = 'paid';
+      finalPaymentMethod = payment_method || visit.booking_payment_method || 'online';
+      console.log('🎥 Video consultation pre-paid, auto-marking invoice as paid');
+    }
+
     // Set payment date if paid
-    const payment_date = payment_status === 'paid' ? new Date().toISOString() : null;
+    const payment_date = finalPaymentStatus === 'paid' ? new Date().toISOString() : null;
 
     // Get PDF directory
     const basePath = process.env.PDF_DIR || 'public/pdfs/';
@@ -113,7 +123,7 @@ async function generateInvoice(req, res) {
       invoice_id, visit_id, visit.clinic_id, visit.patient_name, visit.patient_mobile || '',
       doctor?.name || 'Doctor', consultation_fee, medicine_charges, lab_charges,
       other_charges, other_charges_desc, subtotal, discountAmount, tax_percentage,
-      taxAmount, totalAmount, payment_status, payment_method, payment_date,
+      taxAmount, totalAmount, finalPaymentStatus, finalPaymentMethod, payment_date,
       invoice_path, notes, req.session?.clinic?.clinic_id || req.session?.doctor?.doctor_id || 'system'
     );
 
@@ -507,6 +517,52 @@ async function getTodaysCheckouts(req, res) {
   }
 }
 
+// Get video consultations ready for invoice (paid + seen + no invoice)
+async function getVideoReadyForInvoice(req, res) {
+  try {
+    const { clinic_id } = req.params;
+    
+    // Get video consultations where:
+    // 1. consult_status = 'seen' (prescription saved, visit created)
+    // 2. payment_status = 'CONFIRMED' (paid)
+    // 3. No invoice generated yet
+    const query = `
+      SELECT 
+        v.visit_id,
+        v.patient_name,
+        v.patient_age,
+        v.patient_gender,
+        v.consultation_fee,
+        v.visit_time,
+        v.pres_path,
+        v.appointment_id,
+        b.patient_mobile,
+        b.appointment_date,
+        b.appointment_time,
+        b.payment_status,
+        b.payment_method,
+        d.name as doctor_name
+      FROM visits v
+      JOIN bookings b ON v.appointment_id = b.appointment_id
+      JOIN doctors d ON v.doctor_id = d.doctor_id
+      LEFT JOIN invoices i ON v.visit_id = i.visit_id
+      WHERE v.clinic_id = ?
+        AND b.is_video_consultation = 1
+        AND b.consult_status = 'seen'
+        AND b.payment_status = 'CONFIRMED'
+        AND i.invoice_id IS NULL
+      ORDER BY v.visit_time DESC
+    `;
+    
+    const checkouts = await db.prepare(query).all(clinic_id);
+    
+    res.json({ success: true, checkouts });
+  } catch (error) {
+    console.error('Get video ready for invoice error:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
 // Get invoice statistics for clinic
 async function getInvoiceStats(req, res) {
   try {
@@ -563,12 +619,13 @@ async function getInvoiceStats(req, res) {
 async function getAllInvoices(req, res) {
   try {
     const { clinic_id } = req.params;
-    const { status, start_date, end_date, patient_search } = req.query;
+    const { status, mode, start_date, end_date, patient_search } = req.query;
     
     let query = `
-      SELECT i.*, v.patient_name, p.mobile as patient_mobile, d.name as doctor_name
+      SELECT i.*, v.patient_name, b.is_video_consultation, p.mobile as patient_mobile, d.name as doctor_name
       FROM invoices i
       LEFT JOIN visits v ON i.visit_id = v.visit_id
+      LEFT JOIN bookings b ON v.appointment_id = b.appointment_id
       LEFT JOIN patients p ON v.patient_id = p.patient_id
       LEFT JOIN doctors d ON v.doctor_id = d.doctor_id
       WHERE i.clinic_id = ?
@@ -580,6 +637,13 @@ async function getAllInvoices(req, res) {
     if (status && status !== 'all') {
       query += ' AND i.payment_status = ?';
       params.push(status);
+    }
+    
+    // Mode filter (clinic/video)
+    if (mode === 'video') {
+      query += ' AND b.is_video_consultation = 1';
+    } else if (mode === 'clinic') {
+      query += ' AND (b.is_video_consultation = 0 OR b.is_video_consultation IS NULL)';
     }
     
     if (start_date) {
@@ -614,6 +678,7 @@ module.exports = {
   getInvoicesByClinic,
   updatePaymentStatus,
   getTodaysCheckouts,
+  getVideoReadyForInvoice,
   getInvoiceStats,
   getAllInvoices
 };

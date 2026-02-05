@@ -818,4 +818,33 @@ function hideToast() {
   }, 300);
 }
 
+// Refresh wrapper functions with spinning animation
+async function refreshDemoRequests() {
+  const btn = document.getElementById('demoRefreshBtn');
+  if (btn) btn.classList.add('loading');
+  try {
+    await loadDemoRequests();
+  } finally {
+    if (btn) btn.classList.remove('loading');
+  }
+}
 
+async function refreshClinics() {
+  const btn = document.getElementById('clinicsRefreshBtn');
+  if (btn) btn.classList.add('loading');
+  try {
+    await loadClinics();
+  } finally {
+    if (btn) btn.classList.remove('loading');
+  }
+}
+
+async function refreshDoctors() {
+  const btn = document.getElementById('doctorsRefreshBtn');
+  if (btn) btn.classList.add('loading');
+  try {
+    await loadDoctors();
+  } finally {
+    if (btn) btn.classList.remove('loading');
+  }
+}

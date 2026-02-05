@@ -192,10 +192,24 @@
       background: var(--bg);
     }
 
+    .btn-profile {
+      background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-profile:hover {
+      background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    }
+
     .btn-danger {
-      background: #fef2f2;
-      color: #dc2626;
-      border: 1px solid #fecaca;
+      background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     }
 
     .btn-danger:hover {
@@ -387,18 +401,34 @@
     }
 
     .refresh-btn {
-      background: #a7f3d0;
-      color: #065f46;
+      background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+      color: white;
       border: none;
       padding: 0.5rem 0.75rem;
-      font-size: 1rem;
+      font-size: 0.875rem;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
     }
 
     .refresh-btn:hover {
-      background: #6ee7b7;
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+    }
+
+    .refresh-btn .refresh-icon {
+      display: inline-block;
+      transition: none;
+    }
+
+    .refresh-btn.loading .refresh-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .collapse-icon {
@@ -815,6 +845,30 @@
       max-width: 90vw;
       max-height: 85vh;
       overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #f3f4f6;
+      color: var(--text);
     }
 
     .modal-content h3 {
@@ -822,6 +876,7 @@
       margin-bottom: 1.5rem;
       font-size: 1.5rem;
       color: var(--text);
+      padding-right: 2rem;
     }
 
     .tabs {
@@ -1192,7 +1247,7 @@
       </a>
       
       <div class="header-right">
-        <button class="btn btn-outline" id="manageProfileBtn">Manage Profile</button>
+        <button class="btn btn-profile" id="manageProfileBtn">Manage Profile</button>
         <button class="btn btn-danger" id="signOutBtn">Sign Out</button>
       </div>
     </div>
@@ -1223,8 +1278,8 @@
             Loading...
           </p>
         </div>
-        <button onclick="refreshAllStats()" class="refresh-btn" title="Refresh Stats" style="background: #d1fae5; color: #065f46; border: none; padding: 0.5rem 0.75rem; font-size: 0.875rem; border-radius: 6px; cursor: pointer;">
-          🔄 Refresh
+        <button id="statsRefreshBtn" onclick="refreshAllStatsWithSpin()" class="refresh-btn" title="Refresh Stats">
+          <span class="refresh-icon">⟳</span> Refresh
         </button>
       </div>
       
@@ -1292,8 +1347,8 @@
       <div class="section-header" onclick="toggleAppointments()">
         <h2 class="section-title" id="appointmentsHeading">📅 Today's Appointments</h2>
         <div class="section-actions">
-          <button class="refresh-btn" onclick="event.stopPropagation(); loadAppointments();" title="Refresh">
-            <span id="refreshIcon">🔄</span>
+          <button id="appointmentsRefreshBtn" class="refresh-btn" onclick="event.stopPropagation(); refreshAppointmentsWithSpin();" title="Refresh">
+            <span class="refresh-icon">⟳</span> Refresh
           </button>
           <span class="collapse-icon" id="appointmentsCollapseIcon">▼</span>
         </div>
@@ -1354,6 +1409,7 @@
   <!-- Manage Profile Modal -->
   <div id="manageProfileModal" class="modal">
     <div class="modal-content">
+      <button class="modal-close" id="closeManageProfileModal" aria-label="Close">✕</button>
       <h3>Manage Profile</h3>
       
       <div class="tabs">
@@ -1424,10 +1480,6 @@
             <button type="submit" class="btn btn-success" style="flex:1;">Update Password</button>
           </div>
         </form>
-      </div>
-
-      <div class="btn-group" style="margin-top: 1.5rem;">
-        <button class="btn btn-outline" id="closeManageProfileModal" style="flex:1;">Close</button>
       </div>
     </div>
   </div>
@@ -1708,14 +1760,9 @@
           return;
         }
         
-        const refreshIcon = document.getElementById('refreshIcon');
-        refreshIcon.style.animation = 'spin 1s linear infinite';
-        
         // Fetch all appointments (no date filter to get all)
         const res = await fetch(`/bookings/doctor/${encodeURIComponent(doctorId)}`);
         const data = await res.json();
-        
-        refreshIcon.style.animation = '';
         
         if (data.success && data.bookings) {
           allAppointments = data.bookings;
@@ -1726,7 +1773,6 @@
         }
       } catch (err) {
         console.error('Failed to load appointments:', err);
-        document.getElementById('refreshIcon').style.animation = '';
         renderAppointmentsTable([]);
       }
     }
@@ -1929,6 +1975,28 @@
     function refreshAllStats() {
       loadTodayStats();
       loadAppointments();
+    }
+
+    // Refresh stats with spinning animation
+    async function refreshAllStatsWithSpin() {
+      const btn = document.getElementById('statsRefreshBtn');
+      if (btn) btn.classList.add('loading');
+      try {
+        await Promise.all([loadTodayStats(), loadAppointments()]);
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
+    }
+
+    // Refresh appointments with spinning animation
+    async function refreshAppointmentsWithSpin() {
+      const btn = document.getElementById('appointmentsRefreshBtn');
+      if (btn) btn.classList.add('loading');
+      try {
+        await loadAppointments();
+      } finally {
+        if (btn) btn.classList.remove('loading');
+      }
     }
     
     // Update progress bar
