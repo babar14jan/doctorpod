@@ -1104,6 +1104,98 @@
         min-width: auto;
         top: 10px;
       }
+
+      /* Invoice Modal - Mobile Responsive */
+      #invoiceModal {
+        padding: 0.25rem !important;
+      }
+
+      #invoiceModal > div {
+        max-height: 98vh;
+        border-radius: 8px;
+      }
+
+      #invoiceModal .invoice-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.375rem !important;
+      }
+
+      #invoiceModal input[type="number"],
+      #invoiceModal input[type="text"],
+      #invoiceModal select,
+      #invoiceModal textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        padding: 0.5rem !important;
+      }
+
+      /* Billing stats bar - mobile */
+      .billing-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.375rem !important;
+        padding: 0.5rem !important;
+      }
+
+      .billing-stats > div {
+        padding: 0.375rem 0.5rem !important;
+      }
+
+      .billing-stats > div span:first-child {
+        font-size: 0.625rem !important;
+      }
+
+      .billing-stats > div span:last-child {
+        font-size: 0.875rem !important;
+      }
+
+      /* Appointments stats bar - mobile */
+      .appointments-stats {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.25rem !important;
+        padding: 0.5rem !important;
+      }
+
+      .appointments-stats > div {
+        padding: 0.375rem 0.25rem !important;
+      }
+
+      .appointments-stats > div span:first-child {
+        font-size: 0.5625rem !important;
+      }
+
+      .appointments-stats > div span:last-child {
+        font-size: 0.875rem !important;
+      }
+
+      /* Video stats bar - mobile */
+      .video-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.375rem !important;
+        padding: 0.5rem !important;
+      }
+
+      .video-stats > div {
+        padding: 0.375rem 0.5rem !important;
+      }
+
+      .video-stats > div span:first-child {
+        font-size: 0.625rem !important;
+      }
+
+      .video-stats > div span:last-child {
+        font-size: 0.875rem !important;
+      }
+    }
+
+    /* Extra small screens */
+    @media (max-width: 380px) {
+      #invoiceModal .invoice-grid {
+        grid-template-columns: 1fr !important;
+      }
+      
+      #videoPaymentFilter {
+        width: 100%;
+        font-size: 16px; /* Prevent iOS zoom */
+      }
     }
   </style>
 </head>
@@ -1145,32 +1237,31 @@
 
     <!-- ========== TODAY'S APPOINTMENTS SECTION (HIGHEST PRIORITY) ========== -->
     <div class="section appointments-section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-      <div class="section-header clickable appointments-header" onclick="toggleAppointmentsSection()" style="background: #d1fae5; color: #065f46; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #a7f3d0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+      <div class="section-header clickable appointments-header" onclick="toggleAppointmentsSection()" style="background: #d1fae5; color: #065f46; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #a7f3d0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
         <h2 class="appointments-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;" id="appointmentsHeading">📅 Today's Appointments</h2>
-        <div style="display: flex; gap: 0.75rem; align-items: center;">
-          <button class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); refreshAppointments();" title="Refresh appointments" style="background: #a7f3d0; color: #065f46; border: none; padding: 0.5rem 0.75rem; font-size: 1rem; min-width: auto; border-radius: 6px;">
-            <span id="refreshIcon">🔄</span>
-          </button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-sm refresh-btn" onclick="event.stopPropagation(); refreshAppointments();" title="Refresh appointments" style="background: #a7f3d0; color: #065f46; border: none; padding: 0.375rem 0.625rem; font-size: 0.875rem; min-width: auto; border-radius: 6px;">🔄</button>
           <span class="collapse-icon" id="appointmentsIcon" style="font-size: 1.25rem; transition: transform 0.3s ease;">▼</span>
         </div>
       </div>
-      <div class="section-body" id="appointmentsBody" style="padding: 0;">
-        
-        <!-- Stats Inside Appointments -->
-        <div class="top-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; padding: 1rem; border-bottom: 1px solid #e5e7eb;">
-          <div style="background: white; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap;">
-            <span class="stat-label" style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Total Doctors:</span>
-            <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #6366f1;" id="totalDoctors">0</span>
-          </div>
-          <div style="background: white; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap;">
-            <span class="stat-label" style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Active Today:</span>
-            <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #10b981;" id="activeToday">0</span>
-          </div>
-          <div style="background: white; border: 1px solid #e5e7eb; padding: 0.75rem 1rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap;">
-            <span class="stat-label" style="font-size: 0.8125rem; color: #6b7280; font-weight: 600;">Appointments:</span>
-            <span class="stat-value" style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;" id="totalAppointments">0</span>
-          </div>
+      
+      <!-- Stats Bar (inline with header) -->
+      <div class="appointments-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; background: #f8fafc;">
+        <div style="background: white; border: 1px solid #e0e7ff; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Doctors:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #6366f1;" id="totalDoctors">0</span>
         </div>
+        <div style="background: white; border: 1px solid #dcfce7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Active:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #10b981;" id="activeToday">0</span>
+        </div>
+        <div style="background: white; border: 1px solid #fef3c7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Bookings:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #f59e0b;" id="totalAppointments">0</span>
+        </div>
+      </div>
+      
+      <div class="section-body" id="appointmentsBody" style="padding: 0;">
 
         <div style="padding: 1rem; text-align: center; color: var(--text-muted);">
           <span id="loadingAppointments">⏳ Loading appointments...</span>
@@ -1194,6 +1285,7 @@
               <tr>
                 <th class="apt-col-patient" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Patient</th>
                 <th class="apt-col-doctor" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Doctor</th>
+                <th class="apt-col-mode" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Mode</th>
                 <th class="apt-col-date" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Date</th>
                 <th class="apt-col-time" style="padding: 0.75rem; text-align: left; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Time</th>
                 <th class="apt-col-queue" style="padding: 0.75rem; text-align: center; font-size: 0.875rem; font-weight: 600; color: var(--text-muted);">Queue</th>
@@ -1208,49 +1300,36 @@
       </div>
     </div>
 
-    <!-- ========== REVENUE ANALYTICS SECTION ========== -->
-    <div class="section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-      <div class="section-header clickable" onclick="toggleRevenueSection()" style="background: #e9d5ff; color: #6b21a8; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #d8b4fe; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">📊 Revenue Dashboard</h2>
-        <span class="collapse-icon" id="revenueIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
-      </div>
-      <div class="section-body" id="revenueBody" style="padding: 1.5rem; display: none;">
-        
-        <!-- Revenue Stats Cards -->
-        <div class="revenue-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
-          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
-            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">Today's Revenue</div>
-            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #10b981;" id="statTodayRevenue">₹0</div>
-            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;" id="statTodayInvoices">0 invoices</div>
-          </div>
-          
-          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
-            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">Pending Payments</div>
-            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #f59e0b;" id="statPendingPayments">₹0</div>
-            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;" id="statPendingCount">0 unpaid</div>
-          </div>
-          
-          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
-            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">This Month Payments</div>
-            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #0ea5e9;" id="statMonthRevenue">₹0</div>
-            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;">Total revenue</div>
-          </div>
-          
-          <div class="revenue-card" style="background: white; border: 1px solid #e5e7eb; padding: 0.875rem 1rem; border-radius: 8px; text-align: center;">
-            <div class="revenue-label" style="font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem;">Pending Checkouts</div>
-            <div class="revenue-value" style="font-size: 1.25rem; font-weight: 700; color: #8b5cf6;" id="statTodayCheckouts">0</div>
-            <div class="revenue-subtext" style="font-size: 0.6875rem; color: #9ca3af; margin-top: 0.25rem;">Today's visits</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ========== BILLING & INVOICES SECTION ========== -->
     <div class="section billing-section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-      <div class="section-header clickable billing-header" onclick="toggleBillingSection()" style="background: #dbeafe; color: #1e40af; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #bfdbfe; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+      <div class="section-header clickable billing-header" onclick="toggleBillingSection()" style="background: #dbeafe; color: #1e40af; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #bfdbfe; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
         <h2 class="billing-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;">💰 Billing & Invoices</h2>
-        <span class="collapse-icon" id="billingIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-sm" onclick="event.stopPropagation(); loadInvoiceStats();" title="Refresh stats" style="background: #93c5fd; color: #1e40af; border: none; padding: 0.375rem 0.625rem; font-size: 0.875rem; min-width: auto; border-radius: 6px;">🔄</button>
+          <span class="collapse-icon" id="billingIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
+        </div>
       </div>
+      
+      <!-- Revenue Stats Bar (like Today's Appointments) -->
+      <div class="billing-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; background: #f8fafc;">
+        <div style="background: white; border: 1px solid #dcfce7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Today:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #10b981;" id="statTodayRevenue">₹0</span>
+        </div>
+        <div style="background: white; border: 1px solid #fef3c7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Pending:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #f59e0b;" id="statPendingPayments">₹0</span>
+        </div>
+        <div style="background: white; border: 1px solid #dbeafe; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Month:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #0ea5e9;" id="statMonthRevenue">₹0</span>
+        </div>
+        <div style="background: white; border: 1px solid #f3e8ff; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Checkouts:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #8b5cf6;" id="statTodayCheckouts">0</span>
+        </div>
+      </div>
+      
       <div class="section-body billing-body" id="billingBody" style="padding: 1.5rem; display: none;">
 
         <!-- Today's Checkouts -->
@@ -1302,6 +1381,73 @@
             <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
               <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
               <div>Loading invoices...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== VIDEO CONSULTATIONS OVERVIEW SECTION ========== -->
+    <div class="section video-section" style="background: white; border-radius: 12px; padding: 0; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+      <div class="section-header clickable video-header" onclick="toggleVideoSection()" style="background: #dcfce7; color: #166534; padding: 1rem 1.5rem; border-radius: 12px 12px 0 0; border-bottom: 1px solid #bbf7d0; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <h2 class="video-title" style="font-size: 1.25rem; font-weight: 700; margin: 0;">📹 Video Consultations</h2>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-sm" onclick="event.stopPropagation(); loadVideoConsultationsOverview();" title="Refresh stats" style="background: #bbf7d0; color: #166534; border: none; padding: 0.375rem 0.625rem; font-size: 0.875rem; min-width: auto; border-radius: 6px;">🔄</button>
+          <span class="collapse-icon" id="videoIcon" style="font-size: 1.25rem; transition: transform 0.3s ease; transform: rotate(-90deg);">▼</span>
+        </div>
+      </div>
+      
+      <!-- Video Stats Bar -->
+      <div class="video-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; background: #f8fafc;">
+        <div style="background: white; border: 1px solid #dcfce7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Today:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #16a34a;" id="statTodayVideoCalls">0</span>
+        </div>
+        <div style="background: white; border: 1px solid #fef3c7; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Pending:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #d97706;" id="statPendingJoins">0</span>
+        </div>
+        <div style="background: white; border: 1px solid #dbeafe; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Links:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #2563eb;" id="statLinksSent">0</span>
+        </div>
+        <div style="background: white; border: 1px solid #f3e8ff; padding: 0.5rem 0.75rem; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 0.375rem; white-space: nowrap;">
+          <span style="font-size: 0.6875rem; color: #6b7280; font-weight: 600;">Week:</span>
+          <span style="font-size: 1rem; font-weight: 700; color: #7c3aed;" id="statWeekVideoCalls">0</span>
+        </div>
+      </div>
+      
+      <div class="section-body video-body" id="videoBody" style="padding: 1.5rem; display: none;">
+        <!-- Filter and Actions -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+          <select id="videoPaymentFilter" onchange="filterVideoConsultationsList()" style="padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.875rem; background: white;">
+            <option value="all">All Consultations</option>
+            <option value="pending">Unpaid Only</option>
+            <option value="paid">Paid Only</option>
+          </select>
+          <div style="display: flex; gap: 0.5rem;">
+            <span id="videoPaidCount" style="background: #dcfce7; color: #16a34a; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.8125rem; font-weight: 600;">0 Paid</span>
+            <span id="videoUnpaidCount" style="background: #fef3c7; color: #d97706; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.8125rem; font-weight: 600;">0 Unpaid</span>
+          </div>
+        </div>
+        
+        <!-- Video Consultations List -->
+        <div id="videoConsultationsDetailList" style="background: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0; overflow: hidden;">
+          <div style="text-align: center; padding: 2rem; color: #64748b;">
+            <div style="font-size: 1.5rem; margin-bottom: 0.375rem;">⏳</div>
+            <div style="font-size: 0.875rem;">Loading consultations...</div>
+          </div>
+        </div>
+        
+        <!-- Doctor-wise Video Consultations -->
+        <div class="doctor-video-list" style="background: #f8fafc; border-radius: 12px; padding: 1rem; border: 2px solid #e2e8f0; margin-top: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #1e293b;">👨‍⚕️ Doctor-wise Breakdown</h3>
+          </div>
+          <div id="doctorVideoList" style="min-height: 80px;">
+            <div style="text-align: center; padding: 1.5rem; color: #64748b;">
+              <div style="font-size: 1.5rem; margin-bottom: 0.375rem;">⏳</div>
+              <div style="font-size: 0.875rem;">Loading...</div>
             </div>
           </div>
         </div>
@@ -1887,7 +2033,7 @@
         const dateMsg = selectedDate ? `for ${selectedDate}` : 'for selected filters';
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">
               No appointments found ${dateMsg}
             </td>
           </tr>
@@ -1907,6 +2053,13 @@
         const statusColor = statusColors[apt.consult_status] || '#64748b';
         const statusText = (apt.consult_status || 'pending').replace('_', ' ');
         
+        // Consultation mode - Video Call or In-Clinic
+        const isVideoCall = apt.is_video_consultation === 1 || apt.is_video_consultation === true;
+        const modeIcon = isVideoCall ? '📹' : '🏥';
+        const modeText = isVideoCall ? 'Video' : 'Clinic';
+        const modeBg = isVideoCall ? '#dcfce7' : '#dbeafe';
+        const modeColor = isVideoCall ? '#16a34a' : '#2563eb';
+        
         return `
           <tr>
             <td>
@@ -1914,6 +2067,9 @@
               <div style="font-size: 0.75rem; color: var(--text-muted);">${apt.patient_mobile || ''}</div>
             </td>
             <td>${apt.doctor_name || '-'}</td>
+            <td style="text-align: center;">
+              <span style="background: ${modeBg}; color: ${modeColor}; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">${modeIcon} ${modeText}</span>
+            </td>
             <td>${apt.appointment_date || '-'}</td>
             <td>${apt.appointment_time || '-'}</td>
             <td style="text-align: center;">
@@ -2596,6 +2752,296 @@
       }
     }
 
+    // Toggle video consultations section collapse
+    function toggleVideoSection() {
+      const body = document.getElementById('videoBody');
+      const icon = document.getElementById('videoIcon');
+      
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+        // Load data when section is opened
+        loadVideoConsultationsOverview();
+        loadVideoConsultationsDetailList();
+      } else {
+        body.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+      }
+    }
+    
+    // Store video consultations for filtering
+    let allVideoConsultations = [];
+    
+    // Load detailed video consultations list
+    async function loadVideoConsultationsDetailList() {
+      const container = document.getElementById('videoConsultationsDetailList');
+      container.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #64748b;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+          <div>Loading consultations...</div>
+        </div>
+      `;
+      
+      try {
+        if (!currentClinicId) {
+          // Try to get clinic ID from session
+          const sessionRes = await fetch('/clinic/profile');
+          const sessionData = await sessionRes.json();
+          if (sessionData.success && sessionData.clinic) {
+            currentClinicId = sessionData.clinic.clinic_id;
+          }
+        }
+        
+        if (!currentClinicId) {
+          container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #64748b;">Session not loaded</div>';
+          return;
+        }
+        
+        const res = await fetch(`/bookings/clinic-video-consultations?clinic_id=${currentClinicId}`);
+        const data = await res.json();
+        
+        if (data.success) {
+          allVideoConsultations = data.consultations || [];
+          filterVideoConsultationsList();
+        } else {
+          container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #ef4444;">${data.message || 'Failed to load'}</div>`;
+        }
+      } catch (error) {
+        console.error('Error loading video consultations:', error);
+        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #ef4444;">Network error</div>';
+      }
+    }
+    
+    // Filter and render video consultations
+    function filterVideoConsultationsList() {
+      const container = document.getElementById('videoConsultationsDetailList');
+      const filterSelect = document.getElementById('videoPaymentFilter');
+      const filter = filterSelect ? filterSelect.value : 'all';
+      
+      let consultations = allVideoConsultations;
+      
+      if (filter === 'pending') {
+        consultations = allVideoConsultations.filter(c => c.payment_status !== 'CONFIRMED');
+      } else if (filter === 'paid') {
+        consultations = allVideoConsultations.filter(c => c.payment_status === 'CONFIRMED');
+      }
+      
+      // Update counts
+      const paidCount = allVideoConsultations.filter(c => c.payment_status === 'CONFIRMED').length;
+      const unpaidCount = allVideoConsultations.filter(c => c.payment_status !== 'CONFIRMED').length;
+      document.getElementById('videoPaidCount').textContent = `${paidCount} Paid`;
+      document.getElementById('videoUnpaidCount').textContent = `${unpaidCount} Unpaid`;
+      
+      renderVideoConsultationsList(consultations, container);
+    }
+    
+    // Render video consultations list
+    function renderVideoConsultationsList(consultations, container) {
+      if (!consultations.length) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: #64748b;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📹</div>
+            <div style="font-size: 1rem; font-weight: 500;">No video consultations found</div>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '<div style="max-height: 400px; overflow-y: auto;">';
+      
+      consultations.forEach(c => {
+        const isPaid = c.payment_status === 'CONFIRMED';
+        const paymentBadge = isPaid 
+          ? '<span style="background: #dcfce7; color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">✓ Paid</span>'
+          : '<span style="background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.6875rem; font-weight: 600;">Unpaid</span>';
+        
+        const statusBadge = getVideoStatusBadge(c.consult_status);
+        const dateStr = formatVideoDate(c.appointment_date);
+        const timeStr = c.appointment_time || '--:--';
+        
+        html += `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 1rem; border-bottom: 1px solid #e5e7eb; background: white;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <span style="font-weight: 600; color: #1e293b; font-size: 0.9375rem;">${c.patient_name || 'Unknown'}</span>
+                ${paymentBadge}
+              </div>
+              <div style="font-size: 0.75rem; color: #64748b; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <span>📅 ${dateStr} ${timeStr}</span>
+                <span>👨‍⚕️ ${c.doctor_name || '-'}</span>
+                ${statusBadge}
+              </div>
+            </div>
+            <div style="margin-left: 0.75rem;">
+              ${isPaid 
+                ? '<span style="color: #9ca3af; font-size: 0.75rem;">—</span>'
+                : `<button onclick="markVideoBookingPaid('${c.appointment_id}')" style="background: linear-gradient(135deg, #10b981 0%, #22c55e 100%); color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap;">💰 Mark Paid</button>`
+              }
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      container.innerHTML = html;
+    }
+    
+    // Get status badge for video consultation
+    function getVideoStatusBadge(status) {
+      const badges = {
+        'not_seen': '<span style="background: #e2e8f0; color: #475569; padding: 0.125rem 0.375rem; border-radius: 3px; font-size: 0.625rem;">Not Started</span>',
+        'in_progress': '<span style="background: #dbeafe; color: #2563eb; padding: 0.125rem 0.375rem; border-radius: 3px; font-size: 0.625rem;">In Progress</span>',
+        'seen': '<span style="background: #dcfce7; color: #16a34a; padding: 0.125rem 0.375rem; border-radius: 3px; font-size: 0.625rem;">Completed</span>',
+        'cancelled': '<span style="background: #fee2e2; color: #dc2626; padding: 0.125rem 0.375rem; border-radius: 3px; font-size: 0.625rem;">Cancelled</span>'
+      };
+      return badges[status] || badges['not_seen'];
+    }
+    
+    // Format date for video list
+    function formatVideoDate(dateStr) {
+      if (!dateStr) return '-';
+      try {
+        const d = new Date(dateStr);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const dateOnly = new Date(d);
+        dateOnly.setHours(0,0,0,0);
+        
+        const dayDiff = Math.floor((dateOnly - today) / (1000 * 60 * 60 * 24));
+        
+        if (dayDiff === 0) return 'Today';
+        if (dayDiff === 1) return 'Tomorrow';
+        if (dayDiff === -1) return 'Yesterday';
+        
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      } catch(e) { return dateStr; }
+    }
+    
+    // Mark video booking as paid
+    async function markVideoBookingPaid(appointmentId) {
+      const paymentMethod = prompt('Payment method (cash/upi/card/online):', 'upi');
+      if (!paymentMethod) return;
+      
+      try {
+        const res = await fetch(`/bookings/${appointmentId}/payment-status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            payment_status: 'CONFIRMED',
+            payment_method: paymentMethod 
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          showToast('Success', 'Payment marked as confirmed!', 'success');
+          loadVideoConsultationsDetailList(); // Refresh list
+          loadVideoConsultationsOverview(); // Refresh stats
+        } else {
+          showToast('Error', data.message || 'Unknown error', 'error');
+        }
+      } catch (error) {
+        console.error('Mark as paid error:', error);
+        showToast('Error', 'Network error. Please try again.', 'error');
+      }
+    }
+
+    // Load video consultations overview data
+    async function loadVideoConsultationsOverview() {
+      const container = document.getElementById('doctorVideoList');
+      container.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #64748b;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⏳</div>
+          <div>Loading video consultations...</div>
+        </div>
+      `;
+      
+      try {
+        const response = await fetch('/clinic/video-consultations', {
+          headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('clinicToken')
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load video consultations');
+        }
+        
+        const data = await response.json();
+        
+        // Update summary stats
+        document.getElementById('statTodayVideoCalls').textContent = data.summary.todayConsultations || 0;
+        document.getElementById('statPendingJoins').textContent = data.summary.pendingJoins || 0;
+        document.getElementById('statLinksSent').textContent = data.summary.linksSent || 0;
+        document.getElementById('statWeekVideoCalls').textContent = data.summary.weekConsultations || 0;
+        
+        // Render doctor list
+        if (!data.doctors || data.doctors.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #64748b;">
+              <div style="font-size: 3rem; margin-bottom: 1rem;">📹</div>
+              <div style="font-size: 1rem; margin-bottom: 0.5rem;">No video consultations yet</div>
+              <div style="font-size: 0.875rem; color: #9ca3af;">Doctors can generate join links from their dashboard</div>
+            </div>
+          `;
+          return;
+        }
+        
+        let html = '<div style="display: grid; gap: 1rem;">';
+        
+        data.doctors.forEach(doctor => {
+          const statusColor = doctor.todayConsultations > 0 ? '#16a34a' : '#64748b';
+          const statusBg = doctor.todayConsultations > 0 ? '#dcfce7' : '#f1f5f9';
+          
+          html += `
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 48px; height: 48px; background: ${statusBg}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                  👨‍⚕️
+                </div>
+                <div>
+                  <div style="font-weight: 600; color: #1e293b; font-size: 1rem;">Dr. ${doctor.doctorName}</div>
+                  <div style="font-size: 0.8125rem; color: #64748b;">${doctor.specialization || 'General Practice'}</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 1.5rem; text-align: center;">
+                <div>
+                  <div style="font-size: 1.25rem; font-weight: 700; color: ${statusColor};">${doctor.todayConsultations}</div>
+                  <div style="font-size: 0.6875rem; color: #9ca3af;">Today</div>
+                </div>
+                <div>
+                  <div style="font-size: 1.25rem; font-weight: 700; color: #d97706;">${doctor.pendingJoins}</div>
+                  <div style="font-size: 0.6875rem; color: #9ca3af;">Pending</div>
+                </div>
+                <div>
+                  <div style="font-size: 1.25rem; font-weight: 700; color: #2563eb;">${doctor.totalLinksSent}</div>
+                  <div style="font-size: 0.6875rem; color: #9ca3af;">Links Sent</div>
+                </div>
+                <div>
+                  <div style="font-size: 1.25rem; font-weight: 700; color: #7c3aed;">${doctor.weekConsultations}</div>
+                  <div style="font-size: 0.6875rem; color: #9ca3af;">This Week</div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+        
+      } catch (error) {
+        console.error('Error loading video consultations:', error);
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: #dc2626;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+            <div>Failed to load video consultations</div>
+            <button onclick="loadVideoConsultationsOverview()" class="btn btn-sm btn-outline" style="margin-top: 1rem;">Try Again</button>
+          </div>
+        `;
+      }
+    }
+
     function toggleQRSection() {
       const body = document.getElementById('qrBody');
       const icon = document.getElementById('qrIcon');
@@ -2612,19 +3058,6 @@
     function toggleAppointmentsSection() {
       const body = document.getElementById('appointmentsBody');
       const icon = document.getElementById('appointmentsIcon');
-      
-      if (body.style.display === 'none') {
-        body.style.display = 'block';
-        icon.style.transform = 'rotate(0deg)';
-      } else {
-        body.style.display = 'none';
-        icon.style.transform = 'rotate(-90deg)';
-      }
-    }
-
-    function toggleRevenueSection() {
-      const body = document.getElementById('revenueBody');
-      const icon = document.getElementById('revenueIcon');
       
       if (body.style.display === 'none') {
         body.style.display = 'block';
@@ -2675,6 +3108,7 @@
         const includePrescription = document.getElementById('invoice_include_prescription')?.checked || false;
         
         console.log('📋 Form data:', { visitId, consultationFee, medicineCharges, labCharges, otherCharges });
+        console.log('📱 WhatsApp settings:', { sendWhatsApp, includePrescription });
         
         if (!visitId) {
           console.error('❌ Visit ID missing');
@@ -2733,13 +3167,17 @@
           
           if (data.success) {
             console.log('✅ Invoice generated successfully!');
+            console.log('📱 WhatsApp URL in response:', data.whatsapp_url);
             window.open(data.invoice_path, '_blank');
             
             // Open WhatsApp if URL was generated
             if (data.whatsapp_url) {
+              console.log('📱 Opening WhatsApp...');
               setTimeout(() => {
                 window.open(data.whatsapp_url, '_blank');
               }, 500);
+            } else {
+              console.log('⚠️ No WhatsApp URL in response');
             }
             
             closeInvoiceModal();
@@ -2790,123 +3228,112 @@
   </script>
 
   <!-- Invoice Generation Modal -->
-  <div id="invoiceModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; padding: 1rem; overflow-y: auto; align-items: center; justify-content: center;">
-    <div style="background: white; max-width: 600px; width: 100%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-      <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700;">🧾 Generate Invoice</h3>
+  <div id="invoiceModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; padding: 0.75rem; overflow-y: auto; align-items: flex-start; justify-content: center;">
+    <div style="background: white; max-width: 560px; width: 100%; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin: auto;">
+      <div style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; padding: 1rem; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1;">
+        <h3 style="margin: 0; font-size: 1.125rem; font-weight: 700;">🧾 Generate Invoice</h3>
         <button onclick="closeInvoiceModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.25rem; display: flex; align-items: center; justify-content: center;">&times;</button>
       </div>
-      <div style="padding: 1.5rem;">
+      <div style="padding: 1rem; max-height: 80vh; overflow-y: auto;">
         <form id="invoiceForm">
           <input type="hidden" id="invoice_visit_id" />
           
-          <!-- Patient Info -->
-          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-            <div style="font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.25rem;">Patient Details</div>
-            <div style="font-weight: 600; font-size: 1.125rem;" id="invoice_patient_name">-</div>
-            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">📱 <span id="invoice_patient_mobile">-</span></div>
-            <div style="font-size: 0.875rem; opacity: 0.95; margin-top: 0.25rem;">👨‍⚕️ <span id="invoice_doctor_name">-</span></div>
+          <!-- Patient Info - Compact -->
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+            <div style="font-weight: 600; font-size: 1rem;" id="invoice_patient_name">-</div>
+            <div style="font-size: 0.8125rem; opacity: 0.95; margin-top: 0.25rem;">📱 <span id="invoice_patient_mobile">-</span> &nbsp;|&nbsp; 👨‍⚕️ <span id="invoice_doctor_name">-</span></div>
           </div>
 
-          <!-- Charges -->
-          <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-            <div style="font-weight: 600; color: #334155; margin-bottom: 0.75rem;">💰 Charges</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <!-- Charges - Compact Grid -->
+          <div style="background: #f8fafc; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.75rem;">
+            <div style="font-weight: 600; color: #334155; margin-bottom: 0.5rem; font-size: 0.875rem;">💰 Charges</div>
+            <div class="invoice-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
               <div>
-                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Consultation Fee</label>
-                <input type="number" id="invoice_consultation_fee" class="form-input" step="0.01" min="0" value="0" />
+                <label style="display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.125rem;">Consultation</label>
+                <input type="number" id="invoice_consultation_fee" class="form-input" style="padding: 0.5rem; font-size: 16px;" step="0.01" min="0" value="0" />
               </div>
               <div>
-                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Medicine Charges</label>
-                <input type="number" id="invoice_medicine_charges" class="form-input" step="0.01" min="0" value="0" />
+                <label style="display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.125rem;">Medicine</label>
+                <input type="number" id="invoice_medicine_charges" class="form-input" style="padding: 0.5rem; font-size: 16px;" step="0.01" min="0" value="0" />
               </div>
               <div>
-                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Lab Charges</label>
-                <input type="number" id="invoice_lab_charges" class="form-input" step="0.01" min="0" value="0" />
+                <label style="display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.125rem;">Lab</label>
+                <input type="number" id="invoice_lab_charges" class="form-input" style="padding: 0.5rem; font-size: 16px;" step="0.01" min="0" value="0" />
               </div>
               <div>
-                <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Other Charges</label>
-                <input type="number" id="invoice_other_charges" class="form-input" step="0.01" min="0" value="0" />
+                <label style="display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 0.125rem;">Other</label>
+                <input type="number" id="invoice_other_charges" class="form-input" style="padding: 0.5rem; font-size: 16px;" step="0.01" min="0" value="0" />
               </div>
             </div>
-            <div style="margin-top: 1rem;">
-              <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Other Charges Description</label>
-              <input type="text" id="invoice_other_charges_desc" class="form-input" placeholder="e.g., X-Ray, Bandages..." />
+            <div style="margin-top: 0.5rem;">
+              <input type="text" id="invoice_other_charges_desc" class="form-input" style="padding: 0.5rem; font-size: 16px;" placeholder="Other charges description (e.g., X-Ray)" />
             </div>
           </div>
 
-          <!-- Adjustments -->
-          <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-            <div style="font-weight: 600; color: #92400e; margin-bottom: 0.75rem;">📊 Adjustments</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div>
-                <label style="display: block; font-size: 0.875rem; color: #78350f; margin-bottom: 0.25rem;">Discount (₹)</label>
-                <input type="number" id="invoice_discount" class="form-input" step="0.01" min="0" value="0" />
-              </div>
-              <div>
-                <label style="display: block; font-size: 0.875rem; color: #78350f; margin-bottom: 0.25rem;">Tax Percentage (%)</label>
-                <input type="number" id="invoice_tax_percentage" class="form-input" step="0.01" min="0" max="100" value="0" />
-              </div>
+          <!-- Adjustments + Payment - Combined Row -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div style="background: #fef3c7; padding: 0.625rem; border-radius: 8px;">
+              <label style="display: block; font-size: 0.75rem; color: #78350f; margin-bottom: 0.125rem;">Discount (₹)</label>
+              <input type="number" id="invoice_discount" class="form-input" style="padding: 0.5rem; font-size: 16px;" step="0.01" min="0" value="0" />
+            </div>
+            <div style="background: #fef3c7; padding: 0.625rem; border-radius: 8px;">
+              <label style="display: block; font-size: 0.75rem; color: #78350f; margin-bottom: 0.125rem;">Tax (%)</label>
+              <input type="number" id="invoice_tax_percentage" class="form-input" style="padding: 0.5rem; font-size: 16px;" step="0.01" min="0" max="100" value="0" />
             </div>
           </div>
 
-          <!-- Payment -->
-          <div style="background: #eff6ff; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-            <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.75rem;">💳 Payment</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <!-- Payment Status -->
+          <div style="background: #eff6ff; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.75rem;">
+            <div class="invoice-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
               <div>
-                <label style="display: block; font-size: 0.875rem; color: #1e3a8a; margin-bottom: 0.25rem;">Payment Status *</label>
-                <select id="invoice_payment_status" class="form-input" required>
+                <label style="display: block; font-size: 0.75rem; color: #1e3a8a; margin-bottom: 0.125rem;">Status *</label>
+                <select id="invoice_payment_status" class="form-input" style="padding: 0.5rem; font-size: 16px;" required>
                   <option value="unpaid">Unpaid</option>
                   <option value="paid">Paid</option>
                 </select>
               </div>
               <div id="payment_method_group" style="display: none;">
-                <label style="display: block; font-size: 0.875rem; color: #1e3a8a; margin-bottom: 0.25rem;">Payment Method</label>
-                <select id="invoice_payment_method" class="form-input">
-                  <option value="">Select Method</option>
+                <label style="display: block; font-size: 0.75rem; color: #1e3a8a; margin-bottom: 0.125rem;">Method</label>
+                <select id="invoice_payment_method" class="form-input" style="padding: 0.5rem; font-size: 16px;">
+                  <option value="">Select</option>
                   <option value="cash">Cash</option>
                   <option value="upi">UPI</option>
                   <option value="card">Card</option>
-                  <option value="online">Online Transfer</option>
+                  <option value="online">Online</option>
                 </select>
               </div>
             </div>
           </div>
 
-          <!-- Notes -->
-          <div style="margin-bottom: 1rem;">
-            <label style="display: block; font-size: 0.875rem; color: #64748b; margin-bottom: 0.25rem;">Notes (Optional)</label>
-            <textarea id="invoice_notes" class="form-input" rows="3" placeholder="Any additional notes..."></textarea>
+          <!-- Notes - Optional, Collapsible feel -->
+          <div style="margin-bottom: 0.75rem;">
+            <textarea id="invoice_notes" class="form-input" style="padding: 0.5rem; font-size: 16px;" rows="2" placeholder="Notes (optional)"></textarea>
           </div>
           
-          <!-- WhatsApp Notification -->
-          <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin-bottom: 0.75rem;">
-              <input type="checkbox" id="invoice_send_whatsapp" checked style="width: 20px; height: 20px; cursor: pointer; accent-color: #10b981;">
+          <!-- WhatsApp Notification - Compact -->
+          <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="invoice_send_whatsapp" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981; flex-shrink: 0;">
               <div style="flex: 1;">
-                <div style="font-weight: 600; color: #166534; font-size: 0.9375rem;">💬 Send invoice via WhatsApp</div>
-                <div style="font-size: 0.75rem; color: #15803d; margin-top: 0.25rem;">Opens WhatsApp with invoice details and PDF link</div>
+                <div style="font-weight: 600; color: #166534; font-size: 0.875rem;">💬 Send via WhatsApp</div>
               </div>
             </label>
             
-            <div id="prescription_checkbox_wrapper" style="padding-left: 2.25rem; border-left: 3px solid #86efac; margin-left: 0.5rem;">
+            <div id="prescription_checkbox_wrapper" style="margin-top: 0.5rem; padding-left: 1.75rem;">
               <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                <input type="checkbox" id="invoice_include_prescription" style="width: 18px; height: 18px; cursor: pointer; accent-color: #10b981;">
-                <div style="flex: 1;">
-                  <div style="font-weight: 500; color: #15803d; font-size: 0.875rem;">✅ Include prescription PDF link</div>
-                  <div id="prescription_status" style="font-size: 0.75rem; color: #64748b; margin-top: 0.125rem;">Checking...</div>
-                </div>
+                <input type="checkbox" id="invoice_include_prescription" style="width: 16px; height: 16px; cursor: pointer; accent-color: #10b981; flex-shrink: 0;">
+                <span id="prescription_status" style="font-size: 0.75rem; color: #15803d;">Include prescription</span>
               </label>
             </div>
           </div>
 
           <!-- Error Display -->
-          <div id="invoiceError" style="display: none; background: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem;"></div>
+          <div id="invoiceError" style="display: none; background: #fee2e2; color: #991b1b; padding: 0.625rem; border-radius: 6px; margin-bottom: 0.75rem; font-size: 0.8125rem;"></div>
 
-          <div style="display: flex; gap: 1rem;">
-            <button type="button" onclick="closeInvoiceModal()" class="btn btn-outline" style="flex: 1;">Cancel</button>
-            <button type="submit" class="btn btn-success" style="flex: 1;">Generate Invoice</button>
+          <!-- Action Buttons -->
+          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 0.5rem;">
+            <button type="button" onclick="closeInvoiceModal()" class="btn btn-outline" style="padding: 0.75rem;">Cancel</button>
+            <button type="submit" class="btn btn-success" style="padding: 0.75rem; font-weight: 700;">🧾 Generate Invoice</button>
           </div>
         </form>
       </div>

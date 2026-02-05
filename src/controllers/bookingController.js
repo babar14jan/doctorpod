@@ -257,7 +257,8 @@ async function bookAppointment(req, res){
     is_video_consultation === '1' ? 1 : 0
   );
 
-  res.json({
+  // Build response object
+  const response = {
     success: true,
     booking_id,
     booking_reference: booking_id, // Same as booking_id for compatibility
@@ -266,8 +267,63 @@ async function bookAppointment(req, res){
     clinic_name,
     appointment_time: availableSlot,
     tentative_time,
-    mobile
-  });
+    mobile,
+    is_video_consultation: is_video_consultation === '1'
+  };
+
+  // For video consultations, generate join URL and WhatsApp message
+  if (is_video_consultation === '1') {
+    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const videoJoinUrl = `${baseUrl}/patient_video_join.html?appointment_id=${booking_id}`;
+    
+    // Format consultation time for message
+    const consultTime = new Date(`${appointment_date}T${availableSlot}`);
+    const timeStr = consultTime.toLocaleString('en-IN', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    // Get clinic phone for support
+    const clinicInfo = await db.prepare('SELECT phone FROM clinics WHERE clinic_id = ?').get(clinic_id);
+    const clinicPhone = clinicInfo?.phone || '';
+    
+    // Create WhatsApp message
+    const whatsappMessage = `🏥 *DoctorPod Video Consultation*
+
+Hi ${patient_name},
+
+Your video consultation is confirmed!
+
+👨‍⚕️ *Doctor:* Dr. ${doctor_name}
+📅 *Date:* ${appointment_date}
+⏰ *Time:* ${availableSlot}
+🎫 *Queue:* #${queue_number}
+🆔 *Booking ID:* ${booking_id}
+
+🔗 *Join your consultation:*
+${videoJoinUrl}
+
+⚠️ *Important:*
+• Join 5-10 min before your slot
+• Ensure stable internet
+• Test camera & mic beforehand
+
+${clinicPhone ? `Need help? Call: ${clinicPhone}` : ''}
+
+Thank you for choosing DoctorPod! 🩺`;
+
+    // Generate WhatsApp URL
+    const whatsappUrl = `https://wa.me/${mobile.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`;
+    
+    response.video_join_url = videoJoinUrl;
+    response.whatsapp_url = whatsappUrl;
+    response.whatsapp_message = whatsappMessage;
+  }
+
+  res.json(response);
   } catch (error) {
     console.error('[BOOKING ERROR]', error);
     res.status(500).json({ success: false, message: error.message || 'Booking failed. Please try again.' });
@@ -413,4 +469,198 @@ async function updateBookingStatus(req, res){
   }
 }
 
-module.exports = { bookAppointment, verifyBooking, getDoctorBookings, getClinicBookings, updateBookingStatus, getClinicTimings, getAvailability, getDoctorBookingFilters };
+// ========== VIDEO CALL STATUS MANAGEMENT ==========
+
+// Update video call status (used by doctor)
+// Status values: 'waiting', 'doctor_ready', 'patient_joined', 'in_progress', 'completed', 'ended'
+async function updateVideoCallStatus(req, res) {
+  try {
+    const appointmentId = req.params.id;
+    const { video_call_status } = req.body;
+    
+    const validStatuses = ['waiting', 'doctor_ready', 'patient_joined', 'in_progress', 'completed', 'ended'];
+    if (!validStatuses.includes(video_call_status)) {
+      return res.status(400).json({ success: false, message: 'Invalid video_call_status' });
+    }
+    
+    // Verify this is a video consultation
+    const booking = await db.prepare('SELECT appointment_id, is_video_consultation FROM bookings WHERE appointment_id = ?').get(appointmentId);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+    if (!booking.is_video_consultation) {
+      return res.status(400).json({ success: false, message: 'This is not a video consultation' });
+    }
+    
+    await db.prepare('UPDATE bookings SET video_call_status = ?, updated_at = CURRENT_TIMESTAMP WHERE appointment_id = ?')
+      .run(video_call_status, appointmentId);
+    
+    res.json({ success: true, video_call_status });
+  } catch (e) {
+    console.error('Update video call status error:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+}
+
+// Get video call status (used by patient to check if doctor is ready)
+async function getVideoCallStatus(req, res) {
+  try {
+    const appointmentId = req.params.id;
+    const { mobile } = req.query;
+    
+    // Get booking with validation
+    const booking = await db.prepare(`
+      SELECT 
+        b.appointment_id, b.patient_name, b.patient_mobile, b.appointment_date, b.appointment_time,
+        b.is_video_consultation, b.video_call_status, b.consult_status, b.queue_number,
+        d.name as doctor_name, d.specialization
+      FROM bookings b
+      LEFT JOIN doctors d ON b.doctor_id = d.doctor_id
+      WHERE b.appointment_id = ?
+    `).get(appointmentId);
+    
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+    
+    // Verify mobile if provided
+    if (mobile && booking.patient_mobile !== mobile) {
+      return res.status(403).json({ success: false, message: 'Mobile number does not match' });
+    }
+    
+    if (!booking.is_video_consultation) {
+      return res.status(400).json({ success: false, message: 'This is not a video consultation' });
+    }
+    
+    // Time window validation: Check if within ±30 minutes of appointment time
+    // (Allow 30 min early and 30 min late)
+    let timeWindowValid = true;
+    let timeWindowMessage = null;
+    let minutesUntilWindow = 0;
+    
+    if (booking.appointment_date && booking.appointment_time) {
+      const now = new Date();
+      const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      
+      // Parse appointment datetime
+      const appointmentDateTime = new Date(`${booking.appointment_date}T${booking.appointment_time}`);
+      const windowStart = new Date(appointmentDateTime.getTime() - 30 * 60000); // 30 minutes before
+      const windowEnd = new Date(appointmentDateTime.getTime() + 30 * 60000);   // 30 minutes after
+      
+      if (now < windowStart) {
+        timeWindowValid = false;
+        minutesUntilWindow = Math.ceil((windowStart - now) / 60000);
+        timeWindowMessage = `Video call will be available ${minutesUntilWindow} minutes before your appointment. Please come back later.`;
+      } else if (now > windowEnd) {
+        timeWindowValid = false;
+        timeWindowMessage = 'The time window for this appointment has expired. Please contact the clinic.';
+      }
+    }
+    
+    // Determine if can join (doctor ready AND within time window)
+    const canJoin = (booking.video_call_status === 'doctor_ready' || booking.video_call_status === 'in_progress') && timeWindowValid;
+    
+    res.json({
+      success: true,
+      appointment_id: booking.appointment_id,
+      patient_name: booking.patient_name,
+      doctor_name: booking.doctor_name,
+      specialization: booking.specialization,
+      appointment_date: booking.appointment_date,
+      appointment_time: booking.appointment_time,
+      queue_number: booking.queue_number,
+      video_call_status: booking.video_call_status || 'waiting',
+      consult_status: booking.consult_status,
+      can_join: canJoin,
+      time_window_valid: timeWindowValid,
+      time_window_message: timeWindowMessage,
+      minutes_until_window: minutesUntilWindow
+    });
+  } catch (e) {
+    console.error('Get video call status error:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+}
+
+// ========== PAYMENT STATUS MANAGEMENT (for Clinic Admin) ==========
+
+// Update payment status for a booking
+async function updateBookingPaymentStatus(req, res) {
+  try {
+    const appointmentId = req.params.id;
+    const { payment_status, payment_method } = req.body;
+    
+    const validStatuses = ['pending', 'CONFIRMED', 'failed', 'refunded'];
+    if (!validStatuses.includes(payment_status)) {
+      return res.status(400).json({ success: false, message: 'Invalid payment_status. Use: pending, CONFIRMED, failed, refunded' });
+    }
+    
+    // Update payment status
+    await db.prepare(`
+      UPDATE bookings 
+      SET payment_status = ?, 
+          payment_method = COALESCE(?, payment_method),
+          updated_at = CURRENT_TIMESTAMP 
+      WHERE appointment_id = ?
+    `).run(payment_status, payment_method || null, appointmentId);
+    
+    console.log(`✅ Payment status updated: ${appointmentId} - ${payment_status}`);
+    res.json({ success: true, payment_status });
+  } catch (e) {
+    console.error('Update payment status error:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+}
+
+// Get video consultations for a clinic (for clinic admin to manage payments)
+async function getClinicVideoConsultations(req, res) {
+  try {
+    const { clinic_id } = req.query;
+    
+    if (!clinic_id) {
+      return res.status(400).json({ success: false, message: 'Missing clinic_id' });
+    }
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Get today's and upcoming video consultations for this clinic
+    // NOTE: Patient data is stored directly in bookings table (no separate patients table for booking flow)
+    const consultations = await db.prepare(`
+      SELECT 
+        b.appointment_id,
+        b.patient_id, 
+        b.appointment_date,
+        b.appointment_time,
+        b.is_video_consultation,
+        b.payment_status,
+        b.payment_method,
+        b.consult_status,
+        b.queue_number,
+        b.patient_name,
+        b.patient_mobile,
+        b.patient_gender as gender,
+        b.patient_age as age,
+        d.name as doctor_name,
+        d.doctor_id
+      FROM bookings b
+      JOIN doctors d ON b.doctor_id = d.doctor_id
+      WHERE b.clinic_id = ?
+        AND b.is_video_consultation = 1
+        AND b.appointment_date >= ?
+        AND b.consult_status != 'cancelled'
+      ORDER BY b.appointment_date, b.appointment_time
+    `).all(clinic_id, today);
+    
+    res.json({ success: true, consultations: consultations || [] });
+  } catch (e) {
+    console.error('Get clinic video consultations error:', e);
+    res.status(500).json({ success: false, message: e.message });
+  }
+}
+
+module.exports = { 
+  bookAppointment, verifyBooking, getDoctorBookings, getClinicBookings, 
+  updateBookingStatus, getClinicTimings, getAvailability, getDoctorBookingFilters,
+  updateVideoCallStatus, getVideoCallStatus,
+  updateBookingPaymentStatus, getClinicVideoConsultations 
+};

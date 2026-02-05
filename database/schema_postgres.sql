@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS availability_slots (
     start_time TEXT NOT NULL,
     end_time TEXT NOT NULL,
     interval_minutes INTEGER DEFAULT 10,
+    slot_type TEXT DEFAULT 'clinic' CHECK(slot_type IN ('clinic', 'video', 'both')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     source TEXT,
@@ -550,6 +551,53 @@ SELECT
 FROM patients p
 LEFT JOIN visits v ON p.patient_id = v.patient_id
 GROUP BY p.patient_id, p.full_name, p.mobile, p.gender;
+
+-- ===========================
+-- 15. Video Consultation Join Tokens Table
+-- ===========================
+CREATE TABLE IF NOT EXISTS consultation_join_tokens (
+    id SERIAL PRIMARY KEY,
+    token_id TEXT UNIQUE NOT NULL,
+    appointment_id TEXT NOT NULL,
+    patient_id TEXT NOT NULL,
+    doctor_id TEXT NOT NULL,
+    clinic_id TEXT NOT NULL,
+    token_hash TEXT UNIQUE NOT NULL,
+    join_attempts INTEGER DEFAULT 0,
+    max_attempts INTEGER DEFAULT 3,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    used_at TIMESTAMP NULL,
+    is_expired BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (appointment_id) REFERENCES bookings(appointment_id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
+    FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id) ON DELETE CASCADE
+);
+
+-- Index for fast token lookups
+CREATE INDEX IF NOT EXISTS idx_consultation_tokens_hash ON consultation_join_tokens(token_hash);
+CREATE INDEX IF NOT EXISTS idx_consultation_tokens_appointment ON consultation_join_tokens(appointment_id);
+CREATE INDEX IF NOT EXISTS idx_consultation_tokens_expires ON consultation_join_tokens(expires_at);
+
+-- ===========================
+-- 16. Join Attempt Audit Table
+-- ===========================
+CREATE TABLE IF NOT EXISTS join_attempts (
+    id SERIAL PRIMARY KEY,
+    token_id INTEGER NOT NULL,
+    patient_id TEXT,
+    ip_address INET,
+    user_agent TEXT,
+    success BOOLEAN DEFAULT FALSE,
+    failure_reason TEXT,
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (token_id) REFERENCES consultation_join_tokens(id) ON DELETE CASCADE
+);
+
+-- Index for audit queries
+CREATE INDEX IF NOT EXISTS idx_join_attempts_token ON join_attempts(token_id);
+CREATE INDEX IF NOT EXISTS idx_join_attempts_attempted ON join_attempts(attempted_at);
 
 -- Pending Follow-ups View
 CREATE OR REPLACE VIEW v_pending_followups AS

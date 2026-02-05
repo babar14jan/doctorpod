@@ -12,6 +12,12 @@ const app = express();
 app.set('trust proxy', 1);
 
 /**
+ * 🎨 View engine setup for error pages
+ */
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+/**
  * 🔁 Production-safe absolute redirects
  * MUST be before routes
  */
@@ -68,6 +74,7 @@ const followUpRoutes = require('./src/routes/followUpRoutes');
 const payRoutes = require('./src/routes/payRoutes');
 const demoRoutes = require('./src/routes/demoRoutes');
 const invoiceRoutes = require('./src/routes/invoiceRoutes');
+const videoJoinRoutes = require('./src/routes/videoJoin');
 
 app.use('/bookings', bookingRoutes);
 app.use('/medicines', medicineRoutes);
@@ -81,6 +88,12 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/follow-ups', followUpRoutes);
 app.use('/api/demo', demoRoutes);
 app.use('/api/invoices', invoiceRoutes);
+
+/**
+ * ✅ Video consultation join routes
+ * https://your-app.onrender.com/join/{token}
+ */
+app.use('/join', videoJoinRoutes);
 
 /**
  * ✅ WhatsApp-friendly UPI payment links

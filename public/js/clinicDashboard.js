@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   window.handleAddAvailability = handleAddAvailability;
   window.loadAvailability = loadAvailability;
   window.editAvailability = editAvailability;
+  window.closeEditAvailabilityModal = closeEditAvailabilityModal;
   window.deleteAvailability = deleteAvailability;
   window.loadInvoiceStats = loadInvoiceStats;
   window.loadTodaysCheckouts = loadTodaysCheckouts;
@@ -83,6 +84,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   window.markAsPaid = markAsPaid;
   window.openInvoiceModal = openInvoiceModal;
   window.closeInvoiceModal = closeInvoiceModal;
+  window.loadClinicVideoConsultations = loadClinicVideoConsultations;
+  window.filterVideoConsultations = filterVideoConsultations;
+  window.markBookingAsPaid = markBookingAsPaid;
 });
 
 // Load clinic session
@@ -138,12 +142,31 @@ async function loadClinicSession() {
       if (hiddenIdEl) {
         hiddenIdEl.value = data.clinic.clinic_id;
       }
+      
+      // Update clinic badge
+      const clinicBadge = document.getElementById('clinicBadge');
+      if (clinicBadge) {
+        clinicBadge.textContent = data.clinic.name || 'Clinic';
+      }
     } else {
       window.location.href = '/clinic_login.html';
     }
   } catch (error) {
     window.location.href = '/clinic_login.html';
   }
+}
+
+// Update quick stats on page
+function updateQuickStats(doctorCount, activeCount, scheduleCount, videoCount) {
+  const statTotalDoctors = document.getElementById('statTotalDoctors');
+  const statActiveDoctors = document.getElementById('statActiveDoctors');
+  const statSchedules = document.getElementById('statSchedules');
+  const statVideoConsults = document.getElementById('statVideoConsults');
+  
+  if (statTotalDoctors) statTotalDoctors.textContent = doctorCount ?? '-';
+  if (statActiveDoctors) statActiveDoctors.textContent = activeCount ?? '-';
+  if (statSchedules) statSchedules.textContent = scheduleCount ?? '-';
+  if (statVideoConsults) statVideoConsults.textContent = videoCount ?? '-';
 }
 
 // Load doctors
@@ -163,6 +186,13 @@ async function loadDoctors() {
     if (totalDoctorsEl) {
       totalDoctorsEl.textContent = doctors.length;
     }
+    
+    // Update quick stats
+    const activeDoctors = doctors.filter(d => d.is_active !== false && d.is_active !== 0).length;
+    const statTotalDoctors = document.getElementById('statTotalDoctors');
+    const statActiveDoctors = document.getElementById('statActiveDoctors');
+    if (statTotalDoctors) statTotalDoctors.textContent = doctors.length;
+    if (statActiveDoctors) statActiveDoctors.textContent = activeDoctors;
     
     // Populate doctor dropdown in availability form
     const doctorSelect = document.getElementById('availabilityDoctorId');
@@ -525,19 +555,27 @@ function closeSuccessModal() {
 
 // Initialize availability days grid
 function initializeAvailabilityDays() {
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const daysOfWeek = [
+    { short: 'Mon', full: 'Monday' },
+    { short: 'Tue', full: 'Tuesday' },
+    { short: 'Wed', full: 'Wednesday' },
+    { short: 'Thu', full: 'Thursday' },
+    { short: 'Fri', full: 'Friday' },
+    { short: 'Sat', full: 'Saturday' },
+    { short: 'Sun', full: 'Sunday' }
+  ];
   const container = document.getElementById('availabilityDaysContainer');
   
   container.innerHTML = daysOfWeek.map(day => `
     <div class="day-row">
       <div class="day-checkbox">
-        <input type="checkbox" id="day_${day}" name="day_${day}" value="${day}" />
-        <label for="day_${day}">${day}</label>
+        <input type="checkbox" id="day_${day.short}" name="day_${day.short}" value="${day.short}" />
+        <label for="day_${day.short}">${day.full}</label>
       </div>
       <div class="time-inputs">
-        <input type="time" name="start_${day}" value="09:00" />
+        <input type="time" name="start_${day.short}" value="09:00" />
         <span>to</span>
-        <input type="time" name="end_${day}" value="17:00" />
+        <input type="time" name="end_${day.short}" value="17:00" />
       </div>
     </div>
   `).join('');
@@ -570,8 +608,9 @@ async function handleAddAvailability(e) {
   const doctor_id = formData.get('doctor_id');
   const clinic_id = clinicSession.clinic_id;
   const interval_minutes = parseInt(formData.get('interval_minutes')) || 15;
+  const slot_type = formData.get('slot_type') || 'clinic';
   
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const entries = [];
   
   daysOfWeek.forEach(day => {
@@ -612,7 +651,7 @@ async function handleAddAvailability(e) {
   
   for (const entry of entries) {
     try {
-      console.log(`Sending availability for ${entry.day}...`);
+      console.log(`Sending availability for ${entry.day} (${slot_type})...`);
       const res = await fetch('/availability/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -621,7 +660,8 @@ async function handleAddAvailability(e) {
           clinic_id,
           interval_minutes,
           days: entry.day,
-          timings: `${entry.start}-${entry.end}`
+          timings: `${entry.start}-${entry.end}`,
+          slot_type
         })
       });
       
@@ -666,16 +706,30 @@ async function handleAddAvailability(e) {
 // Load availability
 async function loadAvailability() {
   const container = document.getElementById('availabilityList');
-  if (!container) return;
+  if (!container) {
+    console.log('[loadAvailability] Container not found');
+    return;
+  }
   
   container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading availability...</div>';
   
-  if (!clinicSession) return;
+  if (!clinicSession) {
+    console.log('[loadAvailability] No clinic session');
+    container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Session not loaded. Please refresh.</p></div>';
+    return;
+  }
+  
+  console.log('[loadAvailability] Fetching for clinic:', clinicSession.clinic_id);
   
   try {
     const res = await fetch(`/availability/by-clinic/${clinicSession.clinic_id}`);
     const data = await res.json();
+    console.log('[loadAvailability] Response:', data);
     const availability = data.availability || [];
+    
+    // Update quick stats for schedules
+    const statSchedules = document.getElementById('statSchedules');
+    if (statSchedules) statSchedules.textContent = availability.length;
     
     if (!availability.length) {
       container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div><p>No availability set. Add doctor schedules above.</p></div>';
@@ -690,17 +744,24 @@ async function loadAvailability() {
             <th>Day</th>
             <th>Start Time</th>
             <th>End Time</th>
+            <th>Type</th>
             <th>Interval (min)</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          ${availability.map(a => `
+          ${availability.map(a => {
+            const slotTypeLabel = a.slot_type === 'video' ? '📹 Video' :
+                                  a.slot_type === 'both' ? '🔄 Both' : '🏥 Clinic';
+            const slotTypeColor = a.slot_type === 'video' ? '#16a34a' :
+                                  a.slot_type === 'both' ? '#9333ea' : '#2563eb';
+            return `
             <tr>
               <td><strong>${a.doctor_name || 'Unknown'}</strong><br><small>${a.doctor_id}</small></td>
               <td>${a.day_of_week}</td>
               <td>${a.start_time}</td>
               <td>${a.end_time}</td>
+              <td><span style="color: ${slotTypeColor}; font-weight: 500;">${slotTypeLabel}</span></td>
               <td>${a.interval_minutes}</td>
               <td>
                 <div class="table-actions">
@@ -709,7 +770,7 @@ async function loadAvailability() {
                 </div>
               </td>
             </tr>
-          `).join('')}
+          `}).join('')}
         </tbody>
       </table>
     `;
@@ -719,23 +780,54 @@ async function loadAvailability() {
   }
 }
 
-// Edit availability
+// Edit availability - open modal
 function editAvailability(availability) {
-  // For now, use a simple prompt. You can create a modal similar to edit doctor
-  const newStartTime = prompt('Start Time (HH:MM):', availability.start_time);
-  const newEndTime = prompt('End Time (HH:MM):', availability.end_time);
-  const newInterval = prompt('Interval (minutes):', availability.interval_minutes);
+  document.getElementById('editAvailabilityId').value = availability.id;
+  document.getElementById('editAvailabilityDoctorName').textContent = availability.doctor_name || 'Unknown Doctor';
+  document.getElementById('editAvailabilityDay').textContent = `📅 ${availability.day_of_week}`;
+  document.getElementById('editAvailabilityStartTime').value = availability.start_time;
+  document.getElementById('editAvailabilityEndTime').value = availability.end_time;
+  document.getElementById('editAvailabilityInterval').value = availability.interval_minutes;
+  document.getElementById('editAvailabilitySlotType').value = availability.slot_type || 'clinic';
   
-  if (!newStartTime || !newEndTime || !newInterval) {
+  document.getElementById('editAvailabilityModal').classList.add('active');
+}
+
+// Close edit availability modal
+function closeEditAvailabilityModal() {
+  document.getElementById('editAvailabilityModal').classList.remove('active');
+}
+
+// Handle edit availability form submit
+document.getElementById('editAvailabilityForm')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const id = document.getElementById('editAvailabilityId').value;
+  const start_time = document.getElementById('editAvailabilityStartTime').value;
+  const end_time = document.getElementById('editAvailabilityEndTime').value;
+  const interval_minutes = parseInt(document.getElementById('editAvailabilityInterval').value);
+  const slot_type = document.getElementById('editAvailabilitySlotType').value;
+  
+  if (!start_time || !end_time || !interval_minutes) {
+    showSuccessModal({
+      emoji: '⚠️',
+      title: 'Validation Error',
+      msg: 'Please fill all required fields',
+      highlight: '',
+      note: ''
+    });
     return;
   }
   
-  updateAvailability(availability.id, {
-    start_time: newStartTime,
-    end_time: newEndTime,
-    interval_minutes: parseInt(newInterval)
+  closeEditAvailabilityModal();
+  
+  updateAvailability(id, {
+    start_time,
+    end_time,
+    interval_minutes,
+    slot_type
   });
-}
+});
 
 // Update availability
 async function updateAvailability(id, updates) {
@@ -1210,6 +1302,207 @@ function initializeBillingSection() {
     loadInvoiceStats();
     loadTodaysCheckouts();
     loadAllInvoices();
+  }
+}
+
+// ========================================
+// VIDEO CONSULTATIONS MANAGEMENT
+// ========================================
+
+let allClinicVideoConsultations = [];
+
+// Load video consultations for clinic
+async function loadClinicVideoConsultations() {
+  const container = document.getElementById('videoConsultationsList');
+  if (!container) return;
+  
+  if (!clinicSession || !clinicSession.clinic_id) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Please log in first</p></div>';
+    return;
+  }
+  
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+  
+  try {
+    const res = await fetch(`/bookings/clinic-video-consultations?clinic_id=${clinicSession.clinic_id}`);
+    const data = await res.json();
+    
+    if (data.success) {
+      allClinicVideoConsultations = data.consultations || [];
+      
+      // Update quick stats for video consults
+      const statVideoConsults = document.getElementById('statVideoConsults');
+      if (statVideoConsults) statVideoConsults.textContent = allClinicVideoConsultations.length;
+      
+      filterVideoConsultations();
+    } else {
+      container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><p>${data.message || 'Failed to load'}</p></div>`;
+    }
+  } catch (error) {
+    console.error('Error loading video consultations:', error);
+    container.innerHTML = '<div class="empty"><div class="empty-icon">❌</div><p>Network error</p></div>';
+  }
+}
+
+// Filter video consultations by payment status
+function filterVideoConsultations() {
+  const container = document.getElementById('videoConsultationsList');
+  const filterSelect = document.getElementById('videoPaymentFilter');
+  const filter = filterSelect ? filterSelect.value : 'all';
+  
+  let consultations = allClinicVideoConsultations;
+  
+  if (filter === 'pending') {
+    consultations = allClinicVideoConsultations.filter(c => c.payment_status !== 'CONFIRMED');
+  } else if (filter === 'CONFIRMED') {
+    consultations = allClinicVideoConsultations.filter(c => c.payment_status === 'CONFIRMED');
+  }
+  
+  renderVideoConsultations(consultations, container);
+}
+
+// Render video consultations list
+function renderVideoConsultations(consultations, container) {
+  if (!consultations.length) {
+    container.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📹</div>
+        <p>No video consultations found</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Count stats
+  const paidCount = consultations.filter(c => c.payment_status === 'CONFIRMED').length;
+  const unpaidCount = consultations.filter(c => c.payment_status !== 'CONFIRMED').length;
+  
+  let html = `
+    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+      <div style="background: #f0fdf4; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: 700; color: #16a34a;">${paidCount}</div>
+        <div style="font-size: 0.75rem; color: #64748b;">Paid</div>
+      </div>
+      <div style="background: #fef3c7; padding: 0.75rem 1rem; border-radius: 8px; flex: 1; text-align: center;">
+        <div style="font-size: 1.5rem; font-weight: 700; color: #d97706;">${unpaidCount}</div>
+        <div style="font-size: 0.75rem; color: #64748b;">Unpaid</div>
+      </div>
+    </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date/Time</th>
+            <th>Patient</th>
+            <th>Doctor</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+  
+  consultations.forEach(c => {
+    const isPaid = c.payment_status === 'CONFIRMED';
+    const paymentBadge = isPaid 
+      ? '<span style="background: #dcfce7; color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Paid</span>'
+      : '<span style="background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">Unpaid</span>';
+    
+    const statusBadge = getConsultStatusBadge(c.consult_status);
+    
+    const dateStr = formatDateNice(c.appointment_date);
+    const timeStr = c.appointment_time || '--:--';
+    
+    html += `
+      <tr>
+        <td>
+          <div style="font-weight: 500;">${dateStr}</div>
+          <div style="font-size: 0.75rem; color: #64748b;">${timeStr}</div>
+        </td>
+        <td>
+          <div style="font-weight: 500;">${c.patient_name || 'Unknown'}</div>
+          <div style="font-size: 0.75rem; color: #64748b;">${c.patient_mobile || '-'}</div>
+        </td>
+        <td>${c.doctor_name || '-'}</td>
+        <td>${statusBadge}</td>
+        <td>${paymentBadge}</td>
+        <td>
+          ${isPaid 
+            ? '<span style="color: #64748b; font-size: 0.75rem;">—</span>'
+            : `<button class="btn btn-sm btn-success" onclick="markBookingAsPaid('${c.appointment_id}')" style="white-space: nowrap;">💰 Mark Paid</button>`
+          }
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+// Get consult status badge
+function getConsultStatusBadge(status) {
+  const badges = {
+    'not_seen': '<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Not Started</span>',
+    'in_progress': '<span style="background: #dbeafe; color: #2563eb; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">In Progress</span>',
+    'seen': '<span style="background: #dcfce7; color: #16a34a; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Completed</span>',
+    'cancelled': '<span style="background: #fee2e2; color: #dc2626; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Cancelled</span>'
+  };
+  return badges[status] || badges['not_seen'];
+}
+
+// Format date nicely
+function formatDateNice(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    d.setHours(0,0,0,0);
+    
+    const dayDiff = Math.floor((d - today) / (1000 * 60 * 60 * 24));
+    
+    if (dayDiff === 0) return 'Today';
+    if (dayDiff === 1) return 'Tomorrow';
+    if (dayDiff === -1) return 'Yesterday';
+    
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch(e) { return dateStr; }
+}
+
+// Mark booking as paid
+async function markBookingAsPaid(appointmentId) {
+  const paymentMethod = prompt('Payment method (cash/upi/card/online):', 'upi');
+  if (!paymentMethod) return;
+  
+  try {
+    const res = await fetch(`/bookings/${appointmentId}/payment-status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        payment_status: 'CONFIRMED',
+        payment_method: paymentMethod 
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (data.success) {
+      showSuccessModal({
+        emoji: '✅',
+        title: 'Payment Confirmed',
+        msg: 'Booking marked as paid successfully',
+        highlight: '',
+        note: `Payment method: ${paymentMethod}`
+      });
+      loadClinicVideoConsultations(); // Refresh list
+    } else {
+      alert('Failed: ' + (data.message || 'Unknown error'));
+    }
+  } catch (error) {
+    console.error('Mark as paid error:', error);
+    alert('Network error. Please try again.');
   }
 }
 

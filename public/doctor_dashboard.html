@@ -224,6 +224,17 @@
       color: var(--primary);
     }
 
+    .quick-btn.video {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: 1px solid #10b981;
+    }
+
+    .quick-btn.video:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
     .quick-btn.history {
       background: #fef3c7;
       color: #92400e;
@@ -1152,6 +1163,275 @@
       color: var(--text-muted);
     }
 
+    /* Online Consultation Cards */
+    .online-consultation-card {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: all 0.2s;
+    }
+
+    .online-consultation-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+    }
+
+    .consultation-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .consultation-patient-info h4 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #064e3b;
+      margin-bottom: 0.25rem;
+    }
+
+    .consultation-time {
+      background: #10b981;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .consultation-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.875rem;
+      color: #065f46;
+    }
+
+    .consultation-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .consultation-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-generate-link {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: 0.625rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-generate-link:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-generate-link:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-copy-link, .btn-whatsapp-share {
+      background: #f8fafc;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      padding: 0.625rem 1rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-copy-link:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-whatsapp-share {
+      background: #25d366;
+      color: white;
+      border-color: #25d366;
+    }
+
+    .btn-whatsapp-share:hover {
+      background: #128c7e;
+    }
+
+    .link-status {
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .link-status.active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .link-status.expired {
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    /* Compact Video Consultation Card Styles */
+    .appointment-card.video-consultation .appointment-queue-badge.video {
+      min-width: 48px;
+      padding: 0.5rem;
+    }
+    
+    .appointment-queue-badge .queue-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .video-actions {
+      flex-direction: column;
+      gap: 0.375rem;
+      padding: 0.5rem;
+      min-width: 80px;
+    }
+
+    .video-actions .btn-generate-link {
+      padding: 0.375rem 0.5rem;
+      font-size: 0.6875rem;
+      border-radius: 6px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .video-actions .btn-select-video {
+      padding: 0.375rem 0.5rem;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      border-radius: 6px;
+      width: 100%;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+    }
+
+    .video-actions .btn-select-video:hover {
+      background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+      transform: translateY(-1px);
+    }
+
+    .video-actions .btn-select-video:disabled {
+      background: #d1fae5;
+      color: #065f46;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .video-actions .btn-generate-link.link-ready {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+
+    .video-actions .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: #25d366;
+      color: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .video-actions .btn-icon:hover {
+      background: #128c7e;
+      transform: scale(1.05);
+    }
+
+    /* Payment status badges */
+    .badge-paid {
+      background: #dcfce7;
+      color: #166534;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      padding: 0.125rem 0.5rem;
+      border-radius: 50px;
+      margin-left: 0.5rem;
+    }
+
+    .badge-unpaid {
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      padding: 0.125rem 0.5rem;
+      border-radius: 50px;
+      margin-left: 0.5rem;
+    }
+
+    .appointment-card.video-consultation.unpaid {
+      border-left-color: #f59e0b;
+      background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, var(--surface) 100%);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+      opacity: 0.6;
+    }
+
+    .empty-state-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.375rem;
+    }
+
+    .empty-state-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
     /* Appointments Summary */
     .appointments-summary {
       display: flex;
@@ -1521,6 +1801,17 @@
       animation: none;
     }
 
+    /* Patient ready - highlight the button */
+    .btn-video-call.patient-ready {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      animation: patient-ready-pulse 0.8s ease-in-out infinite;
+    }
+
+    @keyframes patient-ready-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+    }
+
     /* Patient waiting indicator */
     .patient-waiting-badge {
       display: inline-flex;
@@ -1591,7 +1882,21 @@
       }
       
       .nav-info { 
-        display: none;
+        display: flex;
+        flex: 1;
+        justify-content: flex-end;
+      }
+
+      .nav-doctor-info {
+        align-items: flex-end;
+      }
+
+      .nav-doctor-name {
+        font-size: 0.75rem;
+      }
+
+      .nav-doctor-qual {
+        font-size: 0.625rem;
       }
 
       .main { padding: 1rem; }
@@ -1687,6 +1992,55 @@
       .modal-search button {
         width: 100%;
       }
+
+      /* Video Consultations popup - mobile compact */
+      .video-consultation-list .appointment-card.video-consultation {
+        padding: 0.5rem;
+        gap: 0.5rem;
+      }
+
+      .video-consultation-list .video-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.375rem;
+        min-width: auto;
+        width: 100%;
+      }
+
+      .video-consultation-list .video-actions .btn-generate-link,
+      .video-consultation-list .video-actions .btn-select-video {
+        flex: 1;
+        min-width: 80px;
+        font-size: 0.625rem;
+        padding: 0.375rem 0.375rem;
+      }
+
+      .video-consultation-list .video-actions .btn-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+      }
+
+      .video-consultation-list .appointment-card-body {
+        padding: 0;
+      }
+
+      .video-consultation-list .appointment-info-row {
+        font-size: 0.75rem;
+      }
+
+      /* Video modal sizing for mobile */
+      #videoConsultationsModal .modal-content {
+        max-width: 98vw;
+        max-height: 85vh;
+        margin: 0.25rem;
+      }
+
+      #videoConsultationsModal .modal-body {
+        padding: 0.75rem;
+        max-height: 65vh;
+        overflow-y: auto;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1757,6 +2111,38 @@
         width: 100%;
       }
 
+      /* Video Consultations - extra compact for small phones */
+      .video-consultation-list .appointment-card.video-consultation {
+        border-radius: 8px;
+      }
+
+      .video-consultation-list .video-actions {
+        padding-top: 0.5rem;
+        margin-top: 0.5rem;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .video-consultation-list .badge-paid,
+      .video-consultation-list .badge-unpaid {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.375rem;
+      }
+
+      #videoConsultationsModal .modal-body {
+        max-height: 60vh;
+      }
+
+      /* Video filter bar compact */
+      .video-consultations-filter {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: stretch;
+      }
+
+      .video-consultations-filter .filter-checkbox {
+        justify-content: flex-start;
+      }
+
       .appointments-summary {
         display: none;
       }
@@ -1818,14 +2204,19 @@
 
   <!-- Quick Action Bar -->
   <div class="quick-action-bar">
-    <button id="checkAppointmentsBtn" class="quick-btn primary">Appointments</button>
-    <button id="historyBtnHeader" class="quick-btn history">History</button>
-    <button id="clearPrescriptionBtn" class="quick-btn danger">Clear</button>
+    <button id="checkAppointmentsBtn" class="quick-btn primary">Clinic Visit</button>
+    <button id="onlineConsultationsBtn" class="quick-btn video">Online Consult</button>
+    <button id="historyBtnHeader" class="quick-btn history">Patient Records</button>
     <button id="signOut" class="quick-btn signout">Home</button>
   </div>
 
   <!-- Main Content -->
   <main class="main">
+    <!-- Page Header -->
+    <div style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5); border-bottom: 1px solid #d1fae5; padding: 0.75rem 1.5rem; margin: -1rem -1rem 1rem -1rem; display: flex; align-items: center; justify-content: center;">
+      <p style="margin: 0; font-size: 0.9125rem; font-weight: 600; color: #059669; text-align: center;">Generate prescriptions • Manage appointments • Access patient records</p>
+    </div>
+
     <!-- Clinic Select Modal -->
     <div id="clinicSelectModal" class="hidden modal">
       <div class="modal-content" style="max-width:400px;">
@@ -1841,9 +2232,12 @@
 
     <!-- Prescription Card -->
     <section class="card mui-card prescription-card">
-      <div class="card-header">
-        <span class="card-header-icon">📝</span>
-        <h2 class="mui-card-title">Generate Prescription</h2>
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span class="card-header-icon">📝</span>
+          <h2 class="mui-card-title">Prescription Form</h2>
+        </div>
+        <button type="button" id="clearPrescriptionBtn" style="background: #ef4444; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.75rem; font-weight: 500; cursor: pointer;">Clear</button>
       </div>
       <div class="card-body mui-card-content">
         <form id="prescriptionForm">

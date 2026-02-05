@@ -41,14 +41,33 @@ async function generateInvoice(req, res) {
 
     // Fetch visit details with patient mobile
     const visit = await db.prepare(`
-      SELECT v.*, p.mobile as patient_mobile 
+      SELECT v.*, p.mobile as patient_mobile, b.patient_mobile as booking_mobile
       FROM visits v 
       LEFT JOIN patients p ON v.patient_id = p.patient_id 
+      LEFT JOIN bookings b ON v.appointment_id = b.appointment_id
       WHERE v.visit_id = ?
     `).get(visit_id);
     if (!visit) {
       return res.status(404).json({ success: false, message: 'Visit not found' });
     }
+    
+    // Try multiple sources for patient mobile
+    if (!visit.patient_mobile) {
+      // Try from booking
+      if (visit.booking_mobile) {
+        visit.patient_mobile = visit.booking_mobile;
+        console.log('📱 Got mobile from booking:', visit.patient_mobile);
+      } else if (visit.patient_id) {
+        // Try to extract from patient_id format (might contain mobile)
+        const mobileMatch = visit.patient_id.match(/\d{10}$/);
+        if (mobileMatch) {
+          visit.patient_mobile = mobileMatch[0];
+          console.log('📱 Extracted mobile from patient_id:', visit.patient_mobile);
+        }
+      }
+    }
+    
+    console.log('📱 Final patient mobile:', visit.patient_mobile);
 
     // Fetch doctor details
     const doctor = await db.prepare('SELECT name, qualification, specialization, mobile, registration_no FROM doctors WHERE doctor_id = ?').get(visit.doctor_id);
@@ -312,8 +331,9 @@ async function generateInvoice(req, res) {
       console.log(`✅ Invoice generated: ${invoice_id}`);
       
       // Check if WhatsApp notification should be sent
-      const sendWhatsApp = req.body.send_whatsapp === true || req.body.send_whatsapp === 'true';
-      const includePrescription = req.body.include_prescription === true || req.body.include_prescription === 'true';
+      console.log('📱 Raw request body send_whatsapp:', req.body.send_whatsapp, typeof req.body.send_whatsapp);
+      const sendWhatsApp = req.body.send_whatsapp === true || req.body.send_whatsapp === 'true' || req.body.send_whatsapp === 1 || req.body.send_whatsapp === '1';
+      const includePrescription = req.body.include_prescription === true || req.body.include_prescription === 'true' || req.body.include_prescription === 1 || req.body.include_prescription === '1';
       let whatsapp_url = null;
       
       console.log('📱 WhatsApp check:', { sendWhatsApp, patient_mobile: visit.patient_mobile });

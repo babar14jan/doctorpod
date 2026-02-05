@@ -17,4 +17,12 @@ router.get('/doctor/:id', ctrl.getDoctorBookings);
 router.get('/clinic/:clinicId', ctrl.getClinicBookings);
 router.put('/:id/status', ctrl.updateBookingStatus);
 
+// Video call status management
+router.put('/:id/video-status', ctrl.updateVideoCallStatus);
+router.get('/:id/video-status', ctrl.getVideoCallStatus);
+
+// Payment status management (for clinic admin)
+router.put('/:id/payment-status', ctrl.updateBookingPaymentStatus);
+router.get('/clinic-video-consultations', ctrl.getClinicVideoConsultations);
+
 module.exports = router;

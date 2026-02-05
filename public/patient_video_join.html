@@ -104,105 +104,9 @@
       display: none;
     }
 
-    .video-room {
-      display: none;
-    }
-
-    .video-room.active {
-      display: block;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #0f172a;
-      z-index: 1000;
-    }
-
-    /* Copy styles from doctor video page */
-    .video-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      padding: 1rem;
-      height: calc(100vh - 80px);
-    }
-
-    .video-box {
-      position: relative;
-      background: #1e293b;
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .video-box video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .video-label {
-      position: absolute;
-      top: 1rem;
-      left: 1rem;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: white;
-    }
-
-    .controls {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #1e293b;
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      border-top: 1px solid #334155;
-    }
-
-    .control-btn {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      transition: all 0.2s;
-      background: #475569;
-      color: white;
-    }
-
-    .control-btn:hover {
-      transform: scale(1.1);
-    }
-
-    .control-btn.active {
-      background: #ef4444;
-    }
-
-    .btn-end {
-      background: #ef4444 !important;
-      width: 64px;
-      height: 64px;
-    }
-
     @media (max-width: 768px) {
-      .video-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr 1fr;
+      .container {
+        padding: 1.5rem;
       }
     }
   </style>
@@ -239,83 +143,148 @@
       </div>
 
       <button type="submit" class="btn" id="joinBtn">
-        Join Video Call
+        Check Status & Join
       </button>
 
       <div class="error" id="error"></div>
     </form>
   </div>
 
-  <!-- Video Room (initially hidden) -->
-  <div class="video-room" id="videoRoom">
-    <div class="video-container">
-      <div class="video-box">
-        <div class="video-label">You</div>
-        <video id="localVideo" autoplay muted playsinline></video>
+  <!-- Waiting Room (shown after verification, before doctor is ready) -->
+  <div class="container" id="waitingRoom" style="display: none;">
+    <div class="logo" id="waitingIcon">⏳</div>
+    <h1 id="waitingTitle">Waiting for Doctor</h1>
+    <p class="subtitle" id="waitingSubtitle">Please wait, your doctor will start the call soon</p>
+    
+    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; text-align: left;">
+      <div style="margin-bottom: 0.75rem;">
+        <span style="color: #64748b; font-size: 0.875rem;">Doctor:</span>
+        <span style="font-weight: 600; color: #1e293b;" id="waitingDoctorName">-</span>
       </div>
-
-      <div class="video-box">
-        <div class="video-label">Doctor</div>
-        <video id="remoteVideo" autoplay playsinline></video>
+      <div style="margin-bottom: 0.75rem;">
+        <span style="color: #64748b; font-size: 0.875rem;">Date:</span>
+        <span style="font-weight: 600; color: #1e293b;" id="waitingDate">-</span>
+      </div>
+      <div style="margin-bottom: 0.75rem;">
+        <span style="color: #64748b; font-size: 0.875rem;">Scheduled Time:</span>
+        <span style="font-weight: 600; color: #1e293b;" id="waitingTime">-</span>
+      </div>
+      <div>
+        <span style="color: #64748b; font-size: 0.875rem;">Your Slot:</span>
+        <span style="font-weight: 700; color: #6366f1;" id="waitingSlot">#-</span>
       </div>
     </div>
-
-    <div class="controls">
-      <button class="control-btn" id="muteBtn" title="Mute/Unmute">🎤</button>
-      <button class="control-btn" id="cameraBtn" title="Camera On/Off">📹</button>
-      <button class="control-btn btn-end" id="endBtn" title="Leave Call">📞</button>
+    
+    <div id="statusIndicator" style="padding: 1rem; border-radius: 8px; margin-bottom: 1rem; background: #fef3c7; border: 1px solid #fcd34d;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+        <span class="pulse-dot" style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%; animation: pulse 1.5s infinite;"></span>
+        <span style="font-weight: 600; color: #92400e;" id="statusText">Doctor not started yet</span>
+      </div>
     </div>
+    
+    <button class="btn" id="joinNowBtn" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+      🎥 Join Video Call Now
+    </button>
+    
+    <button class="btn" id="backBtn" style="margin-top: 1rem; background: #64748b;">
+      ← Back
+    </button>
+    
+    <p style="font-size: 0.8rem; color: #64748b; margin-top: 1rem;">
+      ℹ️ This page auto-refreshes every 5 seconds
+    </p>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  </style>
+
   <script>
     const joinForm = document.getElementById('joinForm');
+    const waitingRoom = document.getElementById('waitingRoom');
     const bookingForm = document.getElementById('bookingForm');
     const bookingRefInput = document.getElementById('bookingRef');
     const mobileInput = document.getElementById('mobile');
     const joinBtn = document.getElementById('joinBtn');
+    const joinNowBtn = document.getElementById('joinNowBtn');
+    const backBtn = document.getElementById('backBtn');
     const error = document.getElementById('error');
-    const videoRoom = document.getElementById('videoRoom');
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
-    const muteBtn = document.getElementById('muteBtn');
-    const cameraBtn = document.getElementById('cameraBtn');
-    const endBtn = document.getElementById('endBtn');
 
-    let localStream = null;
-    let peerConnection = null;
-    let socket = null;
     let appointmentId = null;
-    let isMuted = false;
-    let isCameraOff = false;
+    let statusPollInterval = null;
+    let currentMobile = '';
+    let doctorName = '';
+    let patientName = '';
 
     // Auto-populate form from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
     const bookingRefParam = urlParams.get('booking_ref');
     const appointmentIdParam = urlParams.get('appointment_id');
+    const tokenParam = urlParams.get('token');
 
     if (bookingRefParam) {
       bookingRefInput.value = bookingRefParam;
     }
-
-    // Auto-submit if booking reference is present
-    if (bookingRefParam && appointmentIdParam) {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        joinBtn.textContent = 'Auto-joining...';
-        bookingForm.dispatchEvent(new Event('submit'));
-      }, 500);
+    if (appointmentIdParam) {
+      bookingRefInput.value = appointmentIdParam;
     }
 
-    // ICE servers
-    const iceServers = {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
-      ]
-    };
+    // Handle token-based access (from secure join link)
+    if (tokenParam) {
+      handleTokenAccess(tokenParam);
+    }
 
-    // Handle form submission
+    async function handleTokenAccess(token) {
+      joinBtn.disabled = true;
+      joinBtn.textContent = 'Verifying link...';
+      error.style.display = 'none';
+
+      try {
+        const response = await fetch(`/join/validate-token/${encodeURIComponent(token)}`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          showError(data.message || 'Invalid or expired link. Please enter your booking details manually.');
+          joinBtn.disabled = false;
+          joinBtn.textContent = 'Check Status & Join';
+          return;
+        }
+
+        // Auto-fill form with token data
+        bookingRefInput.value = data.appointment_id || '';
+        if (data.patient_mobile) {
+          // Show hint about mobile (last 4 digits shown)
+          mobileInput.placeholder = `Ends with ...${data.patient_mobile}`;
+        }
+
+        // Update waiting room with appointment details
+        document.getElementById('waitingDoctorName').textContent = data.doctor_name ? `Dr. ${data.doctor_name}` : '-';
+        document.getElementById('waitingDate').textContent = data.appointment_date || '-';
+        document.getElementById('waitingTime').textContent = data.appointment_time || '-';
+        document.getElementById('waitingSlot').textContent = `#${data.queue_number || '-'}`;
+
+        // Show message
+        const successMsg = document.createElement('div');
+        successMsg.style.cssText = 'background:#dcfce7; color:#166534; padding:0.75rem; border-radius:6px; margin:1rem 0; text-align:center;';
+        successMsg.innerHTML = `✅ Link verified! Patient: <strong>${data.patient_name || '-'}</strong><br><small>Enter your mobile number to continue</small>`;
+        bookingForm.insertBefore(successMsg, bookingForm.firstChild);
+
+        joinBtn.disabled = false;
+        joinBtn.textContent = 'Check Status & Join';
+
+      } catch (err) {
+        console.error('Token validation error:', err);
+        showError('Failed to verify link. Please enter your booking details manually.');
+        joinBtn.disabled = false;
+        joinBtn.textContent = 'Check Status & Join';
+      }
+    }
+
+    // Handle form submission - now shows waiting room
     bookingForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -328,179 +297,186 @@
       }
 
       joinBtn.disabled = true;
-      joinBtn.textContent = 'Verifying...';
+      joinBtn.textContent = 'Checking...';
       error.style.display = 'none';
 
       try {
-        // Verify booking - mobile is optional for additional verification
-        const params = new URLSearchParams({ appointment_id: bookingRef });
-        if (mobile) params.append('mobile', mobile);
-        const response = await fetch(`/bookings/verify?${params.toString()}`);
+        // Check video call status
+        const statusUrl = `/bookings/${bookingRef}/video-status${mobile ? '?mobile=' + mobile : ''}`;
+        const response = await fetch(statusUrl);
         const data = await response.json();
 
-        if (data.success && data.booking) {
-          if (data.booking.is_video_consultation !== 1) {
-            showError('This booking is not for video consultation');
-            return;
-          }
-
-          appointmentId = data.booking.appointment_id;
-          await joinVideoCall();
-        } else {
-          showError('Invalid booking reference or mobile number');
+        if (!response.ok || !data.success) {
+          showError(data.message || 'Invalid booking reference');
+          return;
         }
+
+        // Store values
+        appointmentId = data.appointment_id;
+        currentMobile = mobile;
+        doctorName = data.doctor_name || '';
+        patientName = data.patient_name || '';
+
+        // Update waiting room with appointment details
+        document.getElementById('waitingDoctorName').textContent = data.doctor_name ? `Dr. ${data.doctor_name}` : '-';
+        document.getElementById('waitingDate').textContent = data.appointment_date || '-';
+        document.getElementById('waitingTime').textContent = data.appointment_time || '-';
+        document.getElementById('waitingSlot').textContent = `#${data.queue_number || '-'}`;
+
+        // Check if doctor is ready
+        updateWaitingStatus(data);
+
+        // Show waiting room
+        joinForm.style.display = 'none';
+        waitingRoom.style.display = 'block';
+
+        // Start polling for status updates
+        startStatusPolling();
+
       } catch (err) {
         console.error('Verification error:', err);
         showError('Failed to verify booking. Please try again.');
       } finally {
         joinBtn.disabled = false;
-        joinBtn.textContent = 'Join Video Call';
+        joinBtn.textContent = 'Check Status & Join';
       }
     });
 
-    async function joinVideoCall() {
-      try {
-        // Get media
-        localStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true
-        });
+    function updateWaitingStatus(data) {
+      const statusIndicator = document.getElementById('statusIndicator');
+      const statusText = document.getElementById('statusText');
+      const waitingIcon = document.getElementById('waitingIcon');
+      const waitingTitle = document.getElementById('waitingTitle');
+      const waitingSubtitle = document.getElementById('waitingSubtitle');
 
-        localVideo.srcObject = localStream;
-
-        // Show video room
-        joinForm.style.display = 'none';
-        videoRoom.classList.add('active');
-
-        // Connect to signaling server
-        socket = io();
-
-        socket.on('connect', () => {
-          console.log('Connected to server');
-          socket.emit('join-video-room', {
-            room: appointmentId,
-            role: 'patient'
-          });
-        });
-
-        socket.on('offer', async (offer) => {
-          console.log('Received offer from doctor');
-          await createPeerConnection();
-          await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-          const answer = await peerConnection.createAnswer();
-          await peerConnection.setLocalDescription(answer);
-          socket.emit('answer', { room: appointmentId, answer });
-        });
-
-        socket.on('ice-candidate', async (candidate) => {
-          if (peerConnection) {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-          }
-        });
-
-        socket.on('doctor-left', () => {
-          alert('Doctor has left the call');
-          endCall();
-        });
-
-      } catch (error) {
-        console.error('Failed to join:', error);
+      // Check time window first
+      if (data.time_window_valid === false) {
+        // Outside time window
+        statusIndicator.style.background = '#fef3c7';
+        statusIndicator.style.borderColor = '#fcd34d';
+        statusText.innerHTML = `⏰ ${data.time_window_message || 'Not within scheduled time'}`;
+        statusText.style.color = '#92400e';
         
-        // Check if it's a permissions/security issue
-        let errorMsg = '❌ Could not access camera/microphone.\n\n';
-        
-        if (error.name === 'NotAllowedError') {
-          errorMsg += 'Please allow camera and microphone permissions in your browser settings.';
-        } else if (error.name === 'NotFoundError') {
-          errorMsg += 'No camera or microphone found on your device.';
-        } else if (error.name === 'NotSupportedError' || window.location.protocol === 'http:') {
-          errorMsg += '⚠️ HTTPS Required for Mobile!\n\n';
-          errorMsg += 'Video calls require HTTPS on mobile devices.\n\n';
-          errorMsg += 'Options:\n';
-          errorMsg += '1. Deploy to Render (has HTTPS)\n';
-          errorMsg += '2. Use desktop/laptop for testing\n';
-          errorMsg += '3. Set up local HTTPS with ngrok';
+        waitingIcon.textContent = '⏰';
+        waitingTitle.textContent = 'Not Yet Time';
+        if (data.minutes_until_window > 0) {
+          waitingSubtitle.textContent = `Your appointment window opens in ${data.minutes_until_window} minutes`;
         } else {
-          errorMsg += 'Error: ' + (error.message || 'Unknown error');
+          waitingSubtitle.textContent = data.time_window_message || 'Please check your appointment time';
         }
         
-        alert(errorMsg);
-        joinForm.style.display = 'block';
-        videoRoom.classList.remove('active');
+        joinNowBtn.style.display = 'none';
+        return; // Don't check other statuses
       }
-    }
 
-    async function createPeerConnection() {
-      peerConnection = new RTCPeerConnection(iceServers);
-
-      localStream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, localStream);
-      });
-
-      peerConnection.ontrack = (event) => {
-        console.log('Received remote track');
-        remoteVideo.srcObject = event.streams[0];
-      };
-
-      peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit('ice-candidate', {
-            room: appointmentId,
-            candidate: event.candidate
-          });
+      if (data.can_join || data.video_call_status === 'doctor_ready' || data.video_call_status === 'in_progress') {
+        // Doctor is ready!
+        statusIndicator.style.background = '#dcfce7';
+        statusIndicator.style.borderColor = '#86efac';
+        statusText.textContent = '✅ Doctor is ready! You can join now';
+        statusText.style.color = '#166534';
+        
+        waitingIcon.textContent = '🎥';
+        waitingTitle.textContent = 'Doctor is Ready!';
+        waitingSubtitle.textContent = 'Click the button below to join your video consultation';
+        
+        joinNowBtn.style.display = 'block';
+        
+        // Stop polling when doctor is ready
+        if (statusPollInterval) {
+          clearInterval(statusPollInterval);
         }
-      };
+      } else if (data.video_call_status === 'completed' || data.video_call_status === 'ended') {
+        // Call ended
+        statusIndicator.style.background = '#fee2e2';
+        statusIndicator.style.borderColor = '#fecaca';
+        statusText.textContent = '❌ This consultation has ended';
+        statusText.style.color = '#991b1b';
+        
+        waitingIcon.textContent = '📵';
+        waitingTitle.textContent = 'Call Ended';
+        waitingSubtitle.textContent = 'This video consultation has already been completed';
+        
+        joinNowBtn.style.display = 'none';
+        
+        if (statusPollInterval) {
+          clearInterval(statusPollInterval);
+        }
+      } else {
+        // Still waiting for doctor
+        statusIndicator.style.background = '#fef3c7';
+        statusIndicator.style.borderColor = '#fcd34d';
+        statusText.textContent = '⏳ Waiting for doctor to start the call...';
+        statusText.style.color = '#92400e';
+        
+        waitingIcon.textContent = '⏳';
+        waitingTitle.textContent = 'Waiting for Doctor';
+        waitingSubtitle.textContent = 'Please wait, your doctor will start the call soon';
+        
+        joinNowBtn.style.display = 'none';
+      }
     }
 
-    // Controls
-    muteBtn.addEventListener('click', () => {
-      isMuted = !isMuted;
-      localStream.getAudioTracks().forEach(track => {
-        track.enabled = !isMuted;
-      });
-      muteBtn.classList.toggle('active', isMuted);
-      muteBtn.textContent = isMuted ? '🔇' : '🎤';
-    });
-
-    cameraBtn.addEventListener('click', () => {
-      isCameraOff = !isCameraOff;
-      localStream.getVideoTracks().forEach(track => {
-        track.enabled = !isCameraOff;
-      });
-      cameraBtn.classList.toggle('active', isCameraOff);
-      cameraBtn.textContent = isCameraOff ? '📵' : '📹';
-    });
-
-    endBtn.addEventListener('click', () => {
-      endCall();
-    });
-
-    function endCall() {
-      if (socket) {
-        socket.emit('leave-room', { room: appointmentId });
-        socket.disconnect();
-      }
-      
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-      
-      if (peerConnection) {
-        peerConnection.close();
-      }
-      
-      window.location.href = '/check_booking.html';
+    function startStatusPolling() {
+      // Poll every 5 seconds
+      statusPollInterval = setInterval(async () => {
+        try {
+          const statusUrl = `/bookings/${appointmentId}/video-status${currentMobile ? '?mobile=' + currentMobile : ''}`;
+          const response = await fetch(statusUrl);
+          const data = await response.json();
+          
+          if (data.success) {
+            updateWaitingStatus(data);
+          }
+        } catch (err) {
+          console.error('Status poll error:', err);
+        }
+      }, 5000);
     }
+
+    // Back button
+    backBtn.addEventListener('click', () => {
+      if (statusPollInterval) {
+        clearInterval(statusPollInterval);
+      }
+      waitingRoom.style.display = 'none';
+      joinForm.style.display = 'block';
+    });
+
+    // Join Now button - Redirect to shared video consultation page
+    joinNowBtn.addEventListener('click', async () => {
+      joinNowBtn.disabled = true;
+      joinNowBtn.textContent = 'Connecting...';
+      
+      try {
+        // Update status to patient_joined
+        await fetch(`/bookings/${appointmentId}/video-status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ video_call_status: 'patient_joined' })
+        });
+        
+        // Redirect to shared video consultation page with patient role
+        const videoUrl = `/video_consultation.html` +
+          `?appointment_id=${encodeURIComponent(appointmentId)}` +
+          `&role=patient` +
+          `&doctor_name=${encodeURIComponent(doctorName)}` +
+          `&patient_name=${encodeURIComponent(patientName)}`;
+        
+        window.location.href = videoUrl;
+        
+      } catch (err) {
+        console.error('Join error:', err);
+        joinNowBtn.disabled = false;
+        joinNowBtn.textContent = '🎥 Join Video Call Now';
+        showError('Failed to join. Please try again.');
+      }
+    });
 
     function showError(message) {
       error.textContent = message;
       error.style.display = 'block';
     }
-
-    // Cleanup
-    window.addEventListener('beforeunload', () => {
-      if (socket) endCall();
-    });
   </script>
 </body>
 </html>

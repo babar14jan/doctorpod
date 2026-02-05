@@ -81,4 +81,7 @@ router.post('/request-demo', express.json(), ctrl.submitDemoRequest);
 // Generate QR code for clinic booking
 router.get('/generate-qr/:clinic_id', ctrl.generateBookingQR);
 
+// Video Consultations Overview for Clinic
+router.get('/video-consultations', ctrl.getVideoConsultationsOverview);
+
 module.exports = router;

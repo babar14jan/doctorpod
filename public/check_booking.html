@@ -799,18 +799,35 @@
               <span class="booking-detail-value">${b.appointment_date || '-'}</span>
             </div>
             <div class="booking-detail">
+              <span class="booking-detail-label">Mode</span>
+              <span class="booking-detail-value">${b.is_video_consultation === 1 ? '📹 Video Consultation' : '🏥 In-Person Visit'}</span>
+            </div>
+            <div class="booking-detail">
               <span class="booking-detail-label">Booking ID</span>
               <span class="booking-detail-value">${b.appointment_id || '-'}</span>
             </div>
           </div>
           
-          <div class="queue-highlight">
-            <div class="queue-highlight-label">Your Queue Number</div>
-            <div class="queue-highlight-value">
-              <div style="font-size: 2.5rem; font-weight: 800;">#${b.queue_number !== undefined && b.queue_number !== null ? b.queue_number : '-'}</div>
-              ${b.tentative_time ? `<div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">Expected Visit Time: ${b.tentative_time}</div>` : `<div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">Appointment Time: ${b.appointment_time || '-'}</div>`}
+          ${b.is_video_consultation === 1 ? `
+            <!-- Video Consultation: Show Slot and Scheduled Time -->
+            <div class="queue-highlight" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);">
+              <div class="queue-highlight-label" style="background: #16a34a; color: white;">Your Appointment Slot</div>
+              <div class="queue-highlight-value">
+                <div style="font-size: 1.75rem; font-weight: 800; color: #16a34a;">📹 Slot #${b.queue_number !== undefined && b.queue_number !== null ? b.queue_number : '-'}</div>
+                <div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem; color: #059669;">Scheduled Call Time: ${b.tentative_time || b.appointment_time || '-'}</div>
+                <div style="font-size: 0.8rem; color: #6b7280; margin-top: 0.5rem;">Join using the button below at this time</div>
+              </div>
             </div>
-          </div>
+          ` : `
+            <!-- In-Person Visit: Show Queue Number and Expected Visit Time -->
+            <div class="queue-highlight">
+              <div class="queue-highlight-label">Your Queue Number</div>
+              <div class="queue-highlight-value">
+                <div style="font-size: 2.5rem; font-weight: 800;">#${b.queue_number !== undefined && b.queue_number !== null ? b.queue_number : '-'}</div>
+                ${b.tentative_time ? `<div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">Expected Visit Time: ${b.tentative_time}</div>` : `<div style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">Appointment Time: ${b.appointment_time || '-'}</div>`}
+              </div>
+            </div>
+          `}
           
           ${b.is_video_consultation === 1 ? `
             <div style="margin-top: 1.5rem; padding: 1rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; text-align: center;">

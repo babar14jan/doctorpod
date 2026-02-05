@@ -48,6 +48,19 @@ router.post('/forgot-password/send-otp', express.json(), ctrl.sendPasswordResetO
 router.post('/forgot-password/verify-otp', express.json(), ctrl.verifyPasswordResetOTP);
 router.post('/forgot-password/reset', express.json(), ctrl.resetPassword);
 
+// ========================================
+// VIDEO CONSULTATION ROUTES
+// ========================================
+
+// Get online consultations for a doctor  
+router.get('/online-consultations', ctrl.getDoctorOnlineConsultations);
+
+// Generate join token for a consultation
+router.post('/generate-join-token', express.json(), ctrl.generateConsultationJoinToken);
+
+// Get join token status for an appointment
+router.get('/join-token-status/:appointment_id', ctrl.getJoinTokenStatus);
+
 router.get('/:id', ctrl.getDoctorById);
 
 

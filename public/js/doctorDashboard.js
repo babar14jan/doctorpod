@@ -703,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
       modal.innerHTML = `
         <div class="modal-content">
           <div class="modal-header">
-            <h3><span class="modal-header-icon">📋</span> Patient History</h3>
+            <h3><span class="modal-header-icon">📋</span> Patient Records</h3>
             <button id="closeHistoryModal" class="modal-close">&times;</button>
           </div>
           <div class="modal-body">
@@ -1265,10 +1265,11 @@ document.addEventListener('DOMContentLoaded', function() {
         appointmentsModal.innerHTML = `
           <div class="modal-content" style="max-width: 640px;">
             <div class="modal-header" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
-              <h3><span class="modal-header-icon">📅</span> Patient Queue</h3>
+              <h3><span class="modal-header-icon">🏥</span> In-Person Consultations</h3>
               <button id="closeAppointmentsModal" class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
+              <p style="margin: 0 0 0.75rem 0; font-size: 0.8125rem; color: #64748b;">Select a patient to start their consultation and write prescription</p>
               <div id="appointmentsFilterRow" class="filter-bar"></div>
               <div id="appointmentsModalContent"></div>
             </div>
@@ -1374,42 +1375,30 @@ document.addEventListener('DOMContentLoaded', function() {
         appointmentsModal.style.display = 'flex';
       }
 
-      // Build filter UI
+      // Build filter UI - Default to In-Person only since this is the In-Person Queue
       const filterRow = document.getElementById('appointmentsFilterRow');
       filterRow.innerHTML = `
         <div class="filter-toggle-group">
           <button type="button" class="filter-toggle-btn active" id="filterToday">Today</button>
           <button type="button" class="filter-toggle-btn" id="filterAllDates">All Dates</button>
         </div>
-        <div class="type-filter-group">
-          <button type="button" class="type-filter-btn active" id="filterTypeAll">All</button>
-          <button type="button" class="type-filter-btn inperson-filter" id="filterTypeInPerson">🏥 In-Person</button>
-          <button type="button" class="type-filter-btn video-filter" id="filterTypeVideo">📹 Video</button>
-        </div>
         <select id="appointmentsDateSelect" class="filter-select" style="display:none;"></select>
         <select id="appointmentsStatusSelect" class="filter-select">
           <option value="">All Status</option>
-          <option value="not_seen">Not Seen</option>
+          <option value="not_seen">Not Started</option>
           <option value="in_progress">In Progress</option>
           <option value="seen">Completed</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="no_show">No Show</option>
         </select>
-        <div class="appointments-summary" id="appointmentsSummary"></div>
       `;
 
       const todayFilter = document.getElementById('filterToday');
       const allDatesFilter = document.getElementById('filterAllDates');
       const statusSelect = document.getElementById('appointmentsStatusSelect');
       const dateSelect = document.getElementById('appointmentsDateSelect');
-      const summaryDiv = document.getElementById('appointmentsSummary');
       const modalContent = document.getElementById('appointmentsModalContent');
       
-      // Type filter elements
-      const filterTypeAll = document.getElementById('filterTypeAll');
-      const filterTypeInPerson = document.getElementById('filterTypeInPerson');
-      const filterTypeVideo = document.getElementById('filterTypeVideo');
-      let currentTypeFilter = 'all'; // 'all', 'inperson', 'video'
+      // For In-Person Queue, always filter to clinic visits only (no video)
+      let currentTypeFilter = 'inperson'; // Fixed to 'inperson' since this modal is for In-Person Queue
 
       // Fetch all dates for date dropdown
       try {
@@ -1463,37 +1452,6 @@ document.addEventListener('DOMContentLoaded', function() {
       statusSelect.addEventListener('change', reloadAppointments);
       dateSelect.addEventListener('change', reloadAppointments);
 
-      // Type filter handlers
-      filterTypeAll.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        currentTypeFilter = 'all';
-        filterTypeAll.classList.add('active');
-        filterTypeInPerson.classList.remove('active');
-        filterTypeVideo.classList.remove('active');
-        reloadAppointments();
-      });
-
-      filterTypeInPerson.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        currentTypeFilter = 'inperson';
-        filterTypeInPerson.classList.add('active');
-        filterTypeAll.classList.remove('active');
-        filterTypeVideo.classList.remove('active');
-        reloadAppointments();
-      });
-
-      filterTypeVideo.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        currentTypeFilter = 'video';
-        filterTypeVideo.classList.add('active');
-        filterTypeAll.classList.remove('active');
-        filterTypeInPerson.classList.remove('active');
-        reloadAppointments();
-      });
-
       async function fetchAppointments() {
         const today = new Date().toISOString().split('T')[0];
         let date = todayFilter.classList.contains('active') ? today : dateSelect.value;
@@ -1516,9 +1474,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       function getStatusLabel(status) {
-        if (!status) return 'Pending';
+        if (!status) return 'Not Started';
         const labels = {
-          'not_seen': 'Not Seen',
+          'not_seen': 'Not Started',
           'in_progress': 'In Progress',
           'seen': 'Completed',
           'cancelled': 'Cancelled',
@@ -1534,46 +1492,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Store bookings for event handler access
         currentBookings = bookings;
         
-        // Filter by type
-        let filteredBookings = bookings;
-        if (currentTypeFilter === 'video') {
-          filteredBookings = bookings.filter(b => b.is_video_consultation);
-        } else if (currentTypeFilter === 'inperson') {
-          filteredBookings = bookings.filter(b => !b.is_video_consultation);
-        }
-        
-        // Update summary (show filtered counts)
-        const total = filteredBookings.length;
-        const pending = filteredBookings.filter(b => b.consult_status === 'not_seen' || !b.consult_status).length;
-        const completed = filteredBookings.filter(b => b.consult_status === 'seen').length;
-        const videoCount = bookings.filter(b => b.is_video_consultation).length;
-        const inPersonCount = bookings.filter(b => !b.is_video_consultation).length;
-        
-        summaryDiv.innerHTML = `
-          <div class="summary-stat">
-            <span class="summary-stat-value">${total}</span>
-            <span class="summary-stat-label">Total</span>
-          </div>
-          <div class="summary-stat">
-            <span class="summary-stat-value" style="color: #10b981;">${videoCount}</span>
-            <span class="summary-stat-label">📹 Video</span>
-          </div>
-          <div class="summary-stat">
-            <span class="summary-stat-value" style="color: #6366f1;">${inPersonCount}</span>
-            <span class="summary-stat-label">🏥 Clinic</span>
-          </div>
-          <div class="summary-stat">
-            <span class="summary-stat-value" style="color: #f59e0b;">${pending}</span>
-            <span class="summary-stat-label">Pending</span>
-          </div>
-        `;
+        // Filter to In-Person only (no video consultations)
+        let filteredBookings = bookings.filter(b => !b.is_video_consultation);
 
         if (!filteredBookings.length) {
           modalContent.innerHTML = `
             <div class="empty-state">
-              <div class="empty-state-icon">📋</div>
-              <div class="empty-state-title">No Appointments</div>
-              <div class="empty-state-text">${currentTypeFilter === 'video' ? 'No video consultations' : currentTypeFilter === 'inperson' ? 'No in-person appointments' : 'No appointments for selected criteria'}</div>
+              <div class="empty-state-icon">🏥</div>
+              <div class="empty-state-title">No In-Person Appointments</div>
+              <div class="empty-state-text">No clinic visits scheduled for this date</div>
             </div>
           `;
           return;
@@ -1582,13 +1509,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Sort by queue number
         filteredBookings.sort((a, b) => (a.queue_number || 999) - (b.queue_number || 999));
 
-        modalContent.innerHTML = filteredBookings.map(b => `
-          <div class="appointment-card ${b.is_video_consultation ? 'video-consultation' : 'in-person'}" data-id="${b.appointment_id}">
+        // Render only in-person appointments (no video-specific UI)
+        modalContent.innerHTML = filteredBookings.map(b => {
+          return `
+          <div class="appointment-card in-person" data-id="${b.appointment_id}">
             <div class="appointment-queue-badge">
               <span class="queue-number">#${b.queue_number || '-'}</span>
-              <span class="appointment-type-badge ${b.is_video_consultation ? 'type-video' : 'type-inperson'}">
-                ${b.is_video_consultation ? '📹 Video' : '🏥 Clinic'}
-              </span>
             </div>
             <div class="appointment-card-body">
               <div class="appointment-info-row">
@@ -1613,19 +1539,12 @@ document.addEventListener('DOMContentLoaded', function() {
               </div>
             </div>
             <div class="appointment-card-actions">
-              ${b.is_video_consultation ? `
-                <button type="button" class="btn-video-call" data-appointment-id="${b.appointment_id}" data-patient-name="${b.patient_name}" ${b.consult_status === 'seen' ? 'disabled' : ''}>
-                  📹 Join Call
-                </button>
-              ` : ''}
               <button type="button" class="selectAppointmentBtn btn-select-appointment" data-appointment-id="${b.appointment_id}" ${b.consult_status === 'seen' ? 'disabled' : ''}>
-                ${b.consult_status === 'seen' ? '✓ Done' : 'Select'}
+                ${b.consult_status === 'seen' ? '✓ Completed' : '▶️ Select Patient'}
               </button>
             </div>
           </div>
-        `).join('');
-        
-        // Video call listeners are handled via event delegation above
+        `}).join('');
       }
 
       async function reloadAppointments() {
@@ -1641,6 +1560,489 @@ document.addEventListener('DOMContentLoaded', function() {
 
       reloadAppointments();
     };
+  }
+
+  // ========================================
+  // ONLINE CONSULTATIONS BUTTON HANDLER
+  // ========================================
+  
+  const onlineConsultationsBtn = document.getElementById('onlineConsultationsBtn');
+  let onlineConsultationsModal = null;
+  
+  if (onlineConsultationsBtn) {
+    onlineConsultationsBtn.onclick = async function() {
+      const doctorId = sessionStorage.getItem('doctor_id');
+      const clinicId = sessionStorage.getItem('selected_clinic_id') || sessionStorage.getItem('clinic_id');
+      
+      if (!doctorId || !clinicId) {
+        alert('Please log in first');
+        return;
+      }
+
+      // Create modal if not exists
+      if (!onlineConsultationsModal) {
+        onlineConsultationsModal = document.createElement('div');
+        onlineConsultationsModal.id = 'onlineConsultationsModal';
+        onlineConsultationsModal.className = 'modal show';
+        onlineConsultationsModal.style.display = 'flex';
+        onlineConsultationsModal.innerHTML = `
+          <div class="modal-content" style="max-width: 640px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+              <h3><span class="modal-header-icon">📹</span> Online Consult</h3>
+              <button id="closeOnlineConsultationsModal" class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+              <p style="margin: 0 0 0.75rem 0; font-size: 0.8125rem; color: #64748b;">Share join links with patients for online consultations</p>
+              <div id="onlineConsultationsContent"></div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(onlineConsultationsModal);
+        
+        document.getElementById('closeOnlineConsultationsModal').onclick = function() {
+          onlineConsultationsModal.classList.remove('show');
+          onlineConsultationsModal.style.display = 'none';
+        };
+        
+        // Close on backdrop click
+        onlineConsultationsModal.addEventListener('click', function(e) {
+          if (e.target === onlineConsultationsModal) {
+            onlineConsultationsModal.classList.remove('show');
+            onlineConsultationsModal.style.display = 'none';
+          }
+        });
+        
+      } else {
+        onlineConsultationsModal.classList.add('show');
+        onlineConsultationsModal.style.display = 'flex';
+      }
+
+      // Load consultations
+      await loadOnlineConsultations(doctorId, clinicId);
+    };
+  }
+
+  // Store all consultations for filtering
+  let allVideoConsultations = [];
+  let currentPaymentFilter = 'all';
+
+  // Load online consultations function
+  async function loadOnlineConsultations(doctorId, clinicId) {
+    const content = document.getElementById('onlineConsultationsContent');
+    
+    // Show loading state
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⏳</div>
+        <div class="empty-state-title">Loading consultations...</div>
+      </div>
+    `;
+
+    try {
+      const response = await fetch(`/doctors/online-consultations?doctor_id=${doctorId}&clinic_id=${clinicId}`);
+      const data = await response.json();
+      
+      if (!data.success) {
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">❌</div>
+            <div class="empty-state-title">Error</div>
+            <div class="empty-state-text">${data.message || 'Failed to load consultations'}</div>
+          </div>
+        `;
+        return;
+      }
+
+      allVideoConsultations = data.consultations || [];
+      renderVideoConsultations(content);
+      
+    } catch (error) {
+      console.error('Load online consultations error:', error);
+      content.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">❌</div>
+          <div class="empty-state-title">Network Error</div>
+          <div class="empty-state-text">Failed to fetch consultations</div>
+        </div>
+      `;
+    }
+  }
+
+  // Render video consultations with filter
+  function renderVideoConsultations(content) {
+    // Filter consultations based on payment status
+    let consultations = allVideoConsultations;
+    if (currentPaymentFilter === 'paid') {
+      consultations = allVideoConsultations.filter(c => c.payment_status === 'CONFIRMED');
+    } else if (currentPaymentFilter === 'unpaid') {
+      consultations = allVideoConsultations.filter(c => c.payment_status !== 'CONFIRMED');
+    }
+
+    // Count for filter badges
+    const paidCount = allVideoConsultations.filter(c => c.payment_status === 'CONFIRMED').length;
+    const unpaidCount = allVideoConsultations.filter(c => c.payment_status !== 'CONFIRMED').length;
+
+    // Build filter bar
+    let html = `
+      <div class="filter-bar" style="margin-bottom: 1rem;">
+        <div class="filter-toggle-group">
+          <button type="button" class="filter-toggle-btn ${currentPaymentFilter === 'all' ? 'active' : ''}" data-filter="all">All (${allVideoConsultations.length})</button>
+          <button type="button" class="filter-toggle-btn ${currentPaymentFilter === 'paid' ? 'active' : ''}" data-filter="paid">Paid (${paidCount})</button>
+          <button type="button" class="filter-toggle-btn ${currentPaymentFilter === 'unpaid' ? 'active' : ''}" data-filter="unpaid">Unpaid (${unpaidCount})</button>
+        </div>
+      </div>
+    `;
+
+    if (consultations.length === 0) {
+      html += `
+        <div class="empty-state">
+          <div class="empty-state-icon">📅</div>
+          <div class="empty-state-title">No ${currentPaymentFilter === 'paid' ? 'Paid' : currentPaymentFilter === 'unpaid' ? 'Unpaid' : ''} Consultations</div>
+          <div class="empty-state-text">No ${currentPaymentFilter !== 'all' ? currentPaymentFilter + ' ' : ''}video consultations found</div>
+        </div>
+      `;
+      content.innerHTML = html;
+      setupVideoFilterHandlers(content);
+      return;
+    }
+
+    // Render consultations in compact card format (similar to In-Person Queue)
+    html += '<div class="online-consultations-list">';
+    
+    consultations.forEach(consultation => {
+      const hasActiveToken = consultation.has_active_token > 0;
+      const isPaid = consultation.payment_status === 'CONFIRMED';
+      const paymentBadge = isPaid ? '<span class="badge-paid">✓ Paid</span>' : '<span class="badge-unpaid">Unpaid</span>';
+      const timeStr = consultation.appointment_time || '--:--';
+      const isCompleted = consultation.consult_status === 'seen';
+      
+      html += `
+        <div class="appointment-card video-consultation ${isPaid ? '' : 'unpaid'}" 
+             data-appointment-id="${consultation.appointment_id}"
+             data-patient-name="${consultation.patient_name || ''}"
+             data-patient-mobile="${consultation.patient_mobile || ''}"
+             data-patient-age="${consultation.age || ''}"
+             data-patient-gender="${consultation.gender || ''}">
+          <div class="appointment-queue-badge video">
+            <span class="queue-icon">📹</span>
+          </div>
+          <div class="appointment-card-body">
+            <div class="appointment-info-row">
+              <span class="info-label">Patient:</span>
+              <span class="info-value patient-name">${consultation.patient_name || 'Unknown'}</span>
+            </div>
+            <div class="appointment-info-row">
+              <span class="info-label">Mobile:</span>
+              <span class="info-value patient-mobile">${consultation.patient_mobile || 'N/A'}</span>
+            </div>
+            <div class="appointment-info-row">
+              <span class="info-label">Age/Gender:</span>
+              <span class="info-value patient-age-gender">${consultation.age || '-'}y / ${consultation.gender || '-'}</span>
+            </div>
+            <div class="appointment-info-row">
+              <span class="info-label">Time:</span>
+              <span class="info-value time-value">${timeStr}</span>
+              ${paymentBadge}
+            </div>
+          </div>
+          <div class="appointment-card-actions video-actions">
+            <button type="button" class="btn-select-video selectVideoPatientBtn" 
+                    data-appointment-id="${consultation.appointment_id}" 
+                    ${isCompleted ? 'disabled' : ''}>
+              ${isCompleted ? '✓ Done' : '📋 Select'}
+            </button>
+            <button type="button" class="btn-generate-link ${hasActiveToken ? 'link-ready' : ''}" data-appointment-id="${consultation.appointment_id}">
+              ${hasActiveToken ? '✅ Link' : '🔗 Link'}
+            </button>
+            ${hasActiveToken ? `
+              <button type="button" class="btn-icon btn-whatsapp-share" data-appointment-id="${consultation.appointment_id}" title="Share on WhatsApp">
+                💬
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+    content.innerHTML = html;
+    
+    // Setup filter handlers
+    setupVideoFilterHandlers(content);
+    
+    // Add event listeners for buttons
+    content.addEventListener('click', handleOnlineConsultationClick);
+    
+    // Add event listeners for Select Patient buttons
+    content.addEventListener('click', handleSelectVideoPatient);
+  }
+
+  // Handle Select Patient button click in Video Consultations
+  async function handleSelectVideoPatient(e) {
+    const btn = e.target.closest('.selectVideoPatientBtn');
+    if (!btn || btn.disabled) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const card = btn.closest('.appointment-card');
+    if (!card) return;
+    
+    const appointmentId = card.dataset.appointmentId;
+    const patientName = card.dataset.patientName || '';
+    const patientMobile = card.dataset.patientMobile || '';
+    const patientAge = card.dataset.patientAge || '';
+    const patientGender = card.dataset.patientGender || '';
+    
+    // Store selected appointment for later status update
+    selectedAppointmentId = appointmentId;
+    currentBookingRef = appointmentId;
+    
+    // Auto-fill prescription form
+    if (presForm.patient_name) presForm.patient_name.value = patientName;
+    if (presForm.patient_age) presForm.patient_age.value = patientAge;
+    if (presForm.patient_mobile) presForm.patient_mobile.value = patientMobile;
+    
+    const genderField = presForm.querySelector('select[name="patient_gender"]');
+    if (genderField && patientGender) {
+      // Match gender value (could be 'Male', 'Female', 'M', 'F')
+      const genderValue = patientGender.toLowerCase().startsWith('m') ? 'Male' : 
+                          patientGender.toLowerCase().startsWith('f') ? 'Female' : patientGender;
+      genderField.value = genderValue;
+    }
+    
+    // Store appointment ID in hidden field
+    const appointmentIdField = document.getElementById('appointmentIdField');
+    if (appointmentIdField) appointmentIdField.value = appointmentId;
+    
+    // Update status to in_progress
+    try {
+      await fetch(`/bookings/${appointmentId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consult_status: 'in_progress' })
+      });
+    } catch (err) {
+      console.log('Status update error:', err);
+    }
+    
+    // Close modal
+    if (onlineConsultationsModal) {
+      onlineConsultationsModal.classList.remove('show');
+      onlineConsultationsModal.style.display = 'none';
+    }
+    
+    // Focus on first empty field (temperature or diagnosis)
+    const firstEmpty = presForm.querySelector('input[name="temperature"], input[name="diagnosis"]');
+    if (firstEmpty) firstEmpty.focus();
+  }
+
+  // Setup filter handlers for video consultations
+  function setupVideoFilterHandlers(content) {
+    const filterBtns = content.querySelectorAll('.filter-toggle-btn[data-filter]');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        currentPaymentFilter = this.dataset.filter;
+        renderVideoConsultations(content);
+      });
+    });
+  }
+
+  // Handle clicks on online consultation buttons
+  async function handleOnlineConsultationClick(e) {
+    const generateBtn = e.target.closest('.btn-generate-link');
+    const copyBtn = e.target.closest('.btn-copy-link'); 
+    const whatsappBtn = e.target.closest('.btn-whatsapp-share');
+    
+    if (!generateBtn && !copyBtn && !whatsappBtn) return;
+    
+    const appointmentId = generateBtn?.dataset.appointmentId || 
+                         copyBtn?.dataset.appointmentId || 
+                         whatsappBtn?.dataset.appointmentId;
+                         
+    if (!appointmentId) return;
+    
+    const doctorId = sessionStorage.getItem('doctor_id');
+    const clinicId = sessionStorage.getItem('selected_clinic_id') || sessionStorage.getItem('clinic_id');
+    
+    if (generateBtn) {
+      await generateJoinToken(appointmentId, doctorId, clinicId);
+    } else if (copyBtn) {
+      await copyJoinLink(appointmentId);
+    } else if (whatsappBtn) {
+      await shareOnWhatsApp(appointmentId);
+    }
+  }
+
+  // Generate join token
+  async function generateJoinToken(appointmentId, doctorId, clinicId) {
+    const btn = document.querySelector(`[data-appointment-id="${appointmentId}"].btn-generate-link`);
+    if (!btn) return;
+    
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳ Generating...';
+    btn.disabled = true;
+    
+    try {
+      const response = await fetch('/doctors/generate-join-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appointment_id: appointmentId,
+          doctor_id: doctorId,
+          clinic_id: clinicId
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Store the join data for later use
+        btn.dataset.joinUrl = data.joinUrl;
+        btn.dataset.whatsappMessage = data.whatsappMessage;
+        btn.dataset.patientMobile = data.patientMobile;
+        
+        // Update UI
+        btn.innerHTML = '✅ Link Generated';
+        btn.style.opacity = '0.7';
+        
+        // Add copy and WhatsApp buttons
+        const card = btn.closest('.online-consultation-card');
+        const actionsDiv = card.querySelector('.consultation-actions');
+        
+        if (!actionsDiv.querySelector('.btn-copy-link')) {
+          actionsDiv.insertAdjacentHTML('beforeend', `
+            <button class="btn-copy-link" data-appointment-id="${appointmentId}">
+              📋 Copy Link
+            </button>
+            <button class="btn-whatsapp-share" data-appointment-id="${appointmentId}">
+              💬 Share WhatsApp
+            </button>
+          `);
+        }
+        
+        // Add status indicator
+        if (!card.querySelector('.link-status')) {
+          card.insertAdjacentHTML('beforeend', `
+            <div class="link-status active">
+              ✅ Join link is active and ready to share
+            </div>
+          `);
+        }
+        
+        // Auto-copy to clipboard
+        if (navigator.clipboard && data.joinUrl) {
+          try {
+            await navigator.clipboard.writeText(data.joinUrl);
+            showTemporaryMessage('Join link copied to clipboard!', 'success');
+          } catch (e) {
+            console.log('Clipboard access failed');
+          }
+        }
+        
+      } else {
+        btn.innerHTML = originalText;
+        alert(data.message || 'Failed to generate join token');
+      }
+      
+    } catch (error) {
+      console.error('Generate token error:', error);
+      btn.innerHTML = originalText;
+      alert('Network error. Please try again.');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // Copy join link to clipboard
+  async function copyJoinLink(appointmentId) {
+    const generateBtn = document.querySelector(`[data-appointment-id="${appointmentId}"].btn-generate-link`);
+    const joinUrl = generateBtn?.dataset.joinUrl;
+    
+    if (!joinUrl) {
+      alert('Please generate the link first');
+      return;
+    }
+    
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(joinUrl);
+        showTemporaryMessage('Join link copied to clipboard!', 'success');
+      } catch (e) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = joinUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showTemporaryMessage('Join link copied to clipboard!', 'success');
+      }
+    } else {
+      // Show link in alert for manual copy
+      prompt('Copy this join link:', joinUrl);
+    }
+  }
+
+  // Share on WhatsApp
+  async function shareOnWhatsApp(appointmentId) {
+    const generateBtn = document.querySelector(`[data-appointment-id="${appointmentId}"].btn-generate-link`);
+    const whatsappMessage = generateBtn?.dataset.whatsappMessage;
+    const patientMobile = generateBtn?.dataset.patientMobile;
+    
+    if (!whatsappMessage) {
+      alert('Please generate the link first');
+      return;
+    }
+    
+    // Open WhatsApp with pre-filled message
+    const whatsappUrl = `https://wa.me/${patientMobile?.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  // Show temporary success/error message
+  function showTemporaryMessage(message, type = 'info') {
+    const existingMessage = document.querySelector('.temp-message');
+    if (existingMessage) {
+      existingMessage.remove();
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'temp-message';
+    messageDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'success' ? '#10b981' : '#ef4444'};
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 10000;
+      animation: slideInRight 0.3s ease;
+    `;
+    messageDiv.textContent = message;
+    
+    // Add animation keyframes
+    if (!document.querySelector('#temp-message-styles')) {
+      const style = document.createElement('style');
+      style.id = 'temp-message-styles';
+      style.textContent = `
+        @keyframes slideInRight {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+      messageDiv.remove();
+    }, 3000);
   }
 
   // Update appointment status to 'seen' after successful save
@@ -1802,13 +2204,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============= VIDEO CONSULTATION =============
-function startVideoCall(appointmentId, patientName) {
+async function startVideoCall(appointmentId, patientName) {
   // Get doctor_id directly from sessionStorage (getLoggedInDoctorId is inside DOMContentLoaded)
   const doctorId = sessionStorage.getItem('doctor_id');
   if (!doctorId) {
     alert('Please log in first');
     window.location.href = '/doctor_login.html';
     return;
+  }
+  
+  try {
+    // Update video call status to 'doctor_ready' so patient knows they can join
+    const response = await fetch(`/bookings/${appointmentId}/video-status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ video_call_status: 'doctor_ready' })
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to update video call status');
+    }
+  } catch (err) {
+    console.error('Error updating video call status:', err);
   }
   
   // Open video consultation page in new window

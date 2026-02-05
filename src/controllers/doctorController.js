@@ -1,9 +1,26 @@
+const videoJoinTokenService = require('../utils/videoJoinTokenService');
+
 // Get doctor availability (timings) for a given doctor and clinic
 async function getDoctorAvailability(req, res) {
   try {
-    const { doctor_id, clinic_id } = req.query;
+    const { doctor_id, clinic_id, slot_type } = req.query;
     if (!doctor_id || !clinic_id) return res.status(400).json({ success: false, message: 'Missing doctor_id or clinic_id' });
-    const rows = await db.prepare('SELECT day_of_week, start_time, end_time FROM availability_slots WHERE doctor_id = ? AND clinic_id = ? ORDER BY id').all(doctor_id, clinic_id);
+    
+    // Build query based on slot_type filter
+    let query = 'SELECT day_of_week, start_time, end_time, slot_type FROM availability_slots WHERE doctor_id = ? AND clinic_id = ?';
+    const params = [doctor_id, clinic_id];
+    
+    // Filter by slot_type if specified
+    if (slot_type === 'clinic') {
+      query += " AND (slot_type = 'clinic' OR slot_type = 'both')";
+    } else if (slot_type === 'video') {
+      query += " AND (slot_type = 'video' OR slot_type = 'both')";
+    }
+    // If slot_type not specified, return all
+    
+    query += ' ORDER BY id';
+    
+    const rows = await db.prepare(query).all(...params);
     res.json({ success: true, availability: rows });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
@@ -707,5 +724,257 @@ async function resetPassword(req, res) {
   }
 }
 
-module.exports = { getAllDoctors, loginDoctor, addDoctor, getDoctorById, deleteDoctor, updateDoctor, getAllClinics, getDoctorsByClinic, getDoctorAvailability, changeDoctorPassword, getDoctorProfile, updateDoctorProfile, getDoctorSession, logoutDoctor, sendPasswordResetOTP, verifyPasswordResetOTP, resetPassword };
+// ========================================
+// VIDEO CONSULTATION ENDPOINTS
+// ========================================
+
+// Get online consultations for a doctor
+async function getDoctorOnlineConsultations(req, res) {
+  try {
+    const { doctor_id, clinic_id } = req.query;
+    
+    if (!doctor_id || !clinic_id) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing doctor_id or clinic_id' 
+      });
+    }
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Get today's and upcoming online consultations (show all regardless of payment status)
+    // Clinic admin controls payment - doctor sees all scheduled consultations
+    // NOTE: Patient data is stored directly in bookings table (no separate patients table for booking flow)
+    const consultations = await db.prepare(`
+      SELECT 
+        b.appointment_id,
+        b.patient_id, 
+        b.appointment_date,
+        b.appointment_time,
+        b.is_video_consultation,
+        b.payment_status,
+        b.consult_status as booking_status,
+        b.patient_name,
+        b.patient_mobile,
+        b.patient_gender as gender,
+        b.patient_age as age,
+        -- Check if join token exists
+        (SELECT COUNT(*) FROM consultation_join_tokens ct 
+         WHERE ct.appointment_id = b.appointment_id 
+         AND ct.is_expired = FALSE 
+         AND ct.expires_at > datetime('now')) as has_active_token
+      FROM bookings b
+      WHERE b.doctor_id = ? 
+        AND b.clinic_id = ?
+        AND b.is_video_consultation = 1
+        AND b.appointment_date >= ?
+        AND b.consult_status != 'cancelled'
+      ORDER BY b.appointment_date, b.appointment_time
+    `).all(doctor_id, clinic_id, today);
+    
+    res.json({ 
+      success: true, 
+      consultations: consultations || [] 
+    });
+    
+  } catch (error) {
+    console.error('Get online consultations error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch online consultations' 
+    });
+  }
+}
+
+// Generate join token for a consultation
+async function generateConsultationJoinToken(req, res) {
+  try {
+    const { appointment_id, doctor_id, clinic_id } = req.body;
+    
+    if (!appointment_id || !doctor_id || !clinic_id) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing required fields' 
+      });
+    }
+    
+    // Get appointment details
+    // NOTE: Patient data is stored directly in bookings table
+    const appointment = await db.prepare(`
+      SELECT 
+        b.appointment_id,
+        b.patient_id,
+        b.doctor_id,
+        b.clinic_id,
+        b.appointment_date,
+        b.appointment_time,
+        b.is_video_consultation,
+        b.payment_status,
+        b.consult_status,
+        b.patient_name,
+        b.patient_mobile,
+        d.name as doctor_name,
+        c.name as clinic_name,
+        c.phone as clinic_phone
+      FROM bookings b
+      JOIN doctors d ON b.doctor_id = d.doctor_id
+      JOIN clinics c ON b.clinic_id = c.clinic_id
+      WHERE b.appointment_id = ? 
+        AND b.doctor_id = ?
+        AND b.clinic_id = ?
+    `).get(appointment_id, doctor_id, clinic_id);
+    
+    if (!appointment) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Appointment not found' 
+      });
+    }
+    
+    // Validate appointment
+    if (appointment.is_video_consultation !== 1) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'This is not an online consultation' 
+      });
+    }
+    
+    // Note: Allow unpaid consultations - clinic admin controls payment status
+    // payment_status check removed for hybrid workflow
+    const isPaid = appointment.payment_status === 'CONFIRMED';
+    
+    if (appointment.consult_status === 'cancelled') {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'This appointment has been cancelled' 
+      });
+    }
+    
+    // Create consultation datetime
+    const consultationTime = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
+    
+    // Generate token
+    const tokenResult = await videoJoinTokenService.generateJoinToken(
+      appointment_id,
+      appointment.patient_id,
+      appointment.doctor_id,
+      appointment.clinic_id,
+      consultationTime
+    );
+    
+    if (!tokenResult.success) {
+      return res.status(400).json(tokenResult);
+    }
+    
+    // Generate WhatsApp message
+    const whatsappMessage = videoJoinTokenService.generateWhatsAppMessage(
+      appointment.patient_name,
+      appointment.doctor_name,
+      consultationTime,
+      tokenResult.joinUrl,
+      appointment.clinic_phone
+    );
+    
+    res.json({
+      success: true,
+      message: 'Join token generated successfully',
+      joinUrl: tokenResult.joinUrl,
+      expiresAt: tokenResult.expiresAt,
+      whatsappMessage,
+      patientName: appointment.patient_name,
+      patientMobile: appointment.patient_mobile,
+      consultationTime
+    });
+    
+  } catch (error) {
+    console.error('Generate join token error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to generate join token' 
+    });
+  }
+}
+
+// Get join token status for an appointment
+async function getJoinTokenStatus(req, res) {
+  try {
+    const { appointment_id } = req.params;
+    const { doctor_id, clinic_id } = req.query;
+    
+    if (!appointment_id || !doctor_id || !clinic_id) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Missing required parameters' 
+      });
+    }
+    
+    // Verify appointment belongs to doctor
+    const appointment = await db.prepare(`
+      SELECT appointment_id FROM bookings 
+      WHERE appointment_id = ? AND doctor_id = ? AND clinic_id = ?
+    `).get(appointment_id, doctor_id, clinic_id);
+    
+    if (!appointment) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Appointment not found' 
+      });
+    }
+    
+    // Get active token info
+    const tokenInfo = await db.prepare(`
+      SELECT 
+        token_id,
+        created_at,
+        expires_at,
+        join_attempts,
+        max_attempts,
+        used_at,
+        is_expired
+      FROM consultation_join_tokens
+      WHERE appointment_id = ? 
+        AND is_expired = FALSE 
+        AND expires_at > datetime('now')
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).get(appointment_id);
+    
+    res.json({
+      success: true,
+      hasActiveToken: !!tokenInfo,
+      tokenInfo: tokenInfo || null
+    });
+    
+  } catch (error) {
+    console.error('Get join token status error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to get token status' 
+    });
+  }
+}
+
+module.exports = { 
+  getAllDoctors, 
+  loginDoctor, 
+  addDoctor, 
+  getDoctorById, 
+  deleteDoctor, 
+  updateDoctor, 
+  getAllClinics, 
+  getDoctorsByClinic, 
+  getDoctorAvailability, 
+  changeDoctorPassword, 
+  getDoctorProfile, 
+  updateDoctorProfile, 
+  getDoctorSession, 
+  logoutDoctor, 
+  sendPasswordResetOTP, 
+  verifyPasswordResetOTP, 
+  resetPassword,
+  // Video consultation methods
+  getDoctorOnlineConsultations,
+  generateConsultationJoinToken,
+  getJoinTokenStatus
+};
 

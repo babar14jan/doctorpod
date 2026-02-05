@@ -698,5 +698,120 @@ module.exports = {
   verifyPasswordResetOTP,
   resetPassword,
   submitDemoRequest,
-  generateBookingQR
+  generateBookingQR,
+  getVideoConsultationsOverview
 };
+
+// ========================================
+// VIDEO CONSULTATIONS OVERVIEW FOR CLINIC
+// ========================================
+
+async function getVideoConsultationsOverview(req, res) {
+  try {
+    // Check clinic session
+    if (!req.session || !req.session.clinic || !req.session.clinic.clinic_id) {
+      return res.status(401).json({ success: false, message: 'Please log in' });
+    }
+    
+    const clinicId = req.session.clinic.clinic_id;
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Calculate week start (Monday)
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday start
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - diff);
+    const weekStartStr = weekStart.toISOString().split('T')[0];
+    
+    // Get all doctors for this clinic
+    const doctors = await db.prepare(`
+      SELECT doctor_id, name, specialization
+      FROM doctors 
+      WHERE clinic_id = ?
+    `).all(clinicId);
+    
+    // Get consultation stats for each doctor
+    const doctorStats = [];
+    let summaryTodayConsultations = 0;
+    let summaryPendingJoins = 0;
+    let summaryLinksSent = 0;
+    let summaryWeekConsultations = 0;
+    
+    for (const doctor of doctors) {
+      // Today's online consultations
+      const todayConsultations = await db.prepare(`
+        SELECT COUNT(*) as count FROM bookings 
+        WHERE doctor_id = ? 
+          AND is_video_consultation = 1 
+          AND appointment_date = ?
+          AND consult_status != 'cancelled'
+      `).get(doctor.doctor_id, today);
+      
+      // This week's online consultations
+      const weekConsultations = await db.prepare(`
+        SELECT COUNT(*) as count FROM bookings 
+        WHERE doctor_id = ? 
+          AND is_video_consultation = 1 
+          AND appointment_date >= ?
+          AND appointment_date <= ?
+          AND consult_status != 'cancelled'
+      `).get(doctor.doctor_id, weekStartStr, today);
+      
+      // Total links sent (video consultations booked = links generated)
+      // Since video join links are sent with booking confirmation, count video bookings as links sent
+      const totalLinksSent = await db.prepare(`
+        SELECT COUNT(*) as count FROM bookings 
+        WHERE doctor_id = ?
+          AND is_video_consultation = 1
+          AND consult_status != 'cancelled'
+      `).get(doctor.doctor_id);
+      
+      // Pending joins (video consultations scheduled for today that haven't been completed)
+      const pendingJoins = await db.prepare(`
+        SELECT COUNT(*) as count FROM bookings 
+        WHERE doctor_id = ? 
+          AND is_video_consultation = 1
+          AND appointment_date = ?
+          AND (video_call_status IS NULL OR video_call_status IN ('waiting', 'doctor_ready', 'patient_joined'))
+          AND consult_status NOT IN ('completed', 'cancelled')
+      `).get(doctor.doctor_id, today);
+      
+      const stats = {
+        doctorId: doctor.doctor_id,
+        doctorName: doctor.name,
+        specialization: doctor.specialization || 'General Practice',
+        todayConsultations: todayConsultations.count || 0,
+        weekConsultations: weekConsultations.count || 0,
+        totalLinksSent: totalLinksSent.count || 0,
+        pendingJoins: pendingJoins.count || 0
+      };
+      
+      doctorStats.push(stats);
+      
+      // Update summary totals
+      summaryTodayConsultations += stats.todayConsultations;
+      summaryWeekConsultations += stats.weekConsultations;
+      summaryLinksSent += stats.totalLinksSent;
+      summaryPendingJoins += stats.pendingJoins;
+    }
+    
+    res.json({
+      success: true,
+      summary: {
+        todayConsultations: summaryTodayConsultations,
+        weekConsultations: summaryWeekConsultations,
+        linksSent: summaryLinksSent,
+        pendingJoins: summaryPendingJoins
+      },
+      doctors: doctorStats
+    });
+    
+  } catch (error) {
+    console.error('Get video consultations overview error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch video consultations overview' 
+    });
+  }
+}

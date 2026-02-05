@@ -10,7 +10,7 @@ async function addAvailability(req, res) {
     return res.status(403).json({ success: false, message: 'Unauthorized' });
   }
   
-  const { doctor_id, clinic_id, days, timings, interval_minutes } = req.body;
+  const { doctor_id, clinic_id, days, timings, interval_minutes, slot_type } = req.body;
   if (!doctor_id || !clinic_id || !days || !timings) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
@@ -19,6 +19,10 @@ async function addAvailability(req, res) {
   if (isClinic && req.session.clinic.clinic_id !== clinic_id) {
     return res.status(403).json({ success: false, message: 'You can only add availability for your own clinic' });
   }
+  
+  // Validate slot_type
+  const validSlotTypes = ['clinic', 'video', 'both'];
+  const slotTypeValue = validSlotTypes.includes(slot_type) ? slot_type : 'clinic';
   
   // timings format: "10:00-13:00"
   let start_time = '', end_time = '';
@@ -34,8 +38,8 @@ async function addAvailability(req, res) {
   try {
     const dayList = days.split(',').map(d => d.trim()).filter(Boolean);
     for (const day of dayList) {
-      await db.prepare('INSERT INTO availability_slots (doctor_id, clinic_id, day_of_week, start_time, end_time, interval_minutes) VALUES (?, ?, ?, ?, ?, ?)')
-        .run(doctor_id, clinic_id, day, start_time, end_time, interval);
+      await db.prepare('INSERT INTO availability_slots (doctor_id, clinic_id, day_of_week, start_time, end_time, interval_minutes, slot_type) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .run(doctor_id, clinic_id, day, start_time, end_time, interval, slotTypeValue);
     }
     res.json({ success: true });
   } catch (e) {
@@ -61,7 +65,8 @@ async function getAvailabilityByClinic(req, res) {
         a.day_of_week,
         a.start_time,
         a.end_time,
-        a.interval_minutes
+        a.interval_minutes,
+        a.slot_type
       FROM availability_slots a
       LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
       WHERE a.clinic_id = ?
@@ -92,7 +97,7 @@ async function updateAvailability(req, res) {
     return res.status(403).json({ success: false, message: 'Unauthorized' });
   }
   
-  const { id, day_of_week, start_time, end_time, interval_minutes } = req.body;
+  const { id, day_of_week, start_time, end_time, interval_minutes, slot_type } = req.body;
   if (!id) {
     return res.status(400).json({ success: false, message: 'Missing availability ID' });
   }
@@ -105,6 +110,10 @@ async function updateAvailability(req, res) {
     if (start_time) { updates.push('start_time = ?'); values.push(start_time); }
     if (end_time) { updates.push('end_time = ?'); values.push(end_time); }
     if (interval_minutes) { updates.push('interval_minutes = ?'); values.push(interval_minutes); }
+    if (slot_type && ['clinic', 'video', 'both'].includes(slot_type)) { 
+      updates.push('slot_type = ?'); 
+      values.push(slot_type); 
+    }
     
     if (updates.length === 0) {
       return res.status(400).json({ success: false, message: 'No fields to update' });

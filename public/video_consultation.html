@@ -163,16 +163,16 @@
 
   <div class="video-container">
     <div class="video-box">
-      <div class="video-label">You (Doctor)</div>
+      <div class="video-label" id="localLabel">You</div>
       <video id="localVideo" autoplay muted playsinline></video>
     </div>
 
     <div class="video-box">
-      <div class="video-label" id="patientLabel">Patient</div>
+      <div class="video-label" id="remoteLabel">Waiting...</div>
       <video id="remoteVideo" autoplay playsinline></video>
       <div class="video-placeholder" id="remotePlaceholder">
         <div class="video-placeholder-icon">👤</div>
-        <div>Waiting for patient to join...</div>
+        <div id="placeholderText">Waiting for other party to join...</div>
       </div>
     </div>
   </div>
@@ -195,11 +195,15 @@
     const appointmentId = urlParams.get('appointment_id');
     const doctorId = urlParams.get('doctor_id');
     const patientName = urlParams.get('patient_name');
+    const doctorName = urlParams.get('doctor_name');
+    const role = urlParams.get('role') || 'doctor'; // Default to doctor for backward compatibility
 
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
     const remotePlaceholder = document.getElementById('remotePlaceholder');
-    const patientLabel = document.getElementById('patientLabel');
+    const localLabel = document.getElementById('localLabel');
+    const remoteLabel = document.getElementById('remoteLabel');
+    const placeholderText = document.getElementById('placeholderText');
     const statusIndicator = document.getElementById('statusIndicator');
     const statusText = document.getElementById('statusText');
     const muteBtn = document.getElementById('muteBtn');
@@ -211,10 +215,19 @@
     let socket = null;
     let isMuted = false;
     let isCameraOff = false;
+    
+    const isDoctor = role === 'doctor';
+    const isPatient = role === 'patient';
 
-    // Update patient name
-    if (patientName) {
-      patientLabel.textContent = patientName;
+    // Set up role-based labels
+    if (isDoctor) {
+      localLabel.textContent = 'You (Doctor)';
+      remoteLabel.textContent = patientName || 'Patient';
+      placeholderText.textContent = 'Waiting for patient to join...';
+    } else {
+      localLabel.textContent = 'You (Patient)';
+      remoteLabel.textContent = doctorName ? `Dr. ${doctorName}` : 'Doctor';
+      placeholderText.textContent = 'Waiting for doctor...';
     }
 
     // ICE servers for STUN/TURN
@@ -244,41 +257,64 @@
           statusText.textContent = 'Connected';
           statusIndicator.classList.add('connected');
           
-          // Join room as doctor
+          // Join room with role
           socket.emit('join-video-room', {
             room: appointmentId,
-            role: 'doctor',
+            role: role,
             doctorId: doctorId
           });
         });
 
-        socket.on('patient-joined', async () => {
-          console.log('Patient joined, creating offer');
-          remotePlaceholder.style.display = 'none';
-          await createPeerConnection();
-          const offer = await peerConnection.createOffer();
-          await peerConnection.setLocalDescription(offer);
-          socket.emit('offer', { room: appointmentId, offer });
-        });
+        // === DOCTOR ROLE: Wait for patient, then create offer ===
+        if (isDoctor) {
+          socket.on('patient-joined', async () => {
+            console.log('Patient joined, creating offer');
+            remotePlaceholder.style.display = 'none';
+            await createPeerConnection();
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit('offer', { room: appointmentId, offer });
+          });
 
-        socket.on('answer', async (answer) => {
-          console.log('Received answer from patient');
-          await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-        });
+          socket.on('answer', async (answer) => {
+            console.log('Received answer from patient');
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+          });
 
+          socket.on('patient-left', () => {
+            console.log('Patient left the call');
+            remotePlaceholder.style.display = 'block';
+            remoteVideo.srcObject = null;
+            if (peerConnection) {
+              peerConnection.close();
+              peerConnection = null;
+            }
+          });
+        }
+
+        // === PATIENT ROLE: Wait for offer from doctor ===
+        if (isPatient) {
+          socket.on('offer', async (offer) => {
+            console.log('Received offer from doctor');
+            remotePlaceholder.style.display = 'none';
+            await createPeerConnection();
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            socket.emit('answer', { room: appointmentId, answer });
+          });
+
+          socket.on('doctor-left', () => {
+            console.log('Doctor left the call');
+            alert('Doctor has ended the consultation');
+            endCall();
+          });
+        }
+
+        // === COMMON: ICE candidates ===
         socket.on('ice-candidate', async (candidate) => {
           if (peerConnection) {
             await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-          }
-        });
-
-        socket.on('patient-left', () => {
-          console.log('Patient left the call');
-          remotePlaceholder.style.display = 'block';
-          remoteVideo.srcObject = null;
-          if (peerConnection) {
-            peerConnection.close();
-            peerConnection = null;
           }
         });
 
@@ -304,7 +340,7 @@
         }
         
         alert(errorMsg);
-        window.close();
+        goBack();
       }
     }
 
@@ -370,7 +406,7 @@
 
     function endCall() {
       if (socket) {
-        socket.emit('leave-room', { room: appointmentId });
+        socket.emit('leave-room', { room: appointmentId, role: role });
         socket.disconnect();
       }
       
@@ -382,7 +418,20 @@
         peerConnection.close();
       }
       
-      window.close();
+      goBack();
+    }
+
+    function goBack() {
+      // Navigate based on role
+      if (isDoctor) {
+        window.close();
+        // If window.close doesn't work (wasn't opened by script), redirect
+        setTimeout(() => {
+          window.location.href = '/doctor_dashboard.html';
+        }, 100);
+      } else {
+        window.location.href = '/check_booking.html';
+      }
     }
 
     // Cleanup on page unload

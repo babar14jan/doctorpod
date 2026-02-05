@@ -40,11 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load initial data
   loadClinics();
   loadDoctors();
-  loadClinicDropdown();
   loadDemoRequests();
-  
-  // Initialize availability days grid
-  initializeAvailabilityDays();
   
   // Sign out handler - with null check
   const signOutBtn = document.getElementById('signOut');
@@ -118,104 +114,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Add Doctor Form
-  const addDoctorForm = document.getElementById('addDoctorForm');
-  if (addDoctorForm) addDoctorForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    
-    try {
-      const res = await fetch('/doctors/add', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include'
-      });
-      const data = await res.json();
-      
-      if (data.success) {
-        showSuccessModal({
-          emoji: '🩺',
-          title: 'Doctor Added Successfully!',
-          msg: 'Your Doctor ID:',
-          highlight: data.doctor_id,
-          note: 'Share this ID with the doctor for login.'
-        });
-        e.target.reset();
-        loadDoctors();
-      } else {
-        showToast('Failed', data.message || 'Failed to add doctor', 'error');
-      }
-    } catch (error) {
-      showToast('Error', 'Error adding doctor. Please try again.', 'error');
-    }
-  });
 
-  // Add Availability Form
-  const addAvailabilityForm = document.getElementById('addAvailabilityForm');
-  if (addAvailabilityForm) addAvailabilityForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const doctor_id = formData.get('doctor_id');
-    const clinic_id = formData.get('clinic_id');
-    const interval_minutes = parseInt(formData.get('interval_minutes')) || 15;
-    
-    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const entries = [];
-    
-    daysOfWeek.forEach(day => {
-      if (document.querySelector(`[name="day_${day}"]`).checked) {
-        const start = document.querySelector(`[name="start_${day}"]`).value;
-        const end = document.querySelector(`[name="end_${day}"]`).value;
-        entries.push({ day, start, end });
-      }
-    });
-    
-    if (!doctor_id || !clinic_id) {
-      showToast('Missing Fields', 'Please enter both Doctor ID and Clinic ID', 'warning');
-      return;
-    }
-    
-    if (entries.length === 0) {
-      showToast('No Days Selected', 'Please select at least one day', 'warning');
-      return;
-    }
-    
-    let success = true;
-    for (const entry of entries) {
-      try {
-        const res = await fetch('/availability/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            doctor_id,
-            clinic_id,
-            interval_minutes,
-            days: entry.day,
-            timings: `${entry.start}-${entry.end}`
-          })
-        });
-        
-        const result = await res.json();
-        if (!result.success) success = false;
-      } catch (error) {
-        console.error('Error adding availability:', error);
-        success = false;
-      }
-    }
-    
-    showSuccessModal({
-      emoji: success ? '📅' : '⚠️',
-      title: success ? 'Availability Added!' : 'Error',
-      msg: success ? 'Schedule updated successfully.' : 'Some entries failed.',
-      highlight: success ? entries.map(e => `${e.day}: ${e.start}-${e.end}`).join(', ') : '',
-      note: success ? 'Patients can now book appointments during these times.' : 'Please try again.'
-    });
-    
-    if (success) {
-      e.target.reset();
-      initializeAvailabilityDays();
-    }
-  });
+
+
 
   // Edit Clinic Form
   document.getElementById('editClinicForm').addEventListener('submit', async (e) => {
@@ -454,41 +355,6 @@ async function loadDoctors() {
   }
 }
 
-
-// Load Clinic Dropdown
-async function loadClinicDropdown() {
-  const doctorSelect = document.getElementById('doctorClinicSelect');
-  const availabilitySelect = document.getElementById('availabilityClinicSelect');
-  if (!doctorSelect && !availabilitySelect) return;
-  
-  try {
-    const res = await fetch('/clinic/all', { credentials: 'include' });
-    const data = await res.json();
-    const clinics = data.clinics || [];
-    const optionsHtml = clinics.length
-      ? '<option value="">Select a clinic</option>' + clinics.map(c => `<option value="${c.clinic_id}">${c.name} (${c.clinic_id})</option>`).join('')
-      : '<option value="">No clinics available</option>';
-    
-    if (doctorSelect) doctorSelect.innerHTML = optionsHtml;
-    if (availabilitySelect) availabilitySelect.innerHTML = optionsHtml;
-  } catch (error) {
-    console.error('Error loading clinics from /clinic/all:', error);
-    try {
-      const fallback = await fetch('/doctors/clinics/all', { credentials: 'include' });
-      const fallbackData = await fallback.json();
-      const clinics = fallbackData.clinics || [];
-      const optionsHtml = clinics.length
-        ? '<option value="">Select a clinic</option>' + clinics.map(c => `<option value="${c.clinic_id}">${c.name} (${c.clinic_id})</option>`).join('')
-        : '<option value="">No clinics available</option>';
-      if (doctorSelect) doctorSelect.innerHTML = optionsHtml;
-      if (availabilitySelect) availabilitySelect.innerHTML = optionsHtml;
-    } catch (fallbackError) {
-      console.error('Error loading clinics from fallback endpoint:', fallbackError);
-      if (doctorSelect) doctorSelect.innerHTML = '<option value="">Error loading clinics</option>';
-      if (availabilitySelect) availabilitySelect.innerHTML = '<option value="">Error loading clinics</option>';
-    }
-  }
-}
 
 // Edit Clinic
 function editClinic(clinic) {
@@ -952,24 +818,4 @@ function hideToast() {
   }, 300);
 }
 
-// Initialize availability days grid
-function initializeAvailabilityDays() {
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const container = document.getElementById('availabilityDaysContainer');
-  
-  if (!container) return;
-  
-  container.innerHTML = daysOfWeek.map(day => `
-    <div class="day-row">
-      <div class="day-checkbox">
-        <input type="checkbox" id="day_${day}" name="day_${day}" value="${day}" />
-        <label for="day_${day}">${day}</label>
-      </div>
-      <div class="time-inputs">
-        <input type="time" name="start_${day}" value="09:00" />
-        <span>to</span>
-        <input type="time" name="end_${day}" value="17:00" />
-      </div>
-    </div>
-  `).join('');
-}
+
